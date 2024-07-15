@@ -1,0 +1,58 @@
+name: risx-mssp
+
+services:
+  mysql:
+    restart: unless-stopped
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_DATABASE: "mssp"
+    build:
+      dockerfile: mysql.Dockerfile
+      secrets:
+        - &passwd shoresh-passwd
+    expose:
+      - 3306
+      - 33060
+    secrets:
+      - *passwd
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - mysql-data:/var/lib/mysql
+    networks:
+      - net
+      - main_network
+  backend:
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    build:
+      dockerfile: backend.Dockerfile
+    expose:
+      - 5555
+    secrets:
+      - *passwd
+    networks:
+      - net
+      - main_network
+  frontend:
+    restart: unless-stopped
+    depends_on:
+      - backend
+    build:
+      dockerfile: frontend.Dockerfile
+    networks:
+      - net
+      - main_network
+
+networks:
+  net:
+  main_network:
+    external: true
+
+volumes:
+  mysql-data:
+
+secrets:
+  shoresh-passwd:
+    file: shoresh.passwd

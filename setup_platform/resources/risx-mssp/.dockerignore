@@ -1,0 +1,4 @@
+# Files that shouldn't be transfered to the build context
+*.passwd
+*.Dockerfile
+*.yaml
