@@ -1,30 +1,28 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS build
+FROM alpine:3 AS build
 
-RUN mkdir /code
+RUN mkdir -p /code
 
 WORKDIR /code
 
 RUN apk update && apk add wget unzip
-RUN wget -O risx-mssp.zip "https://www.dropbox.com/scl/fi/0am9btdcqg4d9h2dwjlu1/mssp-11-07-24.zip?rlkey=d81z21j662lcj8xn7x72cc4fo&dl=1"
-RUN unzip -q risx-mssp.zip "risx-mssp-front/*"
+RUN wget -O risx-mssp.zip --quiet  "https://www.dropbox.com/scl/fi/0am9btdcqg4d9h2dwjlu1/mssp-11-07-24.zip?rlkey=d81z21j662lcj8xn7x72cc4fo&dl=1"
+RUN unzip -q risx-mssp.zip "risx-mssp-front-build/*"
 
-WORKDIR /code/risx-mssp-front
+WORKDIR /code/risx-mssp-front-build
 
-RUN rm -rf node_modules
+RUN rm -f mssp_config.json
 
-RUN npm install && npm install http-server serve
+FROM nginx:mainline-alpine AS target
 
-RUN npm run build
+WORKDIR /
 
-FROM node:20-alpine AS target
+COPY --from=build /code/risx-mssp-front-build/ /usr/share/nginx/html
 
-WORKDIR /app
+RUN mkdir -p /etc/nginx/templates
+COPY nginx_default.conf.template /etc/nginx/templates/default.conf.template
 
-COPY --from=build /code/risx-mssp-front/ /app
-
-USER node
+ENV NGINX_PORT=3003
 
 EXPOSE 3003
 
-ENTRYPOINT ["npm", "run", "start"]

@@ -16,8 +16,6 @@ services:
     secrets:
       - *passwd
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
       - mysql-data:/var/lib/mysql
     networks:
       - net
@@ -31,7 +29,13 @@ services:
     expose:
       - 5555
     secrets:
-      - *passwd
+      - source: *passwd
+        target: env.DATABASE_PASSWORD.secret
+      - source: dehashed-u
+        target: env.DEHASHED_U.secret
+    env_file: environment.sh
+    volumes:
+      - backend-init-check:/init_check
     networks:
       - net
       - main_network
@@ -41,6 +45,12 @@ services:
       - backend
     build:
       dockerfile: frontend.Dockerfile
+    expose:
+      - 3003
+    volumes:
+      - type: volume
+        source: mssp_config.json
+        target: /usr/share/nginx/html/mssp_config.json
     networks:
       - net
       - main_network
@@ -52,7 +62,12 @@ networks:
 
 volumes:
   mysql-data:
+    name: risx-mssp-mysql-data
+  backend-init-check:
+    name: risx-mssp-backend-init-check
 
 secrets:
   shoresh-passwd:
     file: shoresh.passwd
+  dehashed-u:
+    file: env.DEHASHED_U.secret
