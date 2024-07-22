@@ -5,6 +5,7 @@ read -p "Enter username : " username
 timesketch_msg="Time Sketch Installation"
 elk_msg="ELK installation Message"
 portainer_msg="Portainer installation Message"
+risx_mssp_msg="RISX MSSP installation Message"
 strelka_msg="Strelka installation message"
 velociraptor_msg="Velociraptor installation message"
 nginx_msg="NGINX installation message"
@@ -43,6 +44,9 @@ sh $home_path/scripts/velociraptor_script.sh $home_path
 print_with_border "$portainer_msg"
 sh $home_path/scripts/portainer_script.sh $home_path
 
+print_with_border "$risx_mssp_msg"
+sh $home_path/scripts/risx-mssp_script.sh $home_path
+
 print_with_border "$nginx_msg"
 sh $home_path/scripts/nginx_script.sh $home_path
 
@@ -55,3 +59,4 @@ echo "velociraptor : https://ip/velociraptor"
 echo "timesketch   : http://ip"
 echo "kibana       : http://ip/kibana"
 echo "strelka      : http://ip/strelka"
+echo "RISX MSSP    : http://ip/risx-mssp"

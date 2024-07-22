@@ -12,3 +12,4 @@ sudo rm -rf /home/Eleven1978/setup_platform/scripts/docker-elk
 sudo rm -rf /home/Eleven1978/setup_platform/scripts/velociraptor-docker
 sudo rm -rf /home/Eleven1978/setup_platform/scripts/timesketch
 sudo rm -rf /home/Eleven1978/setup_platform/scripts/strelka-ui
+sudo rm -rf /home/Eleven1978/setup_platform/scripts/risx-mssp

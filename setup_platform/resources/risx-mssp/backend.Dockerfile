@@ -33,4 +33,4 @@ EXPOSE 5555
 ENV FORCE_INIT=0
 ENV INIT_CHECK_DIR=/init_check
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
