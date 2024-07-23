@@ -54,6 +54,7 @@ services:
     environment:
       node.name: elasticsearch
       xpack.security.enabled: false
+      xpack.license.self_generated.type: basic
       discovery.type: single-node
       ES_JAVA_OPTS: -Xms512m -Xmx512m
       # Bootstrap password.
