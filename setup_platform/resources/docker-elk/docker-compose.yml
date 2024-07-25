@@ -22,7 +22,11 @@ services:
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     init: true
+    command:
+      - sh
+      - setup_start_with_secrets.sh
     volumes:
+      - ./setup_start_with_secrets.sh:/setup_start_with_secrets.sh:ro,Z
       - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
       - ./setup/lib.sh:/lib.sh:ro,Z
       - ./setup/roles:/roles:ro,Z
@@ -45,7 +49,11 @@ services:
       context: elasticsearch/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    command:
+      - sh
+      - elasticsearch_start_with_secrets.sh
     volumes:
+      - ./elasticsearch_start_with_secrets.sh:/elasticsearch_start_with_secrets.sh:ro,Z
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
       - elasticsearch:/usr/share/elasticsearch/data:Z
     ports:
@@ -55,10 +63,10 @@ services:
       node.name: elasticsearch
       xpack.security.enabled: true
       xpack.license.self_generated.type: basic
-      discovery.type: single-node
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
     secrets:
       - ELASTIC_PASSWORD
     networks:

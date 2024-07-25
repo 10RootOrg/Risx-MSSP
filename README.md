@@ -2,7 +2,7 @@
  
 # Global environment variables used by scripts
 
-- `PASSWORD_GENERATOR` -- should contain a command to be executed to get a single random password, by default it would be `LC_ALL=C tr -dc 'A-Za-z0-9-_!@#$%^&*()+{}[]:;,./?' < /dev/urandom | head -c 16`
+- `PASSWORD_GENERATOR` -- should contain a command to be executed to get a single random password, by default it would be `LC_ALL=C tr -dc 'A-Za-z0-9-_!' < /dev/urandom | head -c 16`
 - `GENERATE_PASSWORDS` -- if set, script will try to generate undefined passwords
 - `GENERATE_ALL_PASSWORDS` -- if set, script will try to generate *ALL* passwords, *ignoring* existing ones
 

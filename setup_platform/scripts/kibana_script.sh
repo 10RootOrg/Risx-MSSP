@@ -1,5 +1,3 @@
-# Define `ELK_PASSWORD_GENERATOR` environment variable and make sure you have `apg` installed
-#   to generate required passwords automatically
 #Reference https://github.com/deviantony/docker-elk/tree/main
 
 . ./_library.sh
@@ -8,9 +6,13 @@ home_path=$1
 git clone  https://github.com/deviantony/docker-elk.git
 cd docker-elk
 cp  $home_path/resources/docker-elk/docker-compose.yml .
-cp  $home_path/resources/docker-elk/env.*.secret .
+cp  $home_path/resources/docker-elk/*start_with_secrets.sh .
+chmod a+rx,go-w *start_with_secrets.sh
 
-generate_passwords_if_required $home_path/resources/docker-elk
+# Replaces direct `cp` for the situation of no secrets exists
+find $home_path/resources/docker-elk -name 'env.*.secret' -type f | xargs cp
 
-sudo docker compose up setup
-sudo docker compose up -d
+generate_passwords_if_required .
+
+docker compose up setup
+docker compose up -d
