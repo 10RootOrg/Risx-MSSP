@@ -26,15 +26,15 @@ services:
       - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
       - ./setup/lib.sh:/lib.sh:ro,Z
       - ./setup/roles:/roles:ro,Z
-    environment:
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
-      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
-      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
-      METRICBEAT_INTERNAL_PASSWORD: ${METRICBEAT_INTERNAL_PASSWORD:-}
-      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
-      HEARTBEAT_INTERNAL_PASSWORD: ${HEARTBEAT_INTERNAL_PASSWORD:-}
-      MONITORING_INTERNAL_PASSWORD: ${MONITORING_INTERNAL_PASSWORD:-}
-      BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
+    secrets:
+      - ELASTIC_PASSWORD
+      - LOGSTASH_INTERNAL_PASSWORD
+      - KIBANA_SYSTEM_PASSWORD
+      - METRICBEAT_INTERNAL_PASSWORD
+      - FILEBEAT_INTERNAL_PASSWORD
+      - HEARTBEAT_INTERNAL_PASSWORD
+      - MONITORING_INTERNAL_PASSWORD
+      - BEATS_SYSTEM_PASSWORD
     networks:
       - main_network
     depends_on:
@@ -53,16 +53,14 @@ services:
       - 9300:9300
     environment:
       node.name: elasticsearch
-      xpack.security.enabled: false
+      xpack.security.enabled: true
       xpack.license.self_generated.type: basic
       discovery.type: single-node
       ES_JAVA_OPTS: -Xms512m -Xmx512m
-      # Bootstrap password.
-      # Used to initialize the keystore during the initial startup of
-      # Elasticsearch. Ignored on subsequent runs.
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+    secrets:
+      - ELASTIC_PASSWORD
     networks:
       - main_network
     restart: unless-stopped
@@ -82,7 +80,8 @@ services:
       - 9600:9600
     environment:
       LS_JAVA_OPTS: -Xms256m -Xmx256m
-      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+    secrets:
+      - LOGSTASH_INTERNAL_PASSWORD
     networks:
       - main_network
     depends_on:
@@ -101,7 +100,7 @@ services:
     ports:
       - 5601:5601
     environment:
-      xpack.security.enabled: false
+      xpack.security.enabled: true
       xpack.spaces.enabled: false
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
       SERVER_NAME: http://host.docker.internal/kibana
@@ -109,7 +108,8 @@ services:
       SERVER_DEFAULTINDEX: artifact*
       SERVER_SHOWINSECURECLUSTERWARNING: false
       TELEMETRY_ENABLED: false
-      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    secrets:
+      - KIBANA_SYSTEM_PASSWORD
     networks:
       - main_network
     depends_on:
@@ -122,3 +122,21 @@ networks:
 
 volumes:
   elasticsearch:
+
+secrets:
+  ELASTIC_PASSWORD:
+    file: env.ELASTIC_PASSWORD.secret
+  LOGSTASH_INTERNAL_PASSWORD:
+    file: env.LOGSTASH_INTERNAL_PASSWORD.secret
+  KIBANA_SYSTEM_PASSWORD:
+    file: env.KIBANA_SYSTEM_PASSWORD.secret
+  METRICBEAT_INTERNAL_PASSWORD:
+    file: env.METRICBEAT_INTERNAL_PASSWORD.secret
+  FILEBEAT_INTERNAL_PASSWORD:
+    file: env.FILEBEAT_INTERNAL_PASSWORD.secret
+  HEARTBEAT_INTERNAL_PASSWORD:
+    file: env.HEARTBEAT_INTERNAL_PASSWORD.secret
+  MONITORING_INTERNAL_PASSWORD:
+    file: env.MONITORING_INTERNAL_PASSWORD.secret
+  BEATS_SYSTEM_PASSWORD:
+    file: env.BEATS_SYSTEM_PASSWORD.secret
