@@ -21,15 +21,18 @@ services:
       context: setup/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
-    init: true
+    entrypoint: /bin/sh
     command:
-      - sh
-      - setup_start_with_secrets.sh
+      - /setup_start_with_secrets.sh
+    user: "0:0"
+    restart: no
     volumes:
       - ./setup_start_with_secrets.sh:/setup_start_with_secrets.sh:ro,Z
       - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
       - ./setup/lib.sh:/lib.sh:ro,Z
       - ./setup/roles:/roles:ro,Z
+      - elk-init:/init:rw,Z
+
     secrets:
       - ELASTIC_PASSWORD
       - LOGSTASH_INTERNAL_PASSWORD
@@ -51,7 +54,7 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     command:
       - sh
-      - elasticsearch_start_with_secrets.sh
+      - /elasticsearch_start_with_secrets.sh
     volumes:
       - ./elasticsearch_start_with_secrets.sh:/elasticsearch_start_with_secrets.sh:ro,Z
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
@@ -78,7 +81,11 @@ services:
       context: logstash/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    command:
+      - sh
+      - /logstash_start_with_secrets.sh
     volumes:
+      - ./logstash_start_with_secrets.sh:/logstash_start_with_secrets.sh:ro,Z
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
     ports:
@@ -101,7 +108,11 @@ services:
       context: kibana/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    command:
+      - sh
+      - /kibana_start_with_secrets.sh
     volumes:
+      - ./kibana_start_with_secrets.sh:/kibana_start_with_secrets.sh:ro,Z
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
       - ./kibana/config/kibana.yml:/home/Eleven1978/nginx/etc/nginx/kibana.yml:ro,Z
       - ./kibana:/etc/nginx
@@ -129,7 +140,8 @@ networks:
     external: true
 
 volumes:
-  elasticsearch:
+  elasticsearch: {}
+  elk-init: {}
 
 secrets:
   ELASTIC_PASSWORD:

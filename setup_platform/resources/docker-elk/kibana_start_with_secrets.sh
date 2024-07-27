@@ -7,4 +7,4 @@ do
 done
 cd -
 
-/bin/tini -- /usr/local/bin/docker-entrypoint.sh
+/bin/bash /usr/local/bin/kibana-docker

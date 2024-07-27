@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 cd /run/secrets
 for file in `ls`
@@ -7,6 +7,10 @@ do
 done
 cd -
 
-env
-
-/usr/bin/bash /entrypoint.sh
+if [ -f /init/init.done ]
+then
+  echo "Skipping setup step, it's already done"
+  exit 0
+else
+  /usr/sbin/runuser -u elasticsearch /entrypoint.sh && touch /init/init.done
+fi
