@@ -13,12 +13,10 @@ then
 fi
 
 # Grab ENV vars from secrets
-cd /run/secrets/
-for file in `ls env.*.secret`
+cd /run/secrets
+for file in `ls`
 do
-  # Cut `env.` prefix and `.secret` suffix from the filename
-  var=${${file#env.}%.secret}
-  export ${var}=`cat ${file}`
+  export ${file}=`cat ${file}`
 done
 cd -
 

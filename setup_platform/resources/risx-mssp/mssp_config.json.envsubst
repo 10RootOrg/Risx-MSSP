@@ -1,5 +1,5 @@
 {
-  "backendUrl": "http://40.69.58.105:5555",
+  "backendUrl": "http://backend:5555",
   
   "expiryDate": "28-07-2024",
   "clientApi": "https://api.example.com/user",

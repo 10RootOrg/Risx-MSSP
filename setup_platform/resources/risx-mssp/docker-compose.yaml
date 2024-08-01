@@ -6,47 +6,50 @@ services:
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
       MYSQL_DATABASE: "mssp"
+    expose:
+      - 3306
+      - 33060
     build:
       dockerfile: mysql.Dockerfile
       secrets:
         - &passwd shoresh-passwd
-    expose:
-      - 3306
-      - 33060
     secrets:
       - *passwd
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - net
-      - main_network
+
   backend:
     restart: unless-stopped
     depends_on:
       - mysql
     build:
       dockerfile: backend.Dockerfile
-    expose:
-      - 5555
     secrets:
       - source: *passwd
-        target: env.DATABASE_PASSWORD.secret
-      - source: dehashed-u
-        target: env.DEHASHED_U.secret
+        target: DATABASE_PASSWORD
+      - DEHASHED_U
     env_file: environment.sh
+    expose:
+      - 5555
     volumes:
       - backend-init-check:/init_check
+      - type: bind
+        source: ./mssp-back.log
+        target: /app/mssp-back.log
     networks:
       - net
       - main_network
+
   frontend:
     restart: unless-stopped
     depends_on:
       - backend
     build:
       dockerfile: frontend.Dockerfile
-    expose:
-      - 3003
+    ports:
+      - 3003:3003
     configs:
       - source: mssp_config.json
         target: /usr/share/nginx/html/mssp_config.json
@@ -55,7 +58,7 @@ services:
       - main_network
 
 networks:
-  net:
+  net: {}
   main_network:
     external: true
 
@@ -72,5 +75,5 @@ volumes:
 secrets:
   shoresh-passwd:
     file: shoresh.passwd
-  dehashed-u:
+  DEHASHED_U:
     file: env.DEHASHED_U.secret

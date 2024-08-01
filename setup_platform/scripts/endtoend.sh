@@ -1,3 +1,4 @@
 #!/bin/bash
-./install_pre_requisites.sh
-./deploy_services.sh
+
+/bin/bash ./install_pre_requisites.sh
+/bin/bash ./deploy_services.sh
