@@ -9,15 +9,15 @@ function _list_passwords_from_compose() {
       # Env secrets
       echo $(cat ${name} | sed -n 's#.*\(env\..*\.secret\).*#\1#p' | sort | uniq)
       # Build-time secrets
-      echo $(cat ${name} | sed -n 's#.*\([[:<:]].*\.passwd\).*#\1#p' | sort | uniq)
+      echo $(cat ${name} | sed -n 's#.*\(\b.*\.passwd\).*#$1#p' | sort | uniq)
     fi
 }
 
 function _list_password_files_with_passwords() {
     local workdir=$1
 
-    echo $(find $workdir -type f -not -empty -and -name 'env.*.secret' | xargs basename)
-    echo $(find $workdir -type f -not -empty -and -name '*.passwd' | xargs basename)
+    echo $(find $workdir -type f -not -empty -and -name 'env.*.secret' | xargs -I % basename %)
+    echo $(find $workdir -type f -not -empty -and -name '*.passwd' | xargs -I % basename %)
 }
 
 function check_password_generator() {
