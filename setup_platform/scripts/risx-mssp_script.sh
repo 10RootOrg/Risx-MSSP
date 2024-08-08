@@ -8,15 +8,15 @@ cd risx-mssp
 
 cp $home_path/resources/risx-mssp/docker-compose.yaml .
 cp $home_path/resources/risx-mssp/*.Dockerfile .
-cp $home_path/resources/risx-mssp/*.passwd .
 cp $home_path/resources/risx-mssp/environment.sh .
 cp $home_path/resources/risx-mssp/backend_entrypoint.sh .
 cp $home_path/resources/risx-mssp/permissions.sql .
 cp $home_path/resources/risx-mssp/nginx_default.conf.template .
 
 find $home_path/resources/risx-mssp -name 'env.*.secret' -type f | xargs -I % cp % .
+find $home_path/resources/risx-mssp -name '*.passwd' -type f | xargs -I % cp % .
 
-generate_passwords_if_required .
+generate_passwords_if_required $home_path/resources/risx-mssp
 
 # Grab ENV vars from secrets
 for file in `ls env.*.secret`

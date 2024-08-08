@@ -6,7 +6,10 @@ function _list_passwords_from_compose() {
     if [ -e "${workdir}/docker-compose.yml" -o "${workdir}/docker-compose.yaml" ]
     then
       local name=$(ls ${workdir}/docker-compose.y* | grep -E 'ya?ml$' | head -n 1)
+      # Env secrets
       echo $(cat ${name} | sed -n 's#.*\(env\..*\.secret\).*#\1#p' | sort | uniq)
+      # Build-time secrets
+      echo $(cat ${name} | sed -n 's#.*\([[:<:]].*\.passwd\).*#\1#p' | sort | uniq)
     fi
 }
 
@@ -14,11 +17,13 @@ function _list_password_files_with_passwords() {
     local workdir=$1
 
     echo $(find $workdir -type f -not -empty -and -name 'env.*.secret' | xargs basename)
+    echo $(find $workdir -type f -not -empty -and -name '*.passwd' | xargs basename)
 }
 
 function check_password_generator() {
     if [ "${PASSWORD_GENERATOR}123" = "123" ]
     then
+      # Recommended: `apg -n 1 -m 16 -x 20 -MSNCL`
       export PASSWORD_GENERATOR="LC_ALL=C tr -dc 'A-Za-z0-9-_!' </dev/urandom | head -c 16"
     fi
 }
