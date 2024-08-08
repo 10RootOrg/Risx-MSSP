@@ -1,3 +1,7 @@
+#!/bin/bash
+
+. ./_library.sh
+
 #Reference https://timesketch.org/developers/getting-started/
 home_path=$1
 echo $home_path

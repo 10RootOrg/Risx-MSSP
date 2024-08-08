@@ -1,3 +1,7 @@
+#!/bin/bash
+
+. ./_library.sh
+
 #Reference https://github.com/deviantony/docker-elk/tree/main
 home_path=$1
 git clone  https://github.com/deviantony/docker-elk.git

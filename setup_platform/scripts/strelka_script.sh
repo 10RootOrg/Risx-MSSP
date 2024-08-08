@@ -1,3 +1,7 @@
+#!/bin/bash
+
+. ./_library.sh
+
 #Reference https://github.com/target/strelka/
 home_path=$1
 git clone https://github.com/target/strelka-ui.git

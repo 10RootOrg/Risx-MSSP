@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. ./_library.sh
+
 function install_docker(){
     # Check if Docker is installed
     if ! command -v docker &> /dev/null; then
@@ -57,6 +59,11 @@ function create_docker_network(){
     fi
 }
 
+function make_scripts_executable() {
+    chmod ugo+x *.sh
+}
+
+make_scripts_executable
 install_docker
 install_docker_compose_plugin
 create_docker_network

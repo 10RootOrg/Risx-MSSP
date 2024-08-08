@@ -1,3 +1,7 @@
+#!/bin/bash
+
+. ./_library.sh
+
 home_path=$1
 mkdir nginx
 cd nginx

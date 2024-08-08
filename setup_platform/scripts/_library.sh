@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 function _list_passwords_from_compose() {
     local workdir=$1
@@ -23,9 +23,9 @@ function check_password_generator() {
     fi
 }
 
-function generate_password() {
-    local workdir=$1
-
+function setup_shell() {
+    # We can not rely on ${SHELL} variable
+    export SH=${SH:-/bin/bash}
 }
 
 function generate_passwords_if_required() {
@@ -54,4 +54,5 @@ function generate_passwords_if_required() {
     fi
 }
 
+setup_shell
 check_password_generator

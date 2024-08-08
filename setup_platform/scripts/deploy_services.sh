@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. ./_library.sh
+
 read -p "Enter username : " username
 
 timesketch_msg="Time Sketch Installation"
@@ -30,28 +32,28 @@ function print_with_border() {
 }
 
 print_with_border "$timesketch_msg"
-sh $home_path/scripts/timesketch_script.sh $home_path
+${SH} $home_path/scripts/timesketch_script.sh $home_path
 
 print_with_border "$elk_msg"
-sh $home_path/scripts/kibana_script.sh $home_path
+${SH} $home_path/scripts/kibana_script.sh $home_path
 
 print_with_border "$strelka_msg"
-sh $home_path/scripts/strelka_script.sh $home_path
+${SH} $home_path/scripts/strelka_script.sh $home_path
 
 print_with_border "$velociraptor_msg"
-sh $home_path/scripts/velociraptor_script.sh $home_path
+${SH} $home_path/scripts/velociraptor_script.sh $home_path
 
 print_with_border "$portainer_msg"
-sh $home_path/scripts/portainer_script.sh $home_path
+${SH} $home_path/scripts/portainer_script.sh $home_path
 
 print_with_border "$risx_mssp_msg"
-sh $home_path/scripts/risx-mssp_script.sh $home_path
+${SH} $home_path/scripts/risx-mssp_script.sh $home_path
 
 print_with_border "$nginx_msg"
-sh $home_path/scripts/nginx_script.sh $home_path
+${SH} $home_path/scripts/nginx_script.sh $home_path
 
 echo "setting up monitoring"
-bash $home_path/scripts/monitoring.sh
+${SH} $home_path/scripts/monitoring.sh
 
 echo "All the docker services are deployed successfuly, Access the services using below links"
 echo "Portainer    : https://ip/portainer"

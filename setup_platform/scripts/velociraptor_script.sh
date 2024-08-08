@@ -1,3 +1,7 @@
+#!/bin/bash
+
+. ./_library.sh
+
 #Reference https://github.com/Velocidex/velociraptor and https://github.com/weslambert/velocistack
 home_path=$1
 git clone https://github.com/weslambert/velociraptor-docker
