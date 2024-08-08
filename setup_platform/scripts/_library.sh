@@ -9,7 +9,7 @@ function _list_passwords_from_compose() {
       # Env secrets
       echo $(cat ${name} | sed -n 's#.*\(env\..*\.secret\).*#\1#p' | sort | uniq)
       # Build-time secrets
-      echo $(cat ${name} | sed -n 's#.*\(\b.*\.passwd\).*#$1#p' | sort | uniq)
+      echo $(cat ${name} | sed -En 's#.*:\s*(\b.*\.passwd).*#\1#p' | sort | uniq)
     fi
 }
 

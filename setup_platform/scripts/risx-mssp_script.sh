@@ -16,9 +16,8 @@ cp $home_path/resources/risx-mssp/nginx_default.conf.template .
 find $home_path/resources/risx-mssp -name 'env.*.secret' -type f | xargs -I % cp % .
 find $home_path/resources/risx-mssp -name '*.passwd' -type f | xargs -I % cp % .
 
-generate_passwords_if_required $home_path/resources/risx-mssp
+generate_passwords_if_required .
 
-cd $home_path/resources/risx-mssp
 # Grab ENV vars from secrets
 for file in `ls env.*.secret`
 do
@@ -28,9 +27,9 @@ do
 done
 
 # Replace ENV vars with values in config file
-cat $home_path/resources/risx-mssp/mssp_config.json.envsubst | envsubst > $home_path/resources/risx-mssp/mssp_config.json
+cat $home_path/resources/risx-mssp/mssp_config.json.envsubst | envsubst > mssp_config.json
 docker compose build
-touch $home_path/resources/risx-mssp/mssp-back.log
+touch mssp-back.log
 docker compose up -d
 
 cd -
