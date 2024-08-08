@@ -18,6 +18,7 @@ find $home_path/resources/risx-mssp -name '*.passwd' -type f | xargs -I % cp % .
 
 generate_passwords_if_required $home_path/resources/risx-mssp
 
+cd $home_path/resources/risx-mssp
 # Grab ENV vars from secrets
 for file in `ls env.*.secret`
 do
@@ -26,10 +27,10 @@ do
   export ${var}=`cat ${file}`
 done
 
-
-
 # Replace ENV vars with values in config file
-cat $home_path/resources/risx-mssp/mssp_config.json.envsubst | envsubst > ./mssp_config.json
+cat $home_path/resources/risx-mssp/mssp_config.json.envsubst | envsubst > $home_path/resources/risx-mssp/mssp_config.json
 docker compose build
-touch mssp-back.log
+touch $home_path/resources/risx-mssp/mssp-back.log
 docker compose up -d
+
+cd -
