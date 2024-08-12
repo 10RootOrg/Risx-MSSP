@@ -19,4 +19,4 @@ DEHASHED_H =  Accept:application/json
 PYTHON_SCRIPTS_RELATIVE_PATH="python-scripts/"
 PYTHON_INTERVAL=Interval.py
 PYTHON_MANUAL_ACTIVE=main.py
-PYTHON_EXECUTABLE =  /app/python-script/mssp_env/bin/python3.10
+PYTHON_EXECUTABLE =  /app/python-scripts/mssp_env/bin/python3.10
