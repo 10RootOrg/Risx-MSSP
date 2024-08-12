@@ -11,6 +11,7 @@ services:
       - 33060
     build:
       dockerfile: mysql.Dockerfile
+      no_cache: true
       secrets:
         - &passwd shoresh-passwd
     secrets:

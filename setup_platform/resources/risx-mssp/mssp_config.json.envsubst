@@ -1,7 +1,7 @@
 {
-  "backendUrl": "http://backend:5555",
+  "backendUrl": "http://4.247.130.236:5555",
   
-  "expiryDate": "28-07-2024",
+  "expiryDate": "28-07-2025",
   "clientApi": "https://api.example.com/user",
   "examInnterval_minutes": 15,
   "moduleLinks": [
