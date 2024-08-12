@@ -17,14 +17,10 @@ services:
     healthcheck:
       test:
         - CMD
-        - mysql
-        - -u
-        - shoresh
-        - -p$(cat /run/secrets/shoresh-passwd)
-        - --batch
-        - --execute
-        - 'SHOW TABLES;'
-        - mssp
+        - /bin/sh
+        - -c
+        - |
+          mysql -u shoresh -p$(cat /run/secrets/shoresh-passwd) --batch --execute 'SHOW TABLES;' mssp
       interval: 1m
       timeout: 10s
       retries: 3
