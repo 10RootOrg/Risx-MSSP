@@ -21,11 +21,10 @@ services:
         - -c
         - |
           mysql -u shoresh -p$(cat /run/secrets/shoresh-passwd) --batch --execute 'SHOW TABLES;' mssp
-      interval: 1m
+      interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-      start_interval: 10s
     secrets:
       - *passwd
     volumes:
