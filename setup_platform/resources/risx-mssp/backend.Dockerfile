@@ -6,7 +6,7 @@ RUN mkdir -p /code
 WORKDIR /code
 
 RUN apk update && apk add wget unzip
-RUN wget -O risx-mssp.zip --quiet "https://www.dropbox.com/scl/fi/0am9btdcqg4d9h2dwjlu1/mssp-11-07-24.zip?rlkey=d81z21j662lcj8xn7x72cc4fo&dl=1"
+RUN wget -O risx-mssp.zip --quiet "https://www.dropbox.com/scl/fi/wu0kgdx5t4ltik1ncb76f/mssp-12-08-24.zip?rlkey=eska5k006n0ddmejf3p1ciiyt&st=ul2jbq7l&dl=1"
 RUN unzip -q risx-mssp.zip "risx-mssp-back/*"
 RUN unzip -q risx-mssp.zip "risx-mssp-python-script/*"
 
