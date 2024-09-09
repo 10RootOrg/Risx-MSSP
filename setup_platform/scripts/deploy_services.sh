@@ -59,7 +59,7 @@ print_with_border "$nginx_msg"
 bash "${home_path}/scripts/nginx_script.sh" "$home_path"
 
 echo "All the docker services are deployed successfully, Access the services using below links"
-MYIP=$(curl -s ifconfig.me)
+MYIP="<HOSTNAME>"
 
 echo "Portainer    : https://$MYIP/portainer"
 echo "iris         : https://$MYIP:8443"
