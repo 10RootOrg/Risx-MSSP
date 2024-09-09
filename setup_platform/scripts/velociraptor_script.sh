@@ -15,12 +15,15 @@ SERVICE_NAME="velociraptor"
 SRC_DIR="$home_path/resources/$SERVICE_NAME"
 CURR_DIR=$(pwd)
 GIT_COMMIT=${GIT_COMMIT_VELOCIRAPTOR:-6da375b2ad9bb1f7ea2105967742a04bd485c9d8}
+OVERWRITE_DEFAULT=${OVERWRITE_DEFAULT:-"yes"}
 
 
 printf "Preparing the %s:%s stack...\n" "$SERVICE_NAME" "$GIT_COMMIT"
+# Check if the directory with the git repository already exists
 if [ -d "$SERVICE_NAME" ] && [ "$(ls -A $SERVICE_NAME)" ]; then
-  read -p "The $SERVICE_NAME directory already exists. Would you like to overwrite it? (y/n): " overwrite
-  if [[ "$overwrite" == "y" ]]; then
+  read -p "The $SERVICE_NAME directory already exists. Would you like to overwrite it? (y/n)(default:$OVERWRITE_DEFAULT): " overwrite
+  overwrite=${overwrite:-$OVERWRITE_DEFAULT}
+  if [[ "$overwrite" == "y" || "$overwrite" == "yes" ]]; then
     sudo rm -rf "$SERVICE_NAME"
   else
     printf "Exiting the script...\n"
