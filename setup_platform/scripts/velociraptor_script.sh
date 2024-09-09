@@ -26,10 +26,9 @@ if [ -d "$SERVICE_NAME" ] && [ "$(ls -A $SERVICE_NAME)" ]; then
     printf "Exiting the script...\n"
     exit 1
   fi
-else
-  git clone https://github.com/weslambert/velociraptor-docker "$SERVICE_NAME"
 fi
 
+git clone https://github.com/weslambert/velociraptor-docker "$SERVICE_NAME"
 cd "$SERVICE_NAME"
 git checkout "$GIT_COMMIT"
 cp "${SRC_DIR}/docker-compose.yaml" .
