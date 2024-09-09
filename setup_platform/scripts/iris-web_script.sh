@@ -43,6 +43,7 @@ read -p "Would you like to generate passwords? [Y/n] (default:no)" ANSWER
 if [[ $ANSWER =~ ^[Yy]$ ]]; then
   export GENERATE_ALL_PASSWORDS=true
   . "${SCRIPTS_PATH}/libs/passwords.sh"
+  # TODO: move out of the scope of the if condition
   generate_passwords_if_required .
 
   # Show login credentials

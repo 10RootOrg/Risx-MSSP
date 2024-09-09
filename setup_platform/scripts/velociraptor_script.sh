@@ -14,7 +14,7 @@ home_path=$1
 SERVICE_NAME="velociraptor"
 SRC_DIR="$home_path/resources/$SERVICE_NAME"
 CURR_DIR=$(pwd)
-GIT_COMMIT=${GIT_COMMIT_VELOCIRAPTOR:-a8ff643549e08c4655152cf96fdfa89d9d19bbe8}
+GIT_COMMIT=${GIT_COMMIT_VELOCIRAPTOR:-6da375b2ad9bb1f7ea2105967742a04bd485c9d8}
 
 
 printf "Preparing the %s:%s stack...\n" "$SERVICE_NAME" "$GIT_COMMIT"

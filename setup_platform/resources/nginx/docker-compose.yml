@@ -16,9 +16,7 @@ services:
       - net
       - main_network
 
-
 networks:
   net:
   main_network:
     external: true
-
