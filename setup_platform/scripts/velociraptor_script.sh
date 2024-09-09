@@ -24,6 +24,8 @@ if [ -d "$SERVICE_NAME" ] && [ "$(ls -A $SERVICE_NAME)" ]; then
   read -p "The $SERVICE_NAME directory already exists. Would you like to overwrite it? (y/n)(default:$OVERWRITE_DEFAULT): " overwrite
   overwrite=${overwrite:-$OVERWRITE_DEFAULT}
   if [[ "$overwrite" == "y" || "$overwrite" == "yes" ]]; then
+    printf "Removing the existing %s directory...\n" "$SERVICE_NAME"
+    sudo docker compose -f "$SERVICE_NAME/docker-compose.yaml" down || true
     sudo rm -rf "$SERVICE_NAME"
   else
     printf "Exiting the script...\n"
