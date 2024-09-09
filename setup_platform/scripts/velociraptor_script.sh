@@ -18,7 +18,18 @@ GIT_COMMIT=${GIT_COMMIT_VELOCIRAPTOR:-6da375b2ad9bb1f7ea2105967742a04bd485c9d8}
 
 
 printf "Preparing the %s:%s stack...\n" "$SERVICE_NAME" "$GIT_COMMIT"
-git clone https://github.com/weslambert/velociraptor-docker "$SERVICE_NAME"
+if [ -d "$SERVICE_NAME" ] && [ "$(ls -A $SERVICE_NAME)" ]; then
+  read -p "The $SERVICE_NAME directory already exists. Would you like to overwrite it? (y/n): " overwrite
+  if [[ "$overwrite" == "y" ]]; then
+    sudo rm -rf "$SERVICE_NAME"
+  else
+    printf "Exiting the script...\n"
+    exit 1
+  fi
+else
+  git clone https://github.com/weslambert/velociraptor-docker "$SERVICE_NAME"
+fi
+
 cd "$SERVICE_NAME"
 git checkout "$GIT_COMMIT"
 cp "${SRC_DIR}/docker-compose.yaml" .
