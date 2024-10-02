@@ -15,9 +15,11 @@ fi
 scripts_path="/home/$username/setup_platform/scripts"
 
 sudo rm -rf "${scripts_path}/.env"
+sudo rm -rf "${scripts_path}/cyberchef"
 sudo rm -rf "${scripts_path}/docker-elk"
 sudo rm -rf "${scripts_path}/iris-web"
 sudo rm -rf "${scripts_path}/nginx"
+sudo rm -rf "${scripts_path}/nightingale"
 sudo rm -rf "${scripts_path}/portainer"
 sudo rm -rf "${scripts_path}/strelka"
 sudo rm -rf "${scripts_path}/strelka-ui"

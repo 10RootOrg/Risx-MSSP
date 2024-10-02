@@ -126,15 +126,15 @@ sed -i 's#^OPENSEARCH_MEM_USE_GB=#OPENSEARCH_MEM_USE_GB='$OPENSEARCH_MEM_USE_GB'
 
 ln -s ./config.env ./timesketch/.env
 echo "OK"
-echo "* Installation done."
+echo "* PRE Installation done."
 
 source ./timesketch/.env
 if [ -z $START_CONTAINER ]; then
   read -p "Would you like to start the containers? [Y/n] (default:no)" START_CONTAINER
 fi
 
+cd timesketch
 if [ "$START_CONTAINER" != "${START_CONTAINER#[Yy]}" ]; then # this grammar (the #[] operator) means that the variable $start_cnt where any Y or y in 1st position will be dropped if they exist.
-  cd timesketch
   docker compose up -d
   echo "sleep 5..."
   sleep 5
@@ -191,7 +191,7 @@ docker compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --pas
 && echo "New user has been created"
 
 # TASK-8911: auto analyzers run
-CONFIG_FILE=timesketch/etc/timesketch/timesketch.conf
+CONFIG_FILE=etc/timesketch/timesketch.conf
 ANALYZERS='["feature_extraction","sessionizer","geo_ip_maxmind_db","browser_search","domain","phishy_domains","sigma","hashr_lookup","evtx_gap","chain","ssh_sessionizer","ssh_bruteforce_sessionizer","web_activity_sessionizer","similarity_scorer","win_crash","browser_timeframe","safebrowsing","gcp_servicekey","gcp_logging","misp_analyzer","hashlookup_analyzer"]'
 
 # Update the AUTO_SKETCH_ANALYZERS line if it exists
