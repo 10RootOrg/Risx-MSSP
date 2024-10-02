@@ -9,9 +9,9 @@ function install_docker(){
     # Check if Docker is installed
     if ! command -v docker &> /dev/null; then
         echo "Docker is not installed. Installing Docker..."
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        sudo sh ./get-docker.sh --version "$DOCKER_VERSION"
-        rm -f get-docker.sh
+        curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+        sudo sh /tmp/get-docker.sh --version "$DOCKER_VERSION"
+        rm -f /tmp/get-docker.sh
     else
         echo "Docker is already installed."
     fi
