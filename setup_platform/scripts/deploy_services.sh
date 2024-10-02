@@ -4,7 +4,7 @@ set -eo pipefail
 
 cp ../resources/default.env .env
 source .env
-source ./libs/prerequisites-check.sh
+source libs/prerquiests-check.sh
 
 # If the username is not defined, then ask user to enter the username
 if [ -z "$username" ]; then
