@@ -23,6 +23,6 @@ rsync -av "$SRC_DIR/" .
 
 # Step 2: Start the service
 printf "Starting the service...\n"
-sudo docker-compose up -d
+sudo docker compose up -d
 
 printf "CyberChef deployment completed successfully.\n"

@@ -20,7 +20,9 @@ function install_docker(){
 function cleanup_docker(){
     # Cleanup Docker
     echo "Cleaning up Docker..."
-    sudo apt-get remove -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin
+    sudo apt-get remove -y \
+      docker.io docker-doc docker compose docker-compose-v2 podman-docker containerd runc \
+      docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin
 }
 
 # TODO: Deprecated, because now it's a part of the Docker CLI

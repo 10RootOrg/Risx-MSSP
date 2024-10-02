@@ -24,7 +24,7 @@ function get_env_value() {
   printf "%s\n" "$value"
 }
 
-# --- Replace the default values in the .env file which uses by docker-compose file
+# --- Replace the default values in the .env file which uses by docker compose file
 # Inputs:
 # $1 - env file path to replace the values
 # $2 - key to replace

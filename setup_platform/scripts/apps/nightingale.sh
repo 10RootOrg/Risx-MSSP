@@ -24,6 +24,6 @@ rsync -av "${SRC_DIR}/" .
 
 # Step 2: Start the Nightingale service
 printf "Starting the Nightingale service...\n"
-docker-compose up -d
+docker compose up -d
 
 printf "Nightingale deployment completed successfully.\n"

@@ -10,11 +10,11 @@ if [ -z "$username" ]; then
 fi
 scripts_path="/home/$username/setup_platform/scripts"
 
-# docker-compose down
+# docker compose down
 app_down() {
   local app_name=$1
   printf "Stopping the %s app...\n" "$app_name"
-  sudo docker-compose -f "${scripts_path}/${app_name}/docker-compose.yml" down \
+  sudo docker compose -f "${scripts_path}/${app_name}/docker-compose.yml" down \
     --volumes --remove-orphans --timeout 5
 }
 
