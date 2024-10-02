@@ -33,19 +33,6 @@ if [ -d "./timesketch" ]; then
   exit 1
 fi
 
-# Exit early if docker is not installed.
-if ! command -v docker; then
-  echo "ERROR: Docker is not available."
-  echo "See: https://docs.docker.com/engine/install/ubuntu/"
-  exit 1
-fi
-
-# Exit early if docker compose is not installed.
-if ! docker compose &>/dev/null; then
-  echo "ERROR: docker-compose-plugin is not installed."
-  exit 1
-fi
-
 # Exit early if there are Timesketch containers already running.
 if [ ! -z "$(docker ps | grep timesketch)" ]; then
   echo "ERROR: Timesketch containers already running."
