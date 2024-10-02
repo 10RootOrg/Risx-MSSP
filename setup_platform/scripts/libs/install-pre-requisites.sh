@@ -12,6 +12,8 @@ function install_docker(){
         curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
         sudo sh /tmp/get-docker.sh --version "$DOCKER_VERSION"
         rm -f /tmp/get-docker.sh
+        # Legacy docker-compose installation
+        sudo apt-get install -y docker-compose
     else
         echo "Docker is already installed."
     fi
