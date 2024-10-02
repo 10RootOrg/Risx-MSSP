@@ -9,7 +9,7 @@ REQUIRED_PACKAGES=${REQUIRED_PACKAGES:-("curl" "git" "docker" "docker-compose")}
 # Function to check if a package is installed
 check_package_installed() {
   local package=$1
-  if dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q '^install ok installed$'; then
+  if command -v "$package" &> /dev/null; then
     echo "$package is installed."
   else
     echo "$package is not installed."
