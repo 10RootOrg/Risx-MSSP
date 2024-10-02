@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
+set -eo pipefail
 # --- Reused functions in the app install scripts
-
-set -e
 
 # --- Function to Check if the first argument is provided
 # Inputs:
@@ -14,7 +13,7 @@ function check_home_path() {
   fi
 }
 
-# --- Function get env value from .env file
+# --- Function to get env value from .env file
 # Inputs:
 # $1 - key to get the value
 # $2[optional] - env file path
@@ -49,7 +48,7 @@ function download_external_file() {
   local file_name=$2
   if [ ! -f "$file_name" ]; then
     print_green "Downloading $file_name..."
-    curl -s -L -o "$file_name" "$url"
+    curl --show-error --silent --location --output "$file_name" "$url"
   else
     print_red "$file_name already exists."
   fi

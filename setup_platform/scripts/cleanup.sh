@@ -1,9 +1,5 @@
-sudo docker stop $(sudo docker ps -a -q)
-sudo docker rm $(sudo docker ps -a -q)
-#sudo docker image prune -a
-#sudo docker volume prune -a
-sudo docker volume rm iris-web_db_data
-sudo docker network prune
+#!/usr/bin/env bash
+set -eo pipefail
 
 source .env
 # If the username is not defined, then ask user to enter the username
@@ -14,14 +10,30 @@ if [ -z "$username" ]; then
 fi
 scripts_path="/home/$username/setup_platform/scripts"
 
-sudo rm -rf "${scripts_path}/.env"
-sudo rm -rf "${scripts_path}/cyberchef"
-sudo rm -rf "${scripts_path}/docker-elk"
-sudo rm -rf "${scripts_path}/iris-web"
-sudo rm -rf "${scripts_path}/nginx"
-sudo rm -rf "${scripts_path}/nightingale"
-sudo rm -rf "${scripts_path}/portainer"
-sudo rm -rf "${scripts_path}/strelka"
-sudo rm -rf "${scripts_path}/strelka-ui"
-sudo rm -rf "${scripts_path}/timesketch"
-sudo rm -rf "${scripts_path}/velociraptor"
+# docker-compose down
+app_down() {
+  local app_name=$1
+  printf "Stopping the %s app...\n" "$app_name"
+  sudo docker-compose -f "${scripts_path}/${app_name}/docker-compose.yml" down \
+    --volumes --remove-orphans --timeout 5
+}
+
+# function to delete app dirs
+delete_app_dirs() {
+  local app_name=$1
+  printf "Deleting the %s app...\n" "$app_name"
+  sudo rm -rf "${scripts_path}/${app_name}"
+}
+
+# Iterate over APPS_TO_INSTALL and delete the app dirs
+for app in $APPS_TO_INSTALL; do
+  app_down "$app"
+  delete_app_dirs "$app"
+done
+
+delete_app_dirs ".env"
+app_down "nginx"
+delete_app_dirs "nginx"
+sudo docker network prune --force
+
+printf "####\nCleanup finished\n"

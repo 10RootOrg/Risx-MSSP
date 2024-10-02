@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
+set -eo pipefail
 # Verify if the required packages are installed
 
-set -eo pipefail
 # List of required packages
 REQUIRED_PACKAGES=${REQUIRED_PACKAGES:-("curl" "git" "docker" "docker-compose")}
-
 
 # Function to check if a package is installed
 check_package_installed() {
