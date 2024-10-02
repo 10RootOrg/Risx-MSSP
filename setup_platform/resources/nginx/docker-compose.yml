@@ -8,17 +8,14 @@ services:
       - ${NGINX_HTTPS_PORT}:443
       - "8843:8843"
     volumes:
-      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./etc/nginx:/etc/nginx
       - ./etc/ssl/certs:/etc/ssl/certs
       - ./etc/ssl/private:/etc/ssl/private
-        #  - ./etc/nginx/sites-enabled/example.com:/etc/nginx/sites-enabled/example.com
     networks:
       - net
       - main_network
-
 
 networks:
   net:
   main_network:
     external: true
-
