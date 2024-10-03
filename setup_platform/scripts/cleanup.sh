@@ -14,8 +14,11 @@ scripts_path="/home/$username/setup_platform/scripts"
 app_down() {
   local app_name=$1
   printf "Stopping the %s app...\n" "$app_name"
-  sudo docker compose -f "${scripts_path}/${app_name}/docker-compose.yml" down \
-    --volumes --remove-orphans --timeout 5
+
+  # Find all docker-compose.yml files and stop the services
+  for file in $(find "${scripts_path}" -name "docker-compose.yml" | grep "$app_name"); do
+    sudo docker compose -f "$file" down --volumes --remove-orphans --timeout 5
+  done
 }
 
 # function to delete app dirs
