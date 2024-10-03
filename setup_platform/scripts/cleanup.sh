@@ -44,4 +44,4 @@ app_down "nginx"
 delete_app_dirs "nginx"
 sudo docker network prune --force
 
-print_green_v2 "####\nCleanup finished\n"
+print_green_v2 "Cleanup" "finished"
