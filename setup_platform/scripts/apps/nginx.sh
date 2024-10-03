@@ -35,4 +35,4 @@ printf "Starting the %s service...\n" "$SERVICE_NAME"
 source ./.env
 docker compose up -d
 
-print_gree_v2 "Nginx deployment completed" "successfully"
+print_green_v2 "Nginx deployment completed" "successfully"
