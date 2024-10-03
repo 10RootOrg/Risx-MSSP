@@ -30,3 +30,33 @@ print_yellow() {
   local message=$1
   printf "${YELLOW}%s${NC}\n" "$message"
 }
+
+# Function to define env variables
+define_env() {
+  local env_file=${1:-".env"}
+  local default_env_file="${resources_dir}/default.env"
+
+  if [ -f "$env_file" ]; then
+    source "$env_file"
+  else
+    print_red "An env file $env_file is not found, applying the $default_env_file env file"
+    source "$default_env_file"
+  fi
+}
+
+# Function to define path's
+define_paths() {
+  # username should be defined in the .env file
+  # If the username is not defined, then ask user to enter the username
+  if [ -z "$username" ]; then
+    current_user=$(whoami)
+    read -p "Enter username for home directory setup (default: $current_user): " username
+    username=${username:-$current_user}
+  fi
+
+  home_path="/home/$username/setup_platform"
+  resources_dir="$home_path/resources"
+  scripts_dir="$home_path/scripts"
+  workdir="$home_path/workdir"
+}
+
