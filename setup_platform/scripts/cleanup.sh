@@ -17,10 +17,9 @@ scripts_path="/home/$username/setup_platform/scripts"
 # docker compose down
 app_down() {
   local app_name=$1
-  printf "Stopping the %s app...\n" "$app_name"
-
   # Find all docker-compose.yml files and stop the services
   for file in $(find "${scripts_path}" -name "docker-compose.yml" | grep "$app_name"); do
+    printf "Stopping the %s app...\n" "$app_name"
     sudo docker compose -f "$file" down --volumes --remove-orphans --timeout 5
   done
 }
