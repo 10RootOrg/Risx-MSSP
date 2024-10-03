@@ -26,6 +26,7 @@ function install_docker(){
 
     if ! command -v docker-compose &> /dev/null; then
         # Legacy docker-compose installation
+        echo "Installing Legacy Docker Compose..."
         sudo apt-get update
         sudo apt-get install -y docker-compose
     fi
