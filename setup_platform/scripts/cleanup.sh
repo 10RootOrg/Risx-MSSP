@@ -3,6 +3,8 @@ set -eo pipefail
 
 if [ -f .env ]; then
   source .env
+else
+  source ../resources/default.env
 fi
 # If the username is not defined, then ask user to enter the username
 if [ -z "$username" ]; then
@@ -31,7 +33,7 @@ delete_app_dirs() {
 }
 
 # Iterate over APPS_TO_INSTALL and delete the app dirs
-for app in $APPS_TO_INSTALL; do
+for app in "${APPS_TO_INSTALL[@]}"; do
   app_down "$app"
   delete_app_dirs "$app"
 done
