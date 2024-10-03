@@ -5,6 +5,14 @@ DOCKER_VERSION=${DOCKER_COMPOSE_VERSION:-"27.3"}
 # TODO: Deprecated, because now it's a part of the Docker CLI
 #DOCKER_COMPOSE_VERSION=${DOCKER_COMPOSE_VERSION:-"2.26.0"}
 
+function cleanup_docker(){
+    # Cleanup Docker
+    echo "Cleaning up Docker..."
+    sudo apt-get remove -y \
+      docker.io docker-doc docker compose docker-compose-v2 podman-docker containerd runc \
+      docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin
+}
+
 function install_docker(){
     # Check if Docker is installed
     if ! command -v docker &> /dev/null; then
@@ -12,19 +20,15 @@ function install_docker(){
         curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
         sudo sh /tmp/get-docker.sh --version "$DOCKER_VERSION"
         rm -f /tmp/get-docker.sh
-        # Legacy docker-compose installation
-        sudo apt-get install -y docker-compose
     else
         echo "Docker is already installed."
     fi
-}
 
-function cleanup_docker(){
-    # Cleanup Docker
-    echo "Cleaning up Docker..."
-    sudo apt-get remove -y \
-      docker.io docker-doc docker compose docker-compose-v2 podman-docker containerd runc \
-      docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin
+    if ! command -v docker-compose &> /dev/null; then
+        # Legacy docker-compose installation
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+    fi
 }
 
 # TODO: Deprecated, because now it's a part of the Docker CLI
