@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-source .env
+if [ -f .env ]; then
+  source .env
+fi
 # If the username is not defined, then ask user to enter the username
 if [ -z "$username" ]; then
   current_user=$(whoami)
