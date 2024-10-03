@@ -15,7 +15,8 @@ print_green() {
 
 print_green_v2() {
   local message=$1
-  printf "${GREEN}✔ %s${NC}\n" "$message"
+  local action=$2
+  printf "${GREEN}✔${NC} %s ${GREEN}%s${NC}\n" "$message" "$action"
 }
 
 # Function to print red message
