@@ -26,7 +26,7 @@ app_down() {
 # function to delete app dirs
 delete_app_dirs() {
   local app_name=$1
-  printf "Deleting the %s app...\n" "$app_name"
+  printf "Deleting the %s app dir ...\n" "$app_name"
   sudo rm -rf "${scripts_path}/${app_name}"
 }
 
