@@ -1,5 +1,5 @@
 #!/bin/bash
-#Reference https://github.com/deviantony/docker-elk/tree/main
+#Reference https://github.com/deviantony/elk/tree/main
 ###
 # TODO:Why do we need to build ELK from the source code instead of using the official Docker image?
 ###
@@ -16,14 +16,14 @@ home_path=$1
 ELK_GIT_COMMIT=${ELK_GIT_COMMIT:-"629aea49616ae8a4184b5e68da904cb88e69831d"}
 # Step 1: Clone only the specific commit "629aea4" from the repository
 printf "Cloning the repository and checking out commit %s...\n" "$ELK_GIT_COMMIT"
-git clone --branch main --single-branch --depth 1 https://github.com/deviantony/docker-elk.git
-cd docker-elk
+git clone --branch main --single-branch --depth 1 https://github.com/deviantony/elk.git elk
+cd elk
 git fetch --depth 1 origin "$ELK_GIT_COMMIT"
 git checkout "$ELK_GIT_COMMIT"
 
 # Step 2: Copy the docker-compose.yml file from the specified home_path
 printf "Copying ELK files from %s...\n" "$home_path"
-cp -Rf "${home_path}"/resources/docker-elk/* .
+cp -Rf "${home_path}"/resources/elk/* .
 
 # Step 3: Use Docker Compose to bring up the setup service and then the rest of the services in detached mode
 printf "Bringing up the setup service...\n"
