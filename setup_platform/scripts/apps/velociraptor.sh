@@ -5,7 +5,7 @@
 set -e
 
 source "./libs/main.sh"
-source "./libs/install_script_helper.sh"
+source "./libs/install-helper.sh"
 # Check if home_path is provided
 check_home_path "$1"
 

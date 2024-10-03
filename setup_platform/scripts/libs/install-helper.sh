@@ -47,8 +47,8 @@ function download_external_file() {
   local url=$1
   local file_name=$2
   if [ ! -f "$file_name" ]; then
-    print_green "Downloading $file_name..."
     curl --show-error --silent --location --output "$file_name" "$url"
+    print_green_v2 "$file_name" "Downloaded"
   else
     print_red "$file_name already exists."
   fi
