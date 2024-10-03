@@ -42,6 +42,7 @@ deploy_service() {
 for service in "${APPS_TO_INSTALL[@]}"; do
   deploy_service "$service"
 done
+# Should be the last service to deploy
 deploy_service "nginx"
 
 echo "All the docker services are deployed successfully, Access the services using below links"

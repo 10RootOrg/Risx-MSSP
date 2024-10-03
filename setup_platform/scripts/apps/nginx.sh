@@ -25,14 +25,14 @@ rsync -av "${SRC_DIR}/" .
 # Step 2: Prepare nginx configs
 for app in "${APPS_TO_INSTALL[@]}"; do
   # replace app in the nginx config to include conf.d/$app.conf;, otherwise replace to empty
-  if [ -f "conf.d/$app.conf" ]; then
-    sed -i "s/#include conf.d\/$app.conf;/include conf.d\/$app.conf;/g" "nginx.conf"
+  if [ -f "etc/nginx/conf.d/$app.conf" ]; then
+    sed -i "s/#include conf.d\/$app.conf;/include conf.d\/$app.conf;/g" "etc/nginx/nginx.conf"
   fi
 done
 
 # Step 3: Start
 printf "Starting the %s service...\n" "$SERVICE_NAME"
 source ./.env
-docker compose up -d
+docker compose up -d --force-recreate
 
 print_green_v2 "Nginx deployment completed" "successfully"
