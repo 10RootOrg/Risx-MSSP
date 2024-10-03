@@ -6,6 +6,8 @@ if [ -f .env ]; then
 else
   source ../resources/default.env
 fi
+source libs/main.sh
+
 # If the username is not defined, then ask user to enter the username
 if [ -z "$username" ]; then
   current_user=$(whoami)
@@ -42,4 +44,4 @@ app_down "nginx"
 delete_app_dirs "nginx"
 sudo docker network prune --force
 
-printf "####\nCleanup finished\n"
+print_green_v2 "####\nCleanup finished\n"

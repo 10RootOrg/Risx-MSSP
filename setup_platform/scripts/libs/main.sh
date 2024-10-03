@@ -13,6 +13,11 @@ print_green() {
   printf "${GREEN}%s${NC}\n" "$message"
 }
 
+print_green_v2() {
+  local message=$1
+  printf "${GREEN}✔ %s${NC}\n" "$message"
+}
+
 # Function to print red message
 print_red() {
   local message=$1
