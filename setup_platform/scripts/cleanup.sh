@@ -15,7 +15,7 @@ function show_help() {
   printf "  --force\t\t\tCleanup all the docker services on the host\n"
   printf "  --app <app_name>\tCleanup specific app\n"
   printf "  --help\t\tShow help\n"
-  print_green "Default: Cleanup all the services defined in the .env"
+  print_green "Default: Cleanup all services defined in the .env"
   printf "######################\n"
 }
 
@@ -29,9 +29,13 @@ app_down() {
   done
 }
 
-cleanup_all_containers() {
-  docker container stop $(docker container ls -aq)
-  docker container rm $(docker container ls -aq)
+cleanup_all_force() {
+  printf "Cleaning up all the docker containers...\n"
+  docker container stop $(docker container ls -aq) || true
+  docker container rm $(docker container ls -aq) || true
+  docker network prune --force
+  printf "Cleaning up all workdir...\n"
+  rm -rf "${workdir}"/*
 }
 
 # function to delete app dirs
@@ -52,7 +56,7 @@ default_cleanup() {
   delete_app_dirs ".env"
   app_down "nginx"
   delete_app_dirs "nginx"
-  sudo docker network prune --force
+  docker network prune --force
 
   print_green_v2 "Cleanup" "finished"
 }
@@ -71,7 +75,7 @@ while [[ "$#" -gt 0 ]]; do
     shift 2
     ;;
   --force)
-    cleanup_all_containers
+    cleanup_all_force
     shift
     ;;
   *)

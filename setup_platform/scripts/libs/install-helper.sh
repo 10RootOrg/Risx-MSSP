@@ -53,3 +53,27 @@ function download_external_file() {
     print_red "$file_name already exists."
   fi
 }
+
+# --- PRE install steps for each app
+# Inputs:
+# $1 - service name
+# $2 [option] - home_path
+function pre_install() {
+  local service_name=$1
+  if [ -z "$service_name" ]; then
+    printf "Service name is not provided\n"
+    print_red "Usage: %s <service_name> [home_path]\n" "$0"
+    exit 1
+  fi
+
+  local home_path=${2:-"$home_path"}
+  local src_dir="$resources_dir/$service_name"
+  local curr_dir=$(pwd)
+
+  mkdir -p "${workdir}/${service_name}"
+  cd "${workdir}/${service_name}"
+
+  # Step 1: Copy app related files
+  printf "Copying app related files from %s...\n" "$src_dir"
+  rsync -av "$src_dir/" .
+}

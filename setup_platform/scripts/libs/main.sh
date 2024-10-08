@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # --- The minimal set of functions which uses almost everywhere in the scripts
 
+set -eo pipefail
+
 # Define color codes
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -31,6 +33,25 @@ print_yellow() {
   printf "${YELLOW}%s${NC}\n" "$message"
 }
 
+print_with_border() {
+  local input_string="$1"
+  local length=${#input_string}
+  local border="===================== "
+  # Calculate the length of the border
+  local border_length=$(((80 - length - ${#border}) / 2))
+  # Print the top border
+  printf "%s" "$border"
+  for ((i = 0; i < border_length; i++)); do
+    printf "="
+  done
+  print_green " %s " "$input_string"
+  for ((i = 0; i < border_length; i++)); do
+    printf "="
+  done
+  printf "%s\n" "$border"
+}
+
+### Business functions ###
 # Function to define env variables
 define_env() {
   local env_file=${1:-".env"}
@@ -39,7 +60,7 @@ define_env() {
   if [ -f "$env_file" ]; then
     source "$env_file"
   else
-    print_red "An env file $env_file is not found, applying the $default_env_file env file"
+    print_yellow "An env file $env_file is not found, applying the $default_env_file env file"
     source "$default_env_file"
   fi
 }
