@@ -44,7 +44,7 @@ print_with_border() {
   for ((i = 0; i < border_length; i++)); do
     printf "="
   done
-  print_green " %s " "$input_string"
+  printf " %s " "$input_string"
   for ((i = 0; i < border_length; i++)); do
     printf "="
   done
@@ -54,14 +54,13 @@ print_with_border() {
 ### Business functions ###
 # Function to define env variables
 define_env() {
-  local env_file=${1:-".env"}
-  local default_env_file="${resources_dir}/default.env"
+  local env_file=${1:-"./.env"}
 
   if [ -f "$env_file" ]; then
     source "$env_file"
+    printf "%s is loaded\n" "$env_file"
   else
-    print_yellow "An env file $env_file is not found, applying the $default_env_file env file"
-    source "$default_env_file"
+    print_red "Can't find the .env:\"$env_file\" file. Continue without an .env file."
   fi
 }
 

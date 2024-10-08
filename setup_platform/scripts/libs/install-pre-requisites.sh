@@ -45,7 +45,7 @@ function install_docker_compose_plugin() {
     if [ -x "$DOCKER_CONFIG/cli-plugins/docker-compose" ]; then
         echo "Docker Compose plugin installed successfully."
     else
-        echo "Error: Docker Compose plugin installation failed."
+        print_red "Error: Docker Compose plugin installation failed."
     fi
 }    
 
@@ -66,7 +66,7 @@ function create_docker_network(){
   local NETWORK_NAME=${NETWORK_NAME:-"main_network"}
     # Create Docker network
     if docker network ls | grep -q "$NETWORK_NAME"; then
-        echo "Network '$NETWORK_NAME' already exists."
+        echo "Network '$NETWORK_NAME' already exists. Skipping creation..."
     else
         sudo docker network create "$NETWORK_NAME"
     fi

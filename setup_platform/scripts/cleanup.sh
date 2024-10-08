@@ -2,51 +2,56 @@
 set -eo pipefail
 
 source libs/main.sh
-define_paths
 define_env
+define_paths
 
 # HELP describe output and options
 function show_help() {
-  printf "######################\n"
-  print_green "Cleanup the docker services"
-  printf "######################\n"
+  print_with_border "Help for cleanup.sh"
   printf "Usage: %s [OPTIONS]\n" "$0"
   printf "Options:\n"
-  printf "  --force\t\t\tCleanup all the docker services on the host\n"
+  printf "  --force Cleanup all docker services and networks on the host\n"
   printf "  --app <app_name>\tCleanup specific app\n"
   printf "  --help\t\tShow help\n"
-  print_green "Default: Cleanup all services defined in the .env"
   printf "######################\n"
+  print_green "Default: Cleanup all services defined in the .env file"
 }
 
 # docker compose down
 app_down() {
   local app_name=$1
   # Find all docker-compose.yml files and stop the services
-  for file in $(find "${workdir}" -maxdepth 2 -name "docker-compose.yaml" -name "docker-compose.yml" -name "compose.yaml" | grep "$app_name"); do
+  while IFS= read -r -d '' file; do
     printf "Stopping the %s app...\n" "$app_name"
     docker compose -f "$file" down --volumes --remove-orphans --timeout 1
-  done
+  done < <(find "${workdir}/${app_name}" -maxdepth 2 -name docker-compose.yaml -print0 -o -name docker-compose.yml -print0 -o -name compose.yaml -print0)
 }
 
 cleanup_all_force() {
-  printf "Cleaning up all the docker containers...\n"
-  docker container stop $(docker container ls -aq) || true
-  docker container rm $(docker container ls -aq) || true
-  docker network prune --force
-  printf "Cleaning up all workdir...\n"
+  print_yellow "Cleaning up FORCE all docker containers and related files ..."
+  docker container stop $(docker container ls -aq) || print_yellow "No containers to stop"
+  docker container rm $(docker container ls -aq) || print_yellow "No containers to remove"
+  docker network rm $(docker network ls -q) || true
+  printf "Cleaning up related workdir...\n"
   rm -rf "${workdir}"/*
+  rm -rf "${workdir}"/.env
 }
 
-# function to delete app dirs
+# function to delete app dirs and files
 delete_app_dirs() {
   local app_name=$1
-  printf "Deleting the %s app dir ...\n" "$app_name"
+  if [ -z "$app_name" ]; then
+    printf "App name is not provided\n"
+    print_red "Usage: %s --app <app_name>\n" "$0"
+    exit 1
+  fi
+  printf "Deleting the %s app files ...\n" "$app_name"
   sudo rm -rf "${workdir}/${app_name}"
 }
 
 # Default function
 default_cleanup() {
+  printf "Default: Cleaning up the docker services...\n"
   # Iterate over APPS_TO_INSTALL and delete the app dirs
   for app in "${APPS_TO_INSTALL[@]}"; do
     app_down "$app"
@@ -58,8 +63,19 @@ default_cleanup() {
   delete_app_dirs "nginx"
   docker network prune --force
 
+  # If defined NETWORK_NAME , then remove DEFAULT network
+  if [ -n "$NETWORK_NAME" ]; then
+    docker network rm "$NETWORK_NAME" --force || true
+  fi
+
   print_green_v2 "Cleanup" "finished"
 }
+
+# Check flags arguments and call related function
+if [[ "$#" -eq 0 ]]; then
+  default_cleanup
+  exit 0
+fi
 
 # Check flags arguments and call related function
 while [[ "$#" -gt 0 ]]; do
@@ -79,10 +95,11 @@ while [[ "$#" -gt 0 ]]; do
     shift
     ;;
   *)
-    default_cleanup
+    printf "Unknown argument: %s\n" "$1"
+    show_help
     exit 0
     ;;
   esac
 done
 
-print_green_v2 "Cleanup" "finished"
+#print_green_v2 "Cleanup" "finished"

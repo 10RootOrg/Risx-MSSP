@@ -22,6 +22,7 @@ check_required_packages() {
   for package in "${packages[@]}"; do
     check_package_installed "$package"
   done
+  print_green "All required packages are installed."
 }
 
 # Check if the required packages are installed

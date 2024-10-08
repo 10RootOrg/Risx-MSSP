@@ -2,7 +2,7 @@
 set -eo pipefail
 
 source libs/main.sh
-rync -av ../resources/default.env .env
+rsync -a ../resources/default.env ../workdir/.env
 define_env
 define_paths
 
@@ -21,14 +21,24 @@ done
 # Should be the last service to deploy
 deploy_service "nginx"
 
-echo "All the docker services are deployed successfully, Access the services using below links"
+# --- Show endpoints to access the services
 MYIP=$(curl -s ifconfig.me)
-
-echo "cyberchef    : https://$MYIP/cyberchef"
-echo "iris         : https://$MYIP:8443"
-echo "kibana       : https://$MYIP/kibana"
-echo "nightingale  : https://$MYIP/nightingale"
-echo "portainer    : https://$MYIP/portainer"
-echo "strelka      : https://$MYIP:8843"
-echo "timesketch   : https://$MYIP"
-echo "velociraptor : https://$MYIP/velociraptor"
+ENDPOINTS=(
+"cyberchef    : https://$MYIP/cyberchef"
+"iris         : https://$MYIP:8443"
+"kibana       : https://$MYIP/kibana"
+"nightingale  : https://$MYIP/nightingale"
+"portainer    : https://$MYIP/portainer"
+"strelka      : https://$MYIP:8843"
+"timesketch   : https://$MYIP"
+"velociraptor : https://$MYIP/velociraptor"
+)
+print_green "All the docker services are deployed successfully."
+print_with_border "Access the services using below links"
+for service in "${APPS_TO_INSTALL[@]}"; do
+  for endpoint in "${ENDPOINTS[@]}"; do
+    if [[ $endpoint == *"$service"* ]]; then
+      echo "$endpoint"
+    fi
+  done
+done

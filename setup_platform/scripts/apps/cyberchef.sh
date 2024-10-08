@@ -4,9 +4,9 @@
 set -e
 
 source "./libs/main.sh"
-source "./libs/install-helper.sh"
-define_paths
 define_env
+define_paths
+source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
 pre_install "cyberchef"

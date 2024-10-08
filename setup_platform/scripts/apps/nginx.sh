@@ -4,23 +4,12 @@
 set -e
 
 source "./libs/main.sh"
+define_env
+define_paths
 source "./libs/install-helper.sh"
-# Check if home_path is provided
-check_home_path "$1"
-
-home_path=$1
-source .env
-home_path=$1
-SERVICE_NAME="nginx"
-SRC_DIR="$home_path/resources/$SERVICE_NAME"
-CURR_DIR=$(pwd)
-
-mkdir -p "${CURR_DIR}/${SERVICE_NAME}"
-cd "${CURR_DIR}/${SERVICE_NAME}"
 
 # Step 1: Copy the stack configs
-printf "Copying the %s stack configs...\n" "$SERVICE_NAME"
-rsync -av "${SRC_DIR}/" .
+pre_install "nginx"
 
 # Step 2: Prepare nginx configs
 for app in "${APPS_TO_INSTALL[@]}"; do
@@ -31,8 +20,8 @@ for app in "${APPS_TO_INSTALL[@]}"; do
 done
 
 # Step 3: Start
-printf "Starting the %s service...\n" "$SERVICE_NAME"
+printf "Starting the %s service...\n" "$service_name"
 source ./.env
 docker compose up -d --force-recreate
 
-print_green_v2 "Nginx deployment completed" "successfully"
+print_green_v2 "$service_name deployment started" "successfully"

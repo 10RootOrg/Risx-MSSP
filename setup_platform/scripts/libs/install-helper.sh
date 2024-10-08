@@ -2,11 +2,12 @@
 set -eo pipefail
 # --- Reused functions in the app install scripts
 
+# TODO:Deprecated, because of define this variable in the define_paths function
 # --- Function to Check if the first argument is provided
 # Inputs:
 # $1 - home_path
 function check_home_path() {
-  local home_path=$1
+  local home_path=${1:-"$home_path"}
   if [ -z "$home_path" ]; then
     print_red "Usage: %s <home_path>\n" "$0"
     exit 1
@@ -75,5 +76,5 @@ function pre_install() {
 
   # Step 1: Copy app related files
   printf "Copying app related files from %s...\n" "$src_dir"
-  rsync -av "$src_dir/" .
+  rsync -a "$src_dir/" .
 }
