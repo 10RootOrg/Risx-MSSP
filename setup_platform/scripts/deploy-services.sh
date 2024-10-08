@@ -26,7 +26,7 @@ MYIP=$(curl -s ifconfig.me)
 ENDPOINTS=(
 "cyberchef    : https://$MYIP/cyberchef"
 "iris         : https://$MYIP:8443"
-"kibana       : https://$MYIP/kibana"
+"elk          : https://$MYIP/kibana"
 "nightingale  : https://$MYIP/nightingale"
 "portainer    : https://$MYIP/portainer"
 "strelka      : https://$MYIP:8843"
@@ -37,7 +37,7 @@ print_green "All the docker services are deployed successfully."
 print_with_border "Access the services using below links"
 for service in "${APPS_TO_INSTALL[@]}"; do
   for endpoint in "${ENDPOINTS[@]}"; do
-    if [[ $endpoint == *"$service"* ]]; then
+    if [[ $endpoint == "$service"* ]]; then
       echo "$endpoint"
     fi
   done

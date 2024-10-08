@@ -35,6 +35,7 @@ cleanup_all_force() {
   printf "Cleaning up related workdir...\n"
   rm -rf "${workdir}"/*
   rm -rf "${workdir}"/.env
+  print_green_v2 "Cleanup force" "finished"
 }
 
 # function to delete app dirs and files

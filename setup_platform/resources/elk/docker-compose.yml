@@ -85,8 +85,6 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
-      - ./kibana/config/kibana.yml:/home/Eleven1978/nginx/etc/nginx/kibana.yml:ro,Z
-      - ./kibana:/etc/nginx
       - ./kibana/dashboards:/usr/share/kibana/dashboards:ro,Z
     ports:
       - 5601:5601

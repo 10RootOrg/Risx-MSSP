@@ -63,11 +63,10 @@ function pre_install() {
   service_name=$1
   if [ -z "$service_name" ]; then
     printf "Service name is not provided\n"
-    print_red "Usage: %s <service_name> [home_path]\n" "$0"
+    print_red "Usage: $0 <service_name>"
     exit 1
   fi
 
-  local home_path=${2:-"$home_path"}
   local src_dir="$resources_dir/$service_name"
   local curr_dir=$(pwd)
 
