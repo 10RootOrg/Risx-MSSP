@@ -54,7 +54,7 @@ print_with_border() {
 ### Business functions ###
 # Function to define env variables
 define_env() {
-  local env_file=${1:-"./.env"}
+  local env_file=${1:-"../workdir/.env"}
 
   if [ -f "$env_file" ]; then
     source "$env_file"

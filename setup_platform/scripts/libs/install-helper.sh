@@ -20,7 +20,7 @@ function check_home_path() {
 # $2[optional] - env file path
 function get_env_value() {
   local key=$1
-  local env_file=${2:-"${SCRIPTS_DIR}/${SERVICE_NAME}/.env"}
+  local env_file=${2:-"${scripts_dir}/${service_name}/.env"}
   local value=$(sed -n "s/^${key}=//p" "$env_file")
   printf "%s\n" "$value"
 }
@@ -31,7 +31,7 @@ function get_env_value() {
 # $2 - key to replace
 function replace_env() {
   local key=$1
-  local env_file=${2:-"${SCRIPTS_DIR}/${SERVICE_NAME}/.env"}
+  local env_file=${2:-"${scripts_dir}/${service_name}/.env"}
 
   if [[ -v $key ]]; then
     sed -i "s|${key}=.*|${key}=\"${!key}\"|" "$env_file"
@@ -60,7 +60,7 @@ function download_external_file() {
 # $1 - service name
 # $2 [option] - home_path
 function pre_install() {
-  local service_name=$1
+  service_name=$1
   if [ -z "$service_name" ]; then
     printf "Service name is not provided\n"
     print_red "Usage: %s <service_name> [home_path]\n" "$0"

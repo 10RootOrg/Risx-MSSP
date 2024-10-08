@@ -12,7 +12,7 @@ source "./libs/install-helper.sh"
 pre_install "portainer"
 
 # Step 2: Use Docker Compose to bring up the services in detached mode
-printf "Bringing up the services in detached mode...\n"
+printf "Starting the service...\n"
 docker compose up -d --force-recreate
 
 print_green_v2 "$service_name deployment started" "successfully"

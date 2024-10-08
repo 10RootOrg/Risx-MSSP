@@ -3,7 +3,7 @@ set -eo pipefail
 
 source libs/main.sh
 rsync -a ../resources/default.env ../workdir/.env
-define_env
+define_env ../workdir/.env
 define_paths
 
 source libs/prerquiests-check.sh
