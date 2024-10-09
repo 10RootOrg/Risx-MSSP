@@ -20,12 +20,12 @@ function check_home_path() {
 # $2[optional] - env file path
 function get_env_value() {
   local key=$1
-  local env_file=${2:-"${scripts_dir}/${service_name}/.env"}
+  local env_file=${2:-"${workdir}/${service_name}/.env"}
   local value=$(sed -n "s/^${key}=//p" "$env_file")
   printf "%s\n" "$value"
 }
 
-# --- Replace the default values in the .env file which uses by docker compose file
+# --- Replace the default values in the local .env file which uses by docker compose file
 # Inputs:
 # $1 - env file path to replace the values
 # $2 - key to replace
