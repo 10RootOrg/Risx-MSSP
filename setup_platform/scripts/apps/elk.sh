@@ -52,4 +52,4 @@ sleep 30
 docker exec -it kibana /bin/bash -c \
   "for file in /usr/share/kibana/dashboards/*.ndjson; do echo \"Importing \$file\"; curl -s -X POST -H 'kbn-xsrf: true' -H \"securitytenant: global\" http://localhost:5601/api/saved_objects/_import?overwrite=true --form file=@\"\$file\"; done"
 
-printf "\n###\nKibana(ELK) deployment completed successfully.\n###\n"
+print_green_v2 "$service_name deployment started." "Successfully"
