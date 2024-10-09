@@ -15,4 +15,4 @@ pre_install "cyberchef"
 printf "Starting the service...\n"
 sudo docker compose up -d --force-recreate
 
-print_green_v2 "CyberChef deployment completed." "Successfully"
+print_green_v2 "$service_name deployment started." "Successfully"

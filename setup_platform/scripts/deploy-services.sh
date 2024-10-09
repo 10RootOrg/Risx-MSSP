@@ -25,7 +25,7 @@ deploy_service "nginx"
 MYIP=$(curl -s ifconfig.me)
 ENDPOINTS=(
 "cyberchef    : https://$MYIP/cyberchef"
-"iris         : https://$MYIP:8443"
+"iris-web     : https://$MYIP:8443"
 "elk          : https://$MYIP/kibana"
 "nightingale  : https://$MYIP/nightingale"
 "portainer    : https://$MYIP/portainer"
