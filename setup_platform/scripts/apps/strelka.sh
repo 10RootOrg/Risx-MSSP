@@ -4,35 +4,20 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Check if home_path is provided
-if [ -z "$1" ]; then
-  printf "Usage: %s <home_path>\n" "$0"
-  exit 1
-fi
+source "./libs/main.sh"
+define_env
+define_paths
+source "./libs/install-helper.sh"
 
-home_path=$1
-SERVICE_NAME="strelka"
-SRC_DIR="$home_path/resources/$SERVICE_NAME"
-CURR_DIR=$(pwd)
+# Step 1: Pre-installation
+pre_install "strelka"
 
-mkdir -p "${CURR_DIR}/${SERVICE_NAME}"
-cd "${CURR_DIR}/${SERVICE_NAME}"
-
-printf "Copying the Strelka stack configs...\n"
-if [ -d "configs" ]; then
-  read -p "The $SERVICE_NAME configs already exists in the resources directory. Would you like to overwrite them? (y/n): " overwrite
-  if [[ "$overwrite" == "y" ]]; then
-    cp -Rf "$SRC_DIR/configs" .
-  fi
-else
-  cp -Rf "$SRC_DIR/configs" .
-fi
-
-printf "Copying the docker compose file...\n"
-cp "$SRC_DIR/docker-compose.yml" .
-# NOTE: --force-recreate is used to ensure that the containers are recreated with the new configs
+# Step 2: Start the service
+printf "Starting the service...\n"
 docker compose up -d --force-recreate
 
+# Step 3: Update the YARA rules
+# App specific variables
 # Replace the original configs/python/backend/yara/*
 GITHUB_COMMIT_YARAHQ=${GITHUB_COMMIT_YARAHQ:-"20240922"} # Default to the latest commit
 GITHUB_URL_YARAHQ="https://github.com/YARAHQ/yara-forge/releases/download/${GITHUB_COMMIT_YARAHQ}/yara-forge-rules-full.zip"
@@ -49,4 +34,4 @@ docker compose up -d
 rm -rf "${TMP_DIR}"
 printf "YARA rules updated successfully.\n"
 
-printf "Strelka deployment completed successfully.\n"
+print_green_v2 "$service_name deployment started." "Successfully"
