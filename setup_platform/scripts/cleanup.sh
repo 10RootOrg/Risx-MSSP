@@ -32,9 +32,10 @@ cleanup_all_force() {
   docker container stop $(docker container ls -aq) || print_yellow "No containers to stop"
   docker container rm $(docker container ls -aq) || print_yellow "No containers to remove"
   docker network rm $(docker network ls -q) || true
+
   printf "Cleaning up related workdir...\n"
-  rm -rf "${workdir}"/*
-  rm -rf "${workdir}"/.env
+  sudo rm -rf "${workdir}"/*
+  sudo rm -rf "${workdir}"/.env
   print_green_v2 "Cleanup force" "finished"
 }
 
