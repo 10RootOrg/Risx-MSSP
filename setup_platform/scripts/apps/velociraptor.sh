@@ -51,6 +51,7 @@ if [[ -v VELOCIRAPTOR_ARTIFACTS_URL ]]; then
   sudo chown -R root:root server_artifacts/*
   sudo rsync -r server_artifacts/* "$VELOCIRAPTOR_ARTIFACTS_DST_FOLDER"
   sudo rm -rf server_artifacts
+  sudo rm -rf velociraptor_artifacts.zip
 fi
 
 # Step 4: Finally restart the service
