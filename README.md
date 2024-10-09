@@ -27,6 +27,7 @@ All scripts are located in the `scripts` folder.
 The following scripts are available:
 - `endtoend.sh` - start the stack
 - `cleanup.sh` - stop and remove the stack
+  - Use `cleanup.sh --help` to see the available options
 
 ## Pre-requirements
 
