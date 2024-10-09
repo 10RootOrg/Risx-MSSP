@@ -31,7 +31,7 @@ ENDPOINTS=(
 "portainer    : https://$MYIP/portainer/"
 "strelka      : https://$MYIP:8843/"
 "timesketch   : https://$MYIP/"
-"velociraptor : https://$MYIP/velociraptor/"
+"velociraptor : https://$MYIP/velociraptor"
 )
 print_green "All the docker services are deployed successfully."
 print_with_border "Access the services using below links"
