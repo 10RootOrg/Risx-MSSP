@@ -105,5 +105,3 @@ while [[ "$#" -gt 0 ]]; do
     ;;
   esac
 done
-
-#print_green_v2 "Cleanup" "finished"
