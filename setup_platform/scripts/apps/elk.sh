@@ -39,8 +39,12 @@ printf "Starting the service...\n"
 sudo docker compose up -d
 
 # Step 4: Import all dashboards to Kibana
-printf "Waiting 30 sec for Kibana to be ready...\n"
-sleep 30
+printf "Waiting for Kibana to be ready...\n"
+sleep 10
+while ! docker compose exec kibana curl -s http://localhost:5601/api/status | grep -q '"overall":{"level":"available","summary":"All services and plugins are available"}'; do
+  printf "Sleeping 5; Still waiting for Kibana to be ready...\n"
+  sleep 5
+done
 # Explaining the command below:
 # Import all dashboards to the Kibana
 #for file in /usr/share/kibana/dashboards/*.ndjson; do
@@ -49,7 +53,8 @@ sleep 30
 #    http://localhost:5601/api/saved_objects/_import?overwrite=true --form \
 #    file=@"$file"
 #done
-docker exec -it kibana /bin/bash -c \
+docker compose exec kibana /bin/bash -c \
   "for file in /usr/share/kibana/dashboards/*.ndjson; do echo \"Importing \$file\"; curl -s -X POST -H 'kbn-xsrf: true' -H \"securitytenant: global\" http://localhost:5601/api/saved_objects/_import?overwrite=true --form file=@\"\$file\"; done"
 
+printf "\n"
 print_green_v2 "$service_name deployment started." "Successfully"

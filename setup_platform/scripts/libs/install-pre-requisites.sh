@@ -30,6 +30,7 @@ function cleanup_docker() {
   printf "\n###\nDocker cleanup finished.\n###\n"
 }
 
+# shellcheck disable=SC2120
 function cleanup_dependencies() {
   ENV_FILE=${1:-"../resources/default.env"}
   source "$ENV_FILE"
@@ -40,8 +41,11 @@ function cleanup_dependencies() {
   printf "\n###\nDependencies cleanup finished.\n###\n"
 }
 
+# shellcheck disable=SC2120
 function add_docker_as_sudoer() {
-  local username="$USER"
+  ENV_FILE=${1:-"../resources/default.env"}
+  source "$ENV_FILE"
+  local username=${username:-$USER}
   # Check if the current user is in the docker group
   if ! groups | grep -q "\bdocker\b"; then
     echo "Adding \"$username\" user to the docker group..."

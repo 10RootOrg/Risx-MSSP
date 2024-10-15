@@ -25,6 +25,7 @@ app_down() {
     printf "Stopping the %s app...\n" "$app_name"
     cd "$(dirname "$file")" || exit
     docker compose down --volumes --remove-orphans --timeout 1
+    docker-compose rm -f
     cd - || exit
   done < <(find "${workdir}/${app_name}" -maxdepth 2 -name docker-compose.yaml -print0 -o -name docker-compose.yml -print0 -o -name compose.yaml -print0)
 }
