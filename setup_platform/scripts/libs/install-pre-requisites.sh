@@ -30,6 +30,16 @@ function cleanup_docker() {
   printf "\n###\nDocker cleanup finished.\n###\n"
 }
 
+function cleanup_dependencies() {
+  ENV_FILE=${1:-"../resources/default.env"}
+  source "$ENV_FILE"
+  # Cleanup dependencies
+  echo "Cleaning up dependencies..."
+  sudo apt-get remove --purge -y "${REQUIRED_PACKAGES[@]}"
+  sudo apt-get autoremove -y
+  printf "\n###\nDependencies cleanup finished.\n###\n"
+}
+
 function add_docker_as_sudoer() {
   local username="$USER"
   # Check if the current user is in the docker group
@@ -90,19 +100,20 @@ function create_docker_network() {
 }
 
 # Install dependencies which defined in the .env file
-install_dependencies() {
-  ENV_FILE=${1:-"../workdir/.env"}
-  dependencies=$(grep -E "^REQUIRED_PACKAGES=" "$ENV_FILE" | cut -d'=' -f2)
-  for dependency in "${dependencies[@]}"; do
-    # skip if it's docker or docker-compose
-    echo "Installing $dependency..."
-    sudo apt-get install -y "$dependency"
-  done
+function install_dependencies() {
+  ENV_FILE=${1:-"../resources/default.env"}
+  source "$ENV_FILE"
+  # remove docker and docker-compose from the list
+  dependencies=("${REQUIRED_PACKAGES[@]/docker-compose/}")
+  dependencies=("${dependencies[@]/docker/}")
+  # Transform the string into an array
+  sudo apt-get install --yes "${dependencies[@]}"
 }
 
 function default_func() {
   printf "Default: Install dependencies...\n"
   sudo apt-get update
+  install_dependencies
   install_docker
   install_docker_compose_plugin
   create_docker_network
@@ -121,7 +132,7 @@ while [[ "$#" -gt 0 ]]; do
     default_func
     ;;
   --reinstall)
-    #cleanup
+    cleanup_dependencies
     cleanup_docker
     default_func
     ;;
