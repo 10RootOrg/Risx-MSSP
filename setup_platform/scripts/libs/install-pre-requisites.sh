@@ -47,8 +47,8 @@ function add_docker_as_sudoer() {
     echo "Adding \"$username\" user to the docker group..."
     # Add the current user to the docker group
     sudo usermod -aG docker "$username"
-    # Reload current session to apply the group changes
-    newgrp docker
+    printf "User '%s' added to the docker group successfully.\n" "$username"
+    printf "Please logout and login again to apply the changes.\n"
   else
     echo "Current user is already a member of the docker group."
   fi
@@ -67,6 +67,11 @@ function install_docker_compose_plugin() {
   sudo ln -sf /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose
   sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
+  if [[ ! -x "$(command -v docker-compose)" || ! -x "$(command -v docker compose)" ]]; then
+    printf "Docker compose plugins installation failed.\n"
+    exit 1
+  fi
+
   printf "Docker compose plugins installed successfully.\n"
 }
 
@@ -83,7 +88,10 @@ function install_docker() {
   fi
 
   if [[ ! -x "$(command -v docker-compose)" || ! -x "$(command -v docker compose)" ]]; then
+    echo "Docker Compose is not installed. Installing Docker Compose..."
     install_docker_compose_plugin
+  else
+    echo "Docker Compose is already installed."
   fi
 }
 
@@ -100,22 +108,35 @@ function create_docker_network() {
 }
 
 # Install dependencies which defined in the .env file
+# shellcheck disable=SC2120
 function install_dependencies() {
-  ENV_FILE=${1:-"../resources/default.env"}
+  local ENV_FILE=${1:-"../resources/default.env"}
+  local install_dependencies="false"
   source "$ENV_FILE"
   # remove docker and docker-compose from the list
   dependencies=("${REQUIRED_PACKAGES[@]/docker-compose/}")
   dependencies=("${dependencies[@]/docker/}")
-  # Transform the string into an array
+  # If at least one package is not installed, install all
+  for package in "${dependencies[@]}"; do
+      if [[ -n $package ]] && [[ ! -x "$(command -v "$package")" ]]; then
+      printf "Installing %s...\n" "$package"
+      install_dependencies="true"
+      break
+    fi
+  done
+  if [[ "$install_dependencies" == "false" ]]; then
+    printf "All dependencies are already installed.\n"
+    return
+  fi
+  printf "Installing dependencies...\n"
+  sudo apt-get update
   sudo apt-get install --yes "${dependencies[@]}"
 }
 
 function default_func() {
   printf "Default: Install dependencies...\n"
-  sudo apt-get update
   install_dependencies
   install_docker
-  install_docker_compose_plugin
   create_docker_network
 }
 

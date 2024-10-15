@@ -19,6 +19,7 @@ check_package_installed() {
 # Function to check a list of required packages
 check_required_packages() {
   local packages=("$@")
+  printf "Checking required packages...\n"
   for package in "${packages[@]}"; do
     check_package_installed "$package"
   done
