@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 cd /run/secrets
 for file in `ls`
 do

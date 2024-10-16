@@ -71,6 +71,11 @@ if [[ "$IRIS_VT_MODULE_ENABLED" == "true" || $IRIS_MISP_MODULE_ENABLED == "true"
   timeout=10
   printf "Enabling Iris modules\nWaiting %s s for the services to start...\n" "$timeout"
   sleep $timeout
+  # Waiting until the app services are up and running "IRIS IS READY"
+  while [[ $(docker compose logs app | grep -c "IRIS IS READY") -eq 0 ]]; do
+    printf "Sleeping 5; Still waiting for the services to start...\n"
+    sleep 5
+  done
 
   if [[ "$IRIS_VT_MODULE_ENABLED" == "true" ]]; then
     printf "\n####\nEnabling VT module...\n####\n"
