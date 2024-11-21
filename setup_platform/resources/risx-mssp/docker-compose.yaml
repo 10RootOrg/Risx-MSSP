@@ -1,0 +1,95 @@
+name: risx-mssp
+
+services:
+  mysql:
+    restart: unless-stopped
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_DATABASE: "mssp"
+    expose:
+      - 3306
+      - 33060
+    build:
+      dockerfile: mysql.Dockerfile
+      no_cache: true
+      secrets:
+        - &passwd shoresh-passwd
+    healthcheck:
+      test:
+        - CMD
+        - /bin/sh
+        - -c
+        - |
+          mysql -u shoresh -p$(cat /run/secrets/shoresh-passwd) --batch --execute 'SHOW TABLES;' mssp
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    secrets:
+      - *passwd
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - net
+
+  backend:
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+        restart: true
+    build:
+      dockerfile: backend.Dockerfile
+    secrets:
+      - source: *passwd
+        target: DATABASE_PASSWORD
+      - DEHASHED_U
+    env_file: environment.sh
+    expose:
+      - 5555
+    ports:
+      - 5555:5555
+    volumes:
+      - backend-init-check:/init_check
+      - type: bind
+        source: ./mssp-back.log
+        target: /app/mssp-back.log
+    networks:
+      - net
+      - main_network
+
+  frontend:
+    restart: unless-stopped
+    depends_on:
+      - backend
+    build:
+      dockerfile: frontend.Dockerfile
+    ports:
+      - 3003:3003
+    configs:
+      - source: mssp_config.json
+        target: /usr/share/nginx/html/mssp_config.json
+    networks:
+      - net
+      - main_network
+
+networks:
+  net: {}
+  main_network:
+    external: true
+
+configs:
+  mssp_config.json:
+    file: mssp_config.json
+
+volumes:
+  mysql-data:
+    name: risx-mssp-mysql-data
+  backend-init-check:
+    name: risx-mssp-backend-init-check
+
+secrets:
+  shoresh-passwd:
+    file: shoresh.passwd
+  DEHASHED_U:
+    file: env.DEHASHED_U.secret
