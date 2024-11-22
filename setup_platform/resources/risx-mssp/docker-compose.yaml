@@ -34,6 +34,7 @@ services:
       - net
 
   backend:
+    container_name: risx-mssp-backend
     restart: unless-stopped
     depends_on:
       mysql:
@@ -62,6 +63,7 @@ services:
       - main_network
 
   frontend:
+    container_name: risx-mssp-frontend
     restart: unless-stopped
     depends_on:
       - backend
