@@ -3,7 +3,7 @@ set -eo pipefail
 
 source libs/main.sh
 define_env
-define_paths
+define_paths "/Users/kk_sudo/projects/globalDots/10root/Risx-MSSP/setup_platform"
 
 # HELP describe output and options
 function show_help() {
@@ -35,6 +35,7 @@ cleanup_all_force() {
   docker container stop $(docker container ls -aq) || print_yellow "No containers to stop"
   docker container rm $(docker container ls -aq) || print_yellow "No containers to remove"
   docker network rm $(docker network ls -q) || true
+  docker volume rm $(docker volume ls -q) || true
 
   printf "Cleaning up related workdir...\n"
   sudo rm -rf "${workdir}"/*

@@ -5,7 +5,7 @@ set -e
 
 source "./libs/main.sh"
 define_env
-define_paths
+define_paths "/Users/kk_sudo/projects/globalDots/10root/Risx-MSSP/setup_platform"
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
@@ -49,5 +49,5 @@ touch mssp-back.log
 
 # Step 4. Start the service
 printf "Starting the service...\n"
-docker compose up -d --force-recreate
+docker compose up -d --build --force-recreate
 print_green_v2 "$service_name deployment started." "Successfully"
