@@ -66,6 +66,7 @@ define_env() {
 
 # Function to define path's
 define_paths() {
+  local home_path=${1}
   # username should be defined in the .env file
   # If the username is not defined, then ask user to enter the username
   if [ -z "$username" ]; then
@@ -73,8 +74,11 @@ define_paths() {
     read -p "Enter username for home directory setup (default: $current_user): " username
     username=${username:-$current_user}
   fi
+  if [ -z "$home_path" ]; then
+    home_path="/home/$username/setup_platform"
+  fi
 
-  home_path="/home/$username/setup_platform"
+  printf "Home path %s \n" "$home_path"
   resources_dir="$home_path/resources"
   scripts_dir="$home_path/scripts"
   workdir="$home_path/workdir"
