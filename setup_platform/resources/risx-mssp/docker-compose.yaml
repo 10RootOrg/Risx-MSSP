@@ -4,8 +4,8 @@ services:
   mysql:
     restart: unless-stopped
     environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
       MYSQL_DATABASE: "mssp"
+      MYSQL_ROOT_PASSWORD: "/run/secrets/MYSQL_ROOT_PASSWORD"
     expose:
       - 3306
       - 33060
@@ -13,20 +13,21 @@ services:
       dockerfile: mysql.Dockerfile
       no_cache: true
       secrets:
-        - &passwd shoresh-passwd
+        - SHORESH_PASSWD
     healthcheck:
       test:
         - CMD
         - /bin/sh
         - -c
         - |
-          mysql -u shoresh -p$(cat /run/secrets/shoresh-passwd) --batch --execute 'SHOW TABLES;' mssp
+          mysql -u shoresh -p$(cat /run/secrets/SHORESH_PASSWD) --batch --execute 'SHOW TABLES;' mssp
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     secrets:
-      - *passwd
+      - SHORESH_PASSWD
+      - MYSQL_ROOT_PASSWORD
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -43,7 +44,7 @@ services:
       args:
         - SRC_URL_BACKEND=${SRC_URL_BACKEND}
     secrets:
-      - source: *passwd
+      - source: SHORESH_PASSWD
         target: DATABASE_PASSWORD
       - DEHASHED_U
     env_file: .env
@@ -93,7 +94,9 @@ volumes:
     name: risx-mssp-backend-init-check
 
 secrets:
-  shoresh-passwd:
+  MYSQL_ROOT_PASSWORD:
+    file: env.mysql_root_password.secret
+  SHORESH_PASSWD:
     file: shoresh.passwd
   DEHASHED_U:
     file: env.DEHASHED_U.secret
