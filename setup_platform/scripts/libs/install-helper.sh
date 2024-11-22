@@ -45,6 +45,39 @@ function replace_env() {
   fi
 }
 
+# --- Export all variables from the .env file to the memory
+function export_env() {
+  local env_file=${1:-"${workdir}/${service_name}/.env"}
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    # Skip comments and empty lines
+    [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+    # Extract the key and value, removing quotes from values
+    key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
+    value=$(echo "$line" | sed -E 's/[^=]+=["'\'']?([^"'\'' ]*)["'\'']?/\1/')
+
+    # Export the variable
+    export "$key=$value"
+  done <"$env_file"
+}
+
+# --- Unset all variables from the .env file if they are defined
+function unset_env() {
+  local env_file=${1:-"${workdir}/${service_name}/.env"}
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    # Skip comments and empty lines
+    [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+    # Extract the key and value, removing quotes from values
+    key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
+
+    # Unset the variable
+    unset "$key"
+  done <"$env_file"
+}
+
 # --- Download external file
 # Inputs:
 # $1 - url to download
