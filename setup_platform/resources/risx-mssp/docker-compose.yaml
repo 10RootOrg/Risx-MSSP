@@ -56,7 +56,7 @@ services:
       - backend-init-check:/init_check
       - type: bind
         source: ./mssp-back.log
-        target: /app/mssp-back.log
+        target: /app/msspBack.log
     networks:
       - net
       - main_network
