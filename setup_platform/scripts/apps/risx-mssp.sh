@@ -5,7 +5,7 @@ set -e
 
 source "./libs/main.sh"
 define_env
-define_paths "/Users/kk_sudo/projects/globalDots/10root/Risx-MSSP/setup_platform"
+define_paths
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
