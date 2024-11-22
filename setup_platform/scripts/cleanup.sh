@@ -3,7 +3,7 @@ set -eo pipefail
 
 source libs/main.sh
 define_env
-define_paths "/Users/kk_sudo/projects/globalDots/10root/Risx-MSSP/setup_platform"
+define_paths
 
 # HELP describe output and options
 function show_help() {
