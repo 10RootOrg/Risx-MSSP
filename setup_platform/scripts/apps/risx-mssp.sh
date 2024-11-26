@@ -38,7 +38,8 @@ grep -v '^#' .env |  grep -v '^\s*$' | while read -r line; do
     # Extract the key from the line
     key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
     # Replace the environment variable with the value from the .env file
-    replace_env "${key}"
+    silient=true \
+      replace_env "${key}"
 done
 
 # Step 3.2: Generate config based on the variables

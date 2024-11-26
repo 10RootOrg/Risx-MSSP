@@ -32,6 +32,7 @@ function get_env_value() {
 function replace_env() {
   local key=$1
   local env_file=${2:-"${workdir}/${service_name}/.env"}
+  local silient=${silient:-false}
 
   if [[ -v $key ]]; then
     # Replace if the key exists, otherwise add it
@@ -41,7 +42,9 @@ function replace_env() {
       echo "${key}=${!key}" >>"$env_file"
     fi
   else
-    print_yellow "The env variable $key is not provided"
+    if [ "$silient" = false ]; then
+      print_yellow "The env variable $key is not provided"
+    fi
   fi
 }
 
