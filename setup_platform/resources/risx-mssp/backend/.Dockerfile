@@ -1,34 +1,30 @@
 # syntax=docker/dockerfile:1
 FROM node:20-alpine AS build
-ARG GIT_RISX_BACKEND_URL
-ARG GIT_RISX_BACKEND_BRANCH
 
-RUN apk add --no-cache git \
-    mkdir -p /code
-# Clone the repository
-WORKDIR /code
-RUN mkdir -p /code \
-    git clone --branch ${GIT_RISX_BACKEND_BRANCH} ${GIT_RISX_BACKEND_URL} risx-mssp-back
-
-# TODO: Python scripts: `response_folder` contents
-WORKDIR /code/risx-mssp-back
-RUN rm -rf node_modules
-RUN npm install
-
-FROM node:20-alpine AS target
-
+# Set working directory
 WORKDIR /app
 
-COPY --from=build /code/risx-mssp-back/ /app
-COPY --from=build /code/risx-mssp-python-script/ /app/python-scripts
-COPY backend_entrypoint.sh entrypoint.sh
-RUN chmod a+x entrypoint.sh
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
+# Install dependencies
+RUN npm ci
+
+# Copy the rest of the application code
+COPY . .
+
+# Ensure entrypoint script is executable
+RUN chmod +x entrypoint.sh
+
+# Use a non-root user
 USER node
 
+# Expose the application port
 EXPOSE 5555
 
+# Set environment variables
 ENV FORCE_INIT=0
 ENV INIT_CHECK_DIR=/init_check
 
+# Define the entrypoint
 ENTRYPOINT ["/bin/sh", "entrypoint.sh"]

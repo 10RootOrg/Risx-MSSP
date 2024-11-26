@@ -1,25 +1,37 @@
-# Files that shouldn't be transfered to the build context
+# Ignore sensitive files
 *.passwd
 *.secret
+
+# Ignore Docker-related files
 *.Dockerfile
 *.yaml
 
-# other
+# Ignore documentation files
 README.md
+readme.md
+
+# Ignore Docker ignore file itself
 .dockerignore
 
-# Ignore node_modules
+# Ignore Git-related files
+.git
+.gitignore
+
+# Ignore license files
+LICENSE
+
+# Ignore node_modules directory
 node_modules
 
 # Ignore build output
 build
 
-# Ignore logs
+# Ignore log files
 *.log
 mssp-back.log
 msspBack.log
 
-# Ignore environment variables
+# Ignore environment variable files
 .env
 .env.local
 .env.development.local
