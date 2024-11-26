@@ -1,20 +1,18 @@
 # syntax=docker/dockerfile:1
 FROM node:20-alpine AS build
-ARG SRC_URL_BACKEND
-RUN mkdir -p /code
+ARG GIT_RISX_BACKEND_URL
+ARG GIT_RISX_BACKEND_BRANCH
 
+RUN apk add --no-cache git \
+    mkdir -p /code
+# Clone the repository
 WORKDIR /code
-
-RUN apk update && apk add wget unzip
-RUN wget -O risx-mssp.zip --quiet "${SRC_URL_BACKEND}"
-RUN unzip -q risx-mssp.zip "risx-mssp-back/*"
-RUN unzip -q risx-mssp.zip "risx-mssp-python-script/*"
+RUN mkdir -p /code \
+    git clone --branch ${GIT_RISX_BACKEND_BRANCH} ${GIT_RISX_BACKEND_URL} risx-mssp-back
 
 # TODO: Python scripts: `response_folder` contents
 WORKDIR /code/risx-mssp-back
-
 RUN rm -rf node_modules
-
 RUN npm install
 
 FROM node:20-alpine AS target

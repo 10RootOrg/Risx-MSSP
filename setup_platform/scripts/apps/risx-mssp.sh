@@ -28,27 +28,34 @@ if [[ $GENERATE_ALL_PASSWORDS =~ ^[Yy]$ || $GENERATE_ALL_PASSWORDS =~ ^[Yy][Ee][
   echo "############## END $service_name #################" | tee -a "$workdir/.env"
 fi
 
+# Step 4: Prepare backend
 
-# Step 3: Prepare configs
+# Step 4.1:  Setup ENV variables
+# Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
+printf "Setting up backend ...\n"
+silient=true \
+  replace_envs backend/.env
+export_env backend/.env
+git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
+rsync -avh --progress risx-mssp-back/ backend/
+rm -rf risx-mssp-back
+touch backend/mssp-back.log
+unset_env backend/.env
 
-# Step 3.1:  Setup ENV variables
-# Replace all existing keys from the .env file to the env variable in the memory (from default.env)
-# Read each line from the .env file, ignoring commented lines
-grep -v '^#' .env |  grep -v '^\s*$' | while read -r line; do
-    # Extract the key from the line
-    key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
-    # Replace the environment variable with the value from the .env file
-    silient=true \
-      replace_env "${key}"
-done
+# Step 5: Prepare frontend
+## Step 5.1: Generate config based on the variables
+printf "Setting up frontend ...\n"
+silient=true \
+  replace_envs frontend/.env
+export_env frontend/.env
+git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front
+rsync -avh --progress risx-mssp-front/ frontend/
+rm -rf risx-mssp-front
+envsubst < frontend/mssp_config.json.envsubst > frontend/mssp_config.json
+unset_env frontend/.env
 
-# Step 3.2: Generate config based on the variables
-export_env .env
-envsubst < mssp_config.json.envsubst > mssp_config.json
-unset_env .env
-touch mssp-back.log
 
-# Step 4. Start the service
-printf "Starting the service...\n"
-docker compose up -d --build --force-recreate
-print_green_v2 "$service_name deployment started." "Successfully"
+## Step 6. Start the service
+#printf "Starting the service...\n"
+#docker compose up -d --build --force-recreate
+#print_green_v2 "$service_name deployment started." "Successfully"
