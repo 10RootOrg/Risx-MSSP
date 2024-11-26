@@ -53,7 +53,7 @@ services:
     ports:
       - 5555:5555
     volumes:
-      - ./backend/init-check:/init_check
+      - backend-init-check:/init_check
       - type: bind
         source: ./backend/mssp-back.log
         target: /app/msspBack.log
@@ -73,7 +73,7 @@ services:
     ports:
       - 3003:3003
     configs:
-      - source: frontend/mssp_config.json
+      - source: mssp_config.json
         target: /usr/share/nginx/html/mssp_config.json
     networks:
       - net
@@ -86,7 +86,7 @@ networks:
 
 configs:
   mssp_config.json:
-    file: mssp_config.json
+    file: frontend/mssp_config.json
 
 volumes:
   mysql-data:

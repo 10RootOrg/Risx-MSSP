@@ -10,14 +10,12 @@ COPY package*.json ./
 # Install dependencies
 # TODO: uncomment it when the package.json is ready for production
 #RUN npm install --production
-RUN npm ci
+RUN npm install
 
 # Copy the rest of the src application code
-COPY src app
+COPY . .
 
 RUN npm run build
-#RUN rm -rf build/mssp_config.json
-#COPY mssp_config.json build/mssp_config.json
 
 FROM nginx:mainline-alpine AS target
 
