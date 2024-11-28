@@ -32,7 +32,8 @@ fi
 ## Step 4.1:  Setup ENV variables
 # Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
 print_green "Setting up backend ..."
-replace_envs "${workdir}/${service_name}/backend/.env"
+silient=true \
+  replace_envs "${workdir}/${service_name}/backend/.env"
 export_env backend/.env
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/
@@ -49,7 +50,8 @@ unset_env backend/.env
 # Step 5: Prepare frontend
 ## Step 5.1: Generate config based on the variables
 print_green "Setting up frontend ..."
-replace_envs "${workdir}/${service_name}/frontend/.env"
+silient=true \
+  replace_envs "${workdir}/${service_name}/frontend/.env"
 export_env frontend/.env
 git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front
 rsync -avh --progress --exclude=".git" risx-mssp-front/ frontend/
