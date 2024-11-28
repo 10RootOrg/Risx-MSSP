@@ -109,3 +109,8 @@ coverage.xml
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Python scripts
+python-scripts/.git
+python-scripts/.gitignore
+python-scripts/LICENSE
