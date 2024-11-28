@@ -1,5 +1,5 @@
 {
-  "backendUrl": "http://4.247.130.236:5555",
+  "backendUrl": "${RISX_MSSP_BACKEND_FULL_URL}",
   
   "expiryDate": "28-07-2025",
   "clientApi": "https://api.example.com/user",
