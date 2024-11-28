@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS build
-ARG PYTHON_VERSION=3
+FROM python:3.10-bookworm as final
+ENV NODE_VERSION=20
 
-# Install python dependecies to run python scripts
-RUN apk add --no-cache python${PYTHON_VERSION} py3-pip
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g yarn \
+    && apt-get clean
+
 
 # Set working directory
 WORKDIR /app

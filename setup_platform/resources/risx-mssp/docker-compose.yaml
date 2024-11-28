@@ -41,7 +41,7 @@ services:
         condition: service_healthy
         restart: true
     build:
-      dockerfile: .Dockerfile
+      dockerfile: Dockerfile
       context: backend
     secrets:
       - source: SHORESH_PASSWD
@@ -67,7 +67,7 @@ services:
     depends_on:
       - backend
     build:
-      dockerfile: .Dockerfile
+      dockerfile: Dockerfile
       context: frontend
     env_file: frontend/.env
     expose:
