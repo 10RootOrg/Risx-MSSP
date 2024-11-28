@@ -48,8 +48,8 @@ services:
         target: DATABASE_PASSWORD
       - DEHASHED_U
     env_file:
-      - .env
       - backend/.env
+      - .env
     expose:
       - 5555
 #    ports:
@@ -72,8 +72,8 @@ services:
       dockerfile: Dockerfile
       context: frontend
     env_file:
-      - .env
       - frontend/.env
+      - .env
     expose:
       - 3003
 #    ports:
