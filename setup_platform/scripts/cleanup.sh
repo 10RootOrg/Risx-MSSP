@@ -66,7 +66,6 @@ default_cleanup() {
   delete_app_dirs ".env"
   app_down "nginx"
   delete_app_dirs "nginx"
-  docker network prune --force
 
   # If defined NETWORK_NAME , then remove DEFAULT network
   if [ -n "$NETWORK_NAME" ]; then
@@ -76,6 +75,7 @@ default_cleanup() {
     sudo systemctl restart docker
     docker network rm "$NETWORK_NAME" --force || true
   fi
+  docker network prune --force
 
   print_green_v2 "Cleanup" "finished"
 }
