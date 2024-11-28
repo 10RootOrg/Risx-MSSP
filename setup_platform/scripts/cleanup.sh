@@ -70,9 +70,9 @@ default_cleanup() {
 
   # If defined NETWORK_NAME , then remove DEFAULT network
   if [ -n "$NETWORK_NAME" ]; then
-    # Fix an issue with the docker network endpoints
-    printf "Removing the %s network" "$NETWORK_NAME"
-    print_yellow "Fix an issue with the removing default docker network."
+    printf "Removing the %s network\n" "$NETWORK_NAME"
+    # Fix an issue with the removing default docker network.
+    print_yellow "Restarting the docker service."
     sudo systemctl restart docker
     docker network rm "$NETWORK_NAME" --force || true
   fi
