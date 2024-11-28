@@ -7,6 +7,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
     && npm install -g yarn \
     && apt-get clean
 
+RUN groupadd --gid 1000 node \
+  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
 # Set working directory
 WORKDIR /app
