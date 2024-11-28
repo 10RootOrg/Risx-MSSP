@@ -61,6 +61,8 @@ define_env() {
     printf "%s is loaded\n" "$env_file"
   else
     print_red "Can't find the .env:\"$env_file\" file. Continue without an .env file."
+    print_yellow "Try load from the default.env file"
+    define_env ../resources/default.env
   fi
 }
 
