@@ -47,7 +47,9 @@ services:
       - source: SHORESH_PASSWD
         target: DATABASE_PASSWORD
       - DEHASHED_U
-    env_file: backend/.env
+    env_file:
+      - .env
+      - backend/.env
     expose:
       - 5555
 #    ports:
@@ -69,7 +71,9 @@ services:
     build:
       dockerfile: Dockerfile
       context: frontend
-    env_file: frontend/.env
+    env_file:
+      - .env
+      - frontend/.env
     expose:
       - 3003
 #    ports:
