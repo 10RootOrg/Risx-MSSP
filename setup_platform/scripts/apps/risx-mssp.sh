@@ -34,7 +34,7 @@ fi
 print_green "Setting up backend ..."
 silient=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
-export_env "${workdir}/${service_name}backend/.env"
+export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/
 rm -rf risx-mssp-back
@@ -52,7 +52,7 @@ unset_env backend/.env
 print_green "Setting up frontend ..."
 silient=true \
   replace_envs "${workdir}/${service_name}/frontend/.env"
-export_env "${workdir}/${service_name}frontend/.env"
+export_env "${workdir}/${service_name}/frontend/.env"
 git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front
 rsync -avh --progress --exclude=".git" risx-mssp-front/ frontend/
 rm -rf risx-mssp-front
