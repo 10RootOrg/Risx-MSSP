@@ -106,7 +106,7 @@ function create_docker_network() {
   if [[ $(docker network ls --format '{{.Name}}' | grep -w "$NETWORK_NAME") ]]; then
     echo "Network '$NETWORK_NAME' already exists. Skipping creation..."
   else
-    sudo docker network create "$NETWORK_NAME"
+    docker network create "$NETWORK_NAME"
     printf "Docker network '%s' created successfully.\n" "$NETWORK_NAME"
   fi
 }

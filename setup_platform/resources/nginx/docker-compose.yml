@@ -8,6 +8,7 @@ services:
       - ${NGINX_HTTPS_PORT}:443
       - "8843:8843"
       - "8844:8844"
+      - "3003:3003"
     volumes:
       - ./etc/nginx:/etc/nginx
       - ./etc/ssl/certs:/etc/ssl/certs
