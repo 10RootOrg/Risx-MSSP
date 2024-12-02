@@ -27,7 +27,8 @@ if [ ! -f "etc/ssl/private/nginx-selfsigned.key" ]; then
     -out etc/ssl/certs/nginx-selfsigned.crt \
     -subj "/C=IL/ST=Tel-Aviv/L=Tel-Aviv/O=10Root/OU=IT Department/CN=localhost"
 
-  openssl dhparam -out etc/ssl/certs/dhparam.pem 2048
+  # Use dhparam from the git repo
+  #openssl dhparam -out etc/ssl/certs/dhparam.pem 2048
 fi
 
 # Step 3: Start
