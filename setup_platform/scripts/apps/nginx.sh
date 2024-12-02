@@ -21,8 +21,13 @@ done
 
 # Step 2.1: Generate self sign cert and place to the etc/ssl/private/nginx-selfsigned.key if not exists
 if [ ! -f "etc/ssl/private/nginx-selfsigned.key" ]; then
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout etc/ssl/private/nginx-selfsigned.key -out etc/ssl/certs/nginx-selfsigned.crt \
+  mkdir -p etc/ssl/private etc/ssl/certs
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout etc/ssl/private/nginx-selfsigned.key \
+    -out etc/ssl/certs/nginx-selfsigned.crt \
     -subj "/C=IL/ST=Tel-Aviv/L=Tel-Aviv/O=10Root/OU=IT Department/CN=localhost"
+
+  openssl dhparam -out etc/ssl/certs/dhparam.pem 2048
 fi
 
 # Step 3: Start
