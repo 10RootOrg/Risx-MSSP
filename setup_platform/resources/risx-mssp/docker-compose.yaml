@@ -59,6 +59,7 @@ services:
       - type: bind
         source: ./backend/mssp-back.log
         target: /app/msspBack.log
+        read_only: false
     networks:
       - net
       - main_network

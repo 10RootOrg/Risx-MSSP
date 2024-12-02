@@ -39,6 +39,7 @@ git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-m
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/
 rm -rf risx-mssp-back
 touch backend/mssp-back.log
+chmod 777 backend/mssp-back.log
 
 ## Step 4.2: Clone python repo to the frontend
 print_green "Setting up backend python ..."
