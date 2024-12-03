@@ -9,6 +9,7 @@ services:
       - "8843:8843"
       - "8844:8844"
       - "3003:3003"
+      - "5555:5555"
     volumes:
       - ./etc/nginx:/etc/nginx
       - ./etc/ssl/certs:/etc/ssl/certs
