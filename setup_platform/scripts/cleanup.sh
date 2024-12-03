@@ -25,7 +25,6 @@ app_down() {
     printf "Stopping the %s app...\n" "$app_name"
     cd "$(dirname "$file")" || exit
     docker compose down --volumes --remove-orphans --timeout 1
-    docker-compose rm -f
     cd - || exit
   done < <(find "${workdir}/${app_name}" -maxdepth 2 -name docker-compose.yaml -print0 -o -name docker-compose.yml -print0 -o -name compose.yaml -print0)
 }
@@ -35,6 +34,7 @@ cleanup_all_force() {
   docker container stop $(docker container ls -aq) || print_yellow "No containers to stop"
   docker container rm $(docker container ls -aq) || print_yellow "No containers to remove"
   docker network rm $(docker network ls -q) || true
+  docker volume rm $(docker volume ls -q) || true
 
   printf "Cleaning up related workdir...\n"
   sudo rm -rf "${workdir}"/*
@@ -66,12 +66,16 @@ default_cleanup() {
   delete_app_dirs ".env"
   app_down "nginx"
   delete_app_dirs "nginx"
-  docker network prune --force
 
   # If defined NETWORK_NAME , then remove DEFAULT network
   if [ -n "$NETWORK_NAME" ]; then
+    printf "Removing the %s network\n" "$NETWORK_NAME"
+    # Fix an issue with the removing default docker network.
+    print_yellow "Restarting the docker service."
+    sudo systemctl restart docker
     docker network rm "$NETWORK_NAME" --force || true
   fi
+  docker network prune --force
 
   print_green_v2 "Cleanup" "finished"
 }
