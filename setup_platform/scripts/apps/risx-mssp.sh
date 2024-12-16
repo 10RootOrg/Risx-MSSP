@@ -32,7 +32,7 @@ fi
 ## Step 4.1:  Setup ENV variables
 # Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
 print_green "Setting up backend ..."
-silient=true \
+silent=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
 export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
@@ -51,7 +51,7 @@ rm -rf risx-mssp-python
 # Step 5: Prepare frontend
 ## Step 5.1: Generate config based on the variables
 print_green "Setting up frontend ..."
-silient=true \
+silent=true \
   replace_envs "${workdir}/${service_name}/frontend/.env"
 export_env "${workdir}/${service_name}/frontend/.env"
 git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front

@@ -32,7 +32,7 @@ function get_env_value() {
 function replace_env() {
   local key=$1
   local env_file=${2:-"${workdir}/${service_name}/.env"}
-  local silient=${silient:-false}
+  local silent=${silent:-false}
 
   if [[ -v $key ]]; then
     # Replace if the key exists, otherwise add it
@@ -42,7 +42,7 @@ function replace_env() {
       echo "${key}=${!key}" >>"$env_file"
     fi
   else
-    if [ "$silient" = false ]; then
+    if [ "$silent" = false ]; then
       print_yellow "The env variable $key is not provided"
     fi
   fi
@@ -51,7 +51,7 @@ function replace_env() {
 # --- Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
 function replace_envs() {
   local env_file=${1:-"${workdir}/${service_name}/.env"}
-  local silient=${silient:-false}
+  local silent=${silent:-false}
 
   # Read each line from the .env file, ignoring commented lines
   grep -v '^#' "$env_file" | grep -v '^\s*$' | while read -r line; do
