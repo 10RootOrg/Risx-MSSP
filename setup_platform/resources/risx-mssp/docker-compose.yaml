@@ -60,6 +60,10 @@ services:
         source: ./backend/mssp-back.log
         target: /app/msspBack.log
         read_only: false
+      - type: bind
+        source: ./backend/python-scripts-interval.log
+        target: /python-scripts/logs/interval.log
+        read_only: false
     networks:
       - net
       - main_network

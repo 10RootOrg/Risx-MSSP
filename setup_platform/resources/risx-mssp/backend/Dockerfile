@@ -23,9 +23,6 @@ COPY /app/ .
 
 # PYTHON SCRIPTS
 COPY /python-scripts /python-scripts
-RUN mkdir -p /python-scripts/logs \
-    && chown -R node:node /python-scripts/logs \
-    && chmod -R 777 /python-scripts/logs
 RUN pip install -r /python-scripts/requirements.txt
 
 # Final steps

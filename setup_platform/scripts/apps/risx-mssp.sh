@@ -46,6 +46,8 @@ print_green "Setting up backend python ..."
 git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" risx-mssp-python
 rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
 rm -rf risx-mssp-python
+touch backend/python-scripts-interval.log
+chmod 777 backend/python-scripts-interval.log
 #unset_env backend/.env
 
 # Step 5: Prepare frontend
