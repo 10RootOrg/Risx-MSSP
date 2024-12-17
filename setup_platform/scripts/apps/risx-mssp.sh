@@ -36,7 +36,7 @@ silent=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
 export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
-rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/
+rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/app/
 rm -rf risx-mssp-back
 touch backend/mssp-back.log
 chmod 777 backend/mssp-back.log

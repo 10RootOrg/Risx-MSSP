@@ -15,13 +15,19 @@ WORKDIR /app
 
 # Backend
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY /app/package*.json ./
 # Install dependencies
 RUN npm ci
 # Copy the rest of the application code
-COPY . .
+COPY /app/ .
+COPY /python-scripts /python-scripts
+RUN mkdir -p /python-scripts/logs
+RUN pip install -r /python-scripts/requirements.txt
+
+# Final steps
+COPY /entrypoint.sh /entrypoint.sh
 # Ensure entrypoint script is executable
-RUN chmod +x entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Use a non-root user
 USER node
@@ -33,4 +39,4 @@ ENV FORCE_INIT=0
 ENV INIT_CHECK_DIR=/init_check
 
 # Define the entrypoint
-ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
