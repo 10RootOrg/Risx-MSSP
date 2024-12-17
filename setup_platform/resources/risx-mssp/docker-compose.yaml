@@ -55,10 +55,13 @@ services:
 #    ports:
 #      - 5555:5555
     volumes:
-      - backend-init-check:/init_check
+      - type: bind
+        source: ./backend/init_check/
+        target: /init_check
+        read_only: false
       - type: bind
         source: ./backend/mssp-back.log
-        target: /app/msspBack.log
+        target: /risx-mssp-back/msspBack.log
         read_only: false
       - type: bind
         source: ./backend/python-scripts-interval.log
@@ -102,8 +105,6 @@ configs:
 volumes:
   mysql-data:
     name: risx-mssp-mysql-data
-  backend-init-check:
-    name: risx-mssp-backend-init-check
 
 secrets:
   MYSQL_ROOT_PASSWORD:

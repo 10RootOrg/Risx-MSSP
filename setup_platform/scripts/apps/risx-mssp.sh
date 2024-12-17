@@ -36,12 +36,14 @@ silent=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
 export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
-rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/app/
+rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
 rm -rf risx-mssp-back
-touch backend/mssp-back.log
-chmod 777 backend/mssp-back.log
 
-## Step 4.2: Clone python repo to the frontend
+rsync backend/.env backend/risx-mssp-back/.env
+touch backend/mssp-back.log && chmod 777 backend/mssp-back.log
+mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
+
+## Step 4.2: Clone PYTHON repo to the frontend
 print_green "Setting up backend python ..."
 git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" risx-mssp-python
 rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
