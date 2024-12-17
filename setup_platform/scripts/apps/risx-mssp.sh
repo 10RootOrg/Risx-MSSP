@@ -38,8 +38,7 @@ export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
 rm -rf risx-mssp-back
-
-rsync backend/.env backend/risx-mssp-back/.env
+# Workaround for attached volumes
 touch backend/mssp-back.log && chmod 777 backend/mssp-back.log
 mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
 
@@ -50,7 +49,9 @@ rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
 rm -rf risx-mssp-python
 touch backend/python-scripts-interval.log
 chmod 777 backend/python-scripts-interval.log
-#unset_env backend/.env
+# TODO: N.B.: Duty workaround to add secret to the env file for the PYTHON script
+rsync backend/.env backend/risx-mssp-back/.env
+echo "DATABASE_PASSWORD=$(cat shoresh.passwd)" >> backend/risx-mssp-back/.env
 
 # Step 5: Prepare frontend
 ## Step 5.1: Generate config based on the variables
