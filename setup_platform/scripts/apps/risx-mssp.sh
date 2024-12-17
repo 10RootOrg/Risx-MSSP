@@ -39,7 +39,8 @@ git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-m
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
 rm -rf risx-mssp-back
 # Workaround for attached volumes
-touch backend/mssp-back.log && chmod 777 backend/mssp-back.log
+mkdir -p backend/logs && chown 1000:1000 backend/logs && chmod -R 777 backend/logs
+touch backend/logs/mssp-back.log && chmod 777 backend/logs/mssp-back.log
 mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
 
 ## Step 4.2: Clone PYTHON repo to the frontend
@@ -47,8 +48,6 @@ print_green "Setting up backend python ..."
 git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" risx-mssp-python
 rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
 rm -rf risx-mssp-python
-touch backend/python-scripts-interval.log
-chmod 777 backend/python-scripts-interval.log
 # TODO: N.B.: Duty workaround to add secret to the env file for the PYTHON script
 rsync backend/.env backend/risx-mssp-back/.env
 echo "DATABASE_PASSWORD=$(cat shoresh.passwd)" >> backend/risx-mssp-back/.env

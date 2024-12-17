@@ -60,12 +60,12 @@ services:
         target: /init_check
         read_only: false
       - type: bind
-        source: ./backend/mssp-back.log
+        source: ./backend/logs/mssp-back.log
         target: /risx-mssp-back/msspBack.log
         read_only: false
       - type: bind
-        source: ./backend/python-scripts-interval.log
-        target: /python-scripts/logs/interval.log
+        source: ./backend/logs/
+        target: /python-scripts/logs/
         read_only: false
       - type: bind
         source: ../velociraptor/velociraptor/clients
