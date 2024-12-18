@@ -55,11 +55,22 @@ services:
 #    ports:
 #      - 5555:5555
     volumes:
-      - backend-init-check:/init_check
       - type: bind
-        source: ./backend/mssp-back.log
-        target: /app/msspBack.log
+        source: ./backend/init_check/
+        target: /init_check
         read_only: false
+      - type: bind
+        source: ./backend/logs/mssp-back.log
+        target: /risx-mssp-back/msspBack.log
+        read_only: false
+      - type: bind
+        source: ./backend/logs/
+        target: /python-scripts/logs/
+        read_only: false
+      - type: bind
+        source: ../velociraptor/velociraptor/clients
+        target: /velociraptor/clients
+        read_only: true
     networks:
       - net
       - main_network
@@ -98,8 +109,6 @@ configs:
 volumes:
   mysql-data:
     name: risx-mssp-mysql-data
-  backend-init-check:
-    name: risx-mssp-backend-init-check
 
 secrets:
   MYSQL_ROOT_PASSWORD:

@@ -32,26 +32,30 @@ fi
 ## Step 4.1:  Setup ENV variables
 # Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
 print_green "Setting up backend ..."
-silient=true \
+silent=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
 export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
-rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/
+rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
 rm -rf risx-mssp-back
-touch backend/mssp-back.log
-chmod 777 backend/mssp-back.log
+# Workaround for attached volumes
+mkdir -p backend/logs && chown 1000:1000 backend/logs && chmod -R 777 backend/logs
+touch backend/logs/mssp-back.log && chmod 777 backend/logs/mssp-back.log
+mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
 
-## Step 4.2: Clone python repo to the frontend
+## Step 4.2: Clone PYTHON repo to the frontend
 print_green "Setting up backend python ..."
 git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" risx-mssp-python
 rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
 rm -rf risx-mssp-python
-#unset_env backend/.env
+# TODO: N.B.: Duty workaround to add secret to the env file for the PYTHON script
+rsync backend/.env backend/risx-mssp-back/.env
+echo "DATABASE_PASSWORD=$(cat shoresh.passwd)" >> backend/risx-mssp-back/.env
 
 # Step 5: Prepare frontend
 ## Step 5.1: Generate config based on the variables
 print_green "Setting up frontend ..."
-silient=true \
+silent=true \
   replace_envs "${workdir}/${service_name}/frontend/.env"
 export_env "${workdir}/${service_name}/frontend/.env"
 git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front

@@ -11,17 +11,24 @@ RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
 # Set working directory
-WORKDIR /app
+WORKDIR /risx-mssp-back
 
 # Backend
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY /risx-mssp-back/package*.json ./
 # Install dependencies
 RUN npm ci
 # Copy the rest of the application code
-COPY . .
+COPY /risx-mssp-back/ .
+
+# PYTHON SCRIPTS
+COPY /python-scripts /python-scripts
+RUN pip install -r /python-scripts/requirements.txt
+
+# Final steps
+COPY /entrypoint.sh /entrypoint.sh
 # Ensure entrypoint script is executable
-RUN chmod +x entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Use a non-root user
 USER node
@@ -33,4 +40,4 @@ ENV FORCE_INIT=0
 ENV INIT_CHECK_DIR=/init_check
 
 # Define the entrypoint
-ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
