@@ -195,7 +195,9 @@ docker compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --pas
 
 # TASK-8911: auto analyzers run
 CONFIG_FILE=etc/timesketch/timesketch.conf
-ANALYZERS='["feature_extraction","sessionizer","geo_ip_maxmind_db","browser_search","domain","phishy_domains","sigma","hashr_lookup","evtx_gap","chain","ssh_sessionizer","ssh_bruteforce_sessionizer","web_activity_sessionizer","similarity_scorer","win_crash","browser_timeframe","safebrowsing","gcp_servicekey","gcp_logging","misp_analyzer","hashlookup_analyzer"]'
+DEFAULT_ANALYZERS='["feature_extraction","sessionizer","geo_ip_maxmind_db","browser_search","domain","phishy_domains","sigma","hashr_lookup","evtx_gap","chain","ssh_sessionizer","ssh_bruteforce_sessionizer","web_activity_sessionizer","similarity_scorer","win_crash","browser_timeframe","safebrowsing","gcp_servicekey","gcp_logging","misp_analyzer","hashlookup_analyzer"]'
+
+ANALYZERS="${TIMESKETCH_ANALYZERS:-$DEFAULT_ANALYZERS}"
 
 # Update the AUTO_SKETCH_ANALYZERS line if it exists
 sudo sed -i "/^AUTO_SKETCH_ANALYZERS = / c\AUTO_SKETCH_ANALYZERS = $ANALYZERS" "$CONFIG_FILE"
