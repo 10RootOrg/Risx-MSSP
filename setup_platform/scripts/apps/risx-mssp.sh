@@ -39,8 +39,8 @@ git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-m
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
 rm -rf risx-mssp-back
 # Workaround for attached volumes
-mkdir -p backend/logs && chown 1000:1000 backend/logs && chmod -R 777 backend/logs
-touch backend/logs/mssp-back.log && chmod 777 backend/logs/mssp-back.log
+mkdir -p backend/logs/node backend/logs/python-scripts && chown -R 1000:1000 backend/logs
+touch backend/logs/node/mssp-back.log
 mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
 
 ## Step 4.2: Clone PYTHON repo to the frontend
@@ -65,6 +65,15 @@ envsubst < frontend/mssp_config.json.envsubst > frontend/mssp_config.json
 #unset_env frontend/.env
 
 # Step 6. Start the service
+# Step 6.1 Check related dirs
+if [[ ! -d "${workdir}/velociraptor/velociraptor/clients" ]]; then
+  print_red "Velociraptor clients directory not found. Please run the velociraptor script first."
+  exit 1
+fi
+# Step 6.2: Start the services
 print_green "Starting the services..."
 docker compose up -d --build --force-recreate
+# Step 6.3: Clean up
+rm -rf backend/python-scripts backend/risx-mssp-back
+
 print_green_v2 "$service_name deployment started." "Successfully"

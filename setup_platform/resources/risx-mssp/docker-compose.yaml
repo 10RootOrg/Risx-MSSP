@@ -60,11 +60,11 @@ services:
         target: /init_check
         read_only: false
       - type: bind
-        source: ./backend/logs/mssp-back.log
+        source: ./backend/logs/node/mssp-back.log
         target: /risx-mssp-back/msspBack.log
         read_only: false
       - type: bind
-        source: ./backend/logs/
+        source: ./backend/logs/python-scripts/
         target: /python-scripts/logs/
         read_only: false
       - type: bind

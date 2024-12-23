@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.10-bookworm as final
+FROM python:3.10-bookworm AS final
 ENV NODE_VERSION=20
 
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
@@ -19,10 +19,10 @@ COPY /risx-mssp-back/package*.json ./
 # Install dependencies
 RUN npm ci
 # Copy the rest of the application code
-COPY /risx-mssp-back/ .
+COPY --chown=1000:1000 /risx-mssp-back/ .
 
 # PYTHON SCRIPTS
-COPY /python-scripts /python-scripts
+COPY --chown=1000:1000 /python-scripts /python-scripts
 RUN pip install -r /python-scripts/requirements.txt
 
 # Final steps
