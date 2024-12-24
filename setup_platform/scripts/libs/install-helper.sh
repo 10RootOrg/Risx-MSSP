@@ -32,7 +32,6 @@ function get_env_value() {
 function replace_env() {
   local key=$1
   local env_file=${2:-"${workdir}/${service_name}/.env"}
-  local silent=${silent:-false}
 
   if [[ -v $key ]]; then
     # Replace if the key exists, otherwise add it
@@ -42,57 +41,8 @@ function replace_env() {
       echo "${key}=${!key}" >>"$env_file"
     fi
   else
-    if [ "$silent" = false ]; then
-      print_yellow "The env variable $key is not provided"
-    fi
+    print_yellow "The env variable $key is not provided"
   fi
-}
-
-# --- Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
-function replace_envs() {
-  local env_file=${1:-"${workdir}/${service_name}/.env"}
-  local silent=${silent:-false}
-
-  # Read each line from the .env file, ignoring commented lines
-  grep -v '^#' "$env_file" | grep -v '^\s*$' | while read -r line; do
-    # Extract the key from the line
-    key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
-    # Replace the environment variable with the value from the .env file
-    replace_env "${key}" "${env_file}"
-  done
-}
-
-# --- Export all variables from the .env file to the memory
-function export_env() {
-  local env_file=${1:-"${workdir}/${service_name}/.env"}
-
-  while IFS= read -r line || [ -n "$line" ]; do
-    # Skip comments and empty lines
-    [[ -z "$line" || "$line" =~ ^# ]] && continue
-
-    # Extract the key and value, removing quotes from values
-    key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
-    value=$(echo "$line" | sed -E 's/[^=]+=["'\'']?([^"'\'' ]*)["'\'']?/\1/')
-
-    # Export the variable
-    export "$key=$value"
-  done <"$env_file"
-}
-
-# --- Unset all variables from the .env file if they are defined
-function unset_env() {
-  local env_file=${1:-"${workdir}/${service_name}/.env"}
-
-  while IFS= read -r line || [ -n "$line" ]; do
-    # Skip comments and empty lines
-    [[ -z "$line" || "$line" =~ ^# ]] && continue
-
-    # Extract the key and value, removing quotes from values
-    key=$(echo "$line" | sed -E 's/([^=]+)=.*/\1/')
-
-    # Unset the variable
-    unset "$key"
-  done <"$env_file"
 }
 
 # --- Download external file

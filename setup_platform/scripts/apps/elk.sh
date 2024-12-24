@@ -47,10 +47,10 @@ replace_env "ELASTIC_VERSION"
 
 # Step 2: Use Docker Compose to bring up the setup service and then the rest of the services in detached mode
 printf "Starting up the setup service...\n"
-docker compose up setup
+sudo docker compose up setup
 
 printf "Starting the service...\n"
-docker compose up -d
+sudo docker compose up -d
 
 # Step 3: Import all dashboards to Kibana
 printf "Waiting for Kibana to be ready...\n"

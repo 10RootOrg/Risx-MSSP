@@ -30,14 +30,14 @@ replace_env "VELOX_PASSWORD_2"
 replace_env "VELOX_ROLE_2"
 replace_env "VELOX_USER_2"
 
-mkdir -p "${workdir}/${service_name}/velociraptor"
-sudo chmod 755 -R "${workdir}/${service_name}/velociraptor"
 docker compose up -d --build
 print_yellow "Waiting for the $service_name service to start..."
 sleep 5
 docker compose stop
 
 # Step 3: Update permissions and add custom resources
+sudo chmod 755 -R "${workdir}/${service_name}/velociraptor"
+
 sudo rsync -a "${src_dir}/custom" .
 print_yellow "Add custom resources and restarting the $service_name service..."
 

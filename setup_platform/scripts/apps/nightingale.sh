@@ -12,6 +12,6 @@ pre_install "nightingale"
 
 # Step 2: Start the service
 printf "Starting the service...\n"
-docker compose up -d --force-recreate
+sudo docker compose up -d --force-recreate
 
 print_green_v2 "$service_name deployment started." "Successfully"

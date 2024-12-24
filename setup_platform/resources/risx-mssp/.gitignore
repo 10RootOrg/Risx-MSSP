@@ -1,3 +1,0 @@
-# Passwords shouldn't be commited
-*.passwd
-*.secret
