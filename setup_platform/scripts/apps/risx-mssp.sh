@@ -1,7 +1,7 @@
 #!/bin/bash
 # Reference: https://github.com/dfir-iris/iris-web/tree/master
 
-set -e
+set -eo pipefail
 
 source "./libs/main.sh"
 define_env
@@ -36,7 +36,7 @@ silent=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
 export_env "${workdir}/${service_name}/backend/.env"
 git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
-rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
+rsync -avh --progress --exclude=".git" risx-mssp-back/backend/risx-mssp-back/
 rm -rf risx-mssp-back
 # Workaround for attached volumes
 mkdir -p backend/logs/node backend/logs/python-scripts && chown -R 1000:1000 backend/logs
