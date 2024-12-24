@@ -43,6 +43,33 @@ if [ ! -z "$(docker ps | grep timesketch)" ]; then
   exit 1
 fi
 
+# --- Helper functions
+# --- Function to replace config in the .conf file
+# Inputs:
+# $1 - key to replace
+# $2 - file path
+# $3[optional] - target key to replace
+# silent - optional, if true, it will not print the warning message
+function replace_value() {
+  local src_key=$1
+  local file=$2
+  local target_key="${3:-$src_key}"
+  local silent=${silent:-false}
+
+  if [[ -v $src_key ]]; then
+    # Replace if the key exists, otherwise add it
+    if grep -q "^${src_key} = " "$file"; then
+      sed -i "s#^${target_key} =.*#${target_key} = ${!target_key}#" "$file"
+    else
+      echo "${target_key} = ${!target_key}" >>"$file"
+    fi
+  else
+    if [ "$silent" = false ]; then
+      printf "An env variable %s is not provided\n" "$src_key"
+    fi
+  fi
+}
+
 # Tweak for OpenSearch
 echo "* Setting vm.max_map_count for Elasticsearch"
 sysctl -q -w vm.max_map_count=262144
@@ -56,24 +83,30 @@ mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc
 chown 1000 timesketch/data/opensearch
 
 echo -n "* Setting default config parameters.."
-POSTGRES_USER="timesketch"
-POSTGRES_PASSWORD="$(
+source "${workdir}/.env"
+
+POSTGRES_USER="${TS_POSTGRES_USER:-timesketch}"
+POSTGRES_PASSWORD_FUNC="$(
   tr </dev/urandom -dc A-Za-z0-9 | head -c 32
   echo
 )"
-POSTGRES_ADDRESS="postgres"
-POSTGRES_PORT=5432
-SECRET_KEY="$(
+POSTGRES_PASSWORD="${TS_POSTGRES_PASSWORD:-$POSTGRES_PASSWORD_FUNC}"
+POSTGRES_ADDRESS="${TS_POSTGRES_ADDRESS:-postgres}"
+POSTGRES_PORT="${TS_POSTGRES_PORT:-5432}"
+SECRET_KEY_FUNC="$(
   tr </dev/urandom -dc A-Za-z0-9 | head -c 32
   echo
 )"
-OPENSEARCH_ADDRESS="opensearch"
-OPENSEARCH_PORT=9200
-OPENSEARCH_MEM_USE_GB=$(cat /proc/meminfo | grep MemTotal | awk '{printf "%.0f", ($2 / (1024 * 1024) / 2)}')
-REDIS_ADDRESS="redis"
-REDIS_PORT=6379
-GITHUB_COMMIT="20240828"
+SECRET_KEY="${TS_SECRET_KEY:-$SECRET_KEY_FUNC}"
+OPENSEARCH_ADDRESS="${TS_OPENSEARCH_ADDRESS:-opensearch}"
+OPENSEARCH_PORT="${TS_OPENSEARCH_PORT:-9200}"
+OPENSEARCH_MEM_USE_GB_FUNC=$(cat /proc/meminfo | grep MemTotal | awk '{printf "%.0f", ($2 / (1024 * 1024) / 2)}')
+OPENSEARCH_MEM_USE_GB="${TS_OPENSEARCH_MEM_USE_GB:-$OPENSEARCH_MEM_USE_GB_FUNC}"
+REDIS_ADDRESS="${TS_REDIS_ADDRESS:-redis}"
+REDIS_PORT="${TS_REDIS_PORT:-6379}"
+GITHUB_COMMIT="${TS_GITHUB_COMMIT:-20240828}"
 GITHUB_BASE_URL="https://raw.githubusercontent.com/google/timesketch/${GITHUB_COMMIT}"
+MAIN_CONFIG="timesketch/etc/timesketch/timesketch.conf"
 echo "OK"
 echo "* Setting OpenSearch memory allocation to ${OPENSEARCH_MEM_USE_GB}GB"
 
@@ -107,21 +140,40 @@ echo "OK"
 
 # Create a minimal Timesketch config
 echo -n "* Edit configuration files.."
-sed -i 's#SECRET_KEY = \x27\x3CKEY_GOES_HERE\x3E\x27#SECRET_KEY = \x27'$SECRET_KEY'\x27#' timesketch/etc/timesketch/timesketch.conf
+sed -i 's#SECRET_KEY = \x27\x3CKEY_GOES_HERE\x3E\x27#SECRET_KEY = \x27'$SECRET_KEY'\x27#' "${MAIN_CONFIG}"
 
 # Set up the Elastic connection
-sed -i 's#^OPENSEARCH_HOST = \x27127.0.0.1\x27#OPENSEARCH_HOST = \x27'$OPENSEARCH_ADDRESS'\x27#' timesketch/etc/timesketch/timesketch.conf
-sed -i 's#^OPENSEARCH_PORT = 9200#OPENSEARCH_PORT = '$OPENSEARCH_PORT'#' timesketch/etc/timesketch/timesketch.conf
+sed -i 's#^OPENSEARCH_HOST = \x27127.0.0.1\x27#OPENSEARCH_HOST = \x27'$OPENSEARCH_ADDRESS'\x27#' "${MAIN_CONFIG}"
+sed -i 's#^OPENSEARCH_PORT = 9200#OPENSEARCH_PORT = '$OPENSEARCH_PORT'#' "${MAIN_CONFIG}"
 
 # Set up the Redis connection
-sed -i 's#^UPLOAD_ENABLED = False#UPLOAD_ENABLED = True#' timesketch/etc/timesketch/timesketch.conf
-sed -i 's#^UPLOAD_FOLDER = \x27/tmp\x27#UPLOAD_FOLDER = \x27/usr/share/timesketch/upload\x27#' timesketch/etc/timesketch/timesketch.conf
+sed -i 's#^UPLOAD_ENABLED = False#UPLOAD_ENABLED = True#' "${MAIN_CONFIG}"
+sed -i 's#^UPLOAD_FOLDER = \x27/tmp\x27#UPLOAD_FOLDER = \x27/usr/share/timesketch/upload\x27#' "${MAIN_CONFIG}"
 
-sed -i 's#^CELERY_BROKER_URL =.*#CELERY_BROKER_URL = \x27redis://'$REDIS_ADDRESS':'$REDIS_PORT'\x27#' timesketch/etc/timesketch/timesketch.conf
-sed -i 's#^CELERY_RESULT_BACKEND =.*#CELERY_RESULT_BACKEND = \x27redis://'$REDIS_ADDRESS':'$REDIS_PORT'\x27#' timesketch/etc/timesketch/timesketch.conf
+sed -i 's#^CELERY_BROKER_URL =.*#CELERY_BROKER_URL = \x27redis://'$REDIS_ADDRESS':'$REDIS_PORT'\x27#' "${MAIN_CONFIG}"
+sed -i 's#^CELERY_RESULT_BACKEND =.*#CELERY_RESULT_BACKEND = \x27redis://'$REDIS_ADDRESS':'$REDIS_PORT'\x27#' "${MAIN_CONFIG}"
+
+# Set up other custom settings
+replace_value "HASHLOOKUP_URL" "${MAIN_CONFIG}"
+replace_value "HASHR_DB_ADDR" "${MAIN_CONFIG}"
+replace_value "HASHR_DB_NAME" "${MAIN_CONFIG}"
+replace_value "HASHR_DB_PORT" "${MAIN_CONFIG}"
+replace_value "HASHR_DB_PW" "${MAIN_CONFIG}"
+replace_value "HASHR_DB_USER" "${MAIN_CONFIG}"
+replace_value "MAXMIND_WEB_ACCOUNT_ID" "${MAIN_CONFIG}"
+replace_value "MAXMIND_WEB_HOST" "${MAIN_CONFIG}"
+replace_value "MAXMIND_WEB_LICENSE_KEY" "${MAIN_CONFIG}"
+replace_value "MISP_API_KEY" "${MAIN_CONFIG}"
+replace_value "MISP_URL" "${MAIN_CONFIG}"
+replace_value "SAFEBROWSING_API_KEY" "${MAIN_CONFIG}"
+replace_value "SAFEBROWSING_PLATFORMS" "${MAIN_CONFIG}"
+replace_value "SAFEBROWSING_THREATTYPES" "${MAIN_CONFIG}"
+replace_value "YETI_API_KEY" "${MAIN_CONFIG}"
+replace_value "YETI_API_ROOT" "${MAIN_CONFIG}"
+replace_value "YETI_INDICATOR_LABELS" "${MAIN_CONFIG}"
 
 # Set up the Postgres connection
-sed -i 's#postgresql://<USERNAME>:<PASSWORD>@localhost#postgresql://'$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_ADDRESS':'$POSTGRES_PORT'#' timesketch/etc/timesketch/timesketch.conf
+sed -i 's#postgresql://<USERNAME>:<PASSWORD>@localhost#postgresql://'$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_ADDRESS':'$POSTGRES_PORT'#' "${MAIN_CONFIG}"
 
 sed -i 's#^POSTGRES_PASSWORD=#POSTGRES_PASSWORD='$POSTGRES_PASSWORD'#' timesketch/config.env
 sed -i 's#^OPENSEARCH_MEM_USE_GB=#OPENSEARCH_MEM_USE_GB='$OPENSEARCH_MEM_USE_GB'#' timesketch/config.env
@@ -131,6 +183,7 @@ echo "OK"
 echo "* PRE Installation done."
 
 source ./timesketch/.env
+# TODO: Deprecated
 if [ -z $START_CONTAINER ]; then
   read -p "Would you like to start the containers? [Y/n] (default:no)" START_CONTAINER
 fi
