@@ -63,7 +63,13 @@ export_env "${workdir}/${service_name}/frontend/.env"
 git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front
 rsync -avh --progress --exclude=".git" risx-mssp-front/ frontend/
 rm -rf risx-mssp-front
-envsubst < frontend/mssp_config.json.envsubst > frontend/mssp_config.json
+
+jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
+'.backendUrl = $backendUrl | .expiryDate = $expiryDate' frontend/public/mssp_config.json > frontend/mssp_config.json
+# TODO: Clarify the dst path of the config
+#rsync frontend/mssp_config.json frontend/public/mssp_config.json
+
+
 #unset_env frontend/.env
 
 # Step 6. Start the service
