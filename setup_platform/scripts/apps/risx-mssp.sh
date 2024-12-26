@@ -50,6 +50,14 @@ print_green "Setting up backend python ..."
 git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" risx-mssp-python
 rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
 rm -rf risx-mssp-python
+
+rm -f backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
+cd "${workdir}"/velociraptor/velociraptor/
+sudo ./velociraptor --config server.config.yaml config api_client \
+  --name api --role api,administrator \
+    "${workdir}"/"${service_name}"/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
+cd -
+
 # TODO: N.B.: Duty workaround to add secret to the env file for the PYTHON script
 rsync backend/.env backend/risx-mssp-back/.env
 echo "DATABASE_PASSWORD=$(cat shoresh.passwd)" >> backend/risx-mssp-back/.env
