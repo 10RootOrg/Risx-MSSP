@@ -4,9 +4,10 @@ ENV NODE_VERSION=20
 
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
     && apt-get install -y nodejs \
+    && apt-get install -y docker-cli \
     && npm install -g yarn \
     && apt-get clean \
-    && apt add --no-cache docker-cli 
+    
 
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
