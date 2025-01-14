@@ -15,6 +15,7 @@ services:
     entrypoint:
       - "/home/prowler/docker-entrypoint.sh"
       - "prod"
+    restart: unless-stopped
 
   ui:
     image: prowlercloud/prowler-ui:${PROWLER_UI_VERSION:-stable}
@@ -23,6 +24,7 @@ services:
         required: false
     ports:
       - ${UI_PORT:-3000}:${UI_PORT:-3000}
+    restart: unless-stopped
 
   postgres:
     image: postgres:16.3-alpine3.20
@@ -43,6 +45,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   valkey:
     image: valkey/valkey:7-alpine3.19
@@ -59,6 +62,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    restart: unless-stopped
 
   worker:
     image: prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}
@@ -73,6 +77,7 @@ services:
     entrypoint:
       - "/home/prowler/docker-entrypoint.sh"
       - "worker"
+    restart: unless-stopped
 
   worker-beat:
     image: prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}
@@ -87,3 +92,4 @@ services:
     entrypoint:
       - "../docker-entrypoint.sh"
       - "beat"
+    restart: unless-stopped
