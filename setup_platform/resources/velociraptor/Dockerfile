@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 # Define the VELOX_RELEASE https://github.com/Velocidex/velociraptor/releases
-ARG VELOCIRAPTOR_VERSION=v0.72
+ARG VELOCIRAPTOR_VERSION=v0.73
 
 LABEL description="Velociraptor server in a Docker container"
 LABEL maintainer="@10RootOrg"
