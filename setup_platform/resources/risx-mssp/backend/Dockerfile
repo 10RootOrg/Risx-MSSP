@@ -14,7 +14,9 @@ RUN apt-get update \
     && apt-get clean
 
 RUN groupadd --gid 1000 node \
-  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
+  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node \
+  && groupadd -g 999 docker \
+  && usermod -aG docker node
 
 # Set working directory
 WORKDIR /risx-mssp-back
