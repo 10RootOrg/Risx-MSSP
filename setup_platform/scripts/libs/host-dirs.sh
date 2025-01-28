@@ -9,7 +9,8 @@ define_env
 define_paths
 
 printf "Prepare common directories on the host machine...\n"
-DIRS=${HOST_DIRS:-"tmp" "data" "logs"}
+DIRS=${HOST_COMMON_DIRS:-"logs tmp"}
+DIRS=($DIRS)
 
 function create_dir() {
   local dir=$1
@@ -25,7 +26,7 @@ function create_dir() {
   mkdir -p "${workdir}/${dir}"
   chmod -R 755 "${workdir}/${dir}"
   chown -R 1000:1000 "${workdir}/${dir}"
-  print_green "Directory" "${workdir}/${dir} is ready"
+  print_green "Directory ${workdir}/${dir} is ready"
 }
 
 function make_common_dirs() {
