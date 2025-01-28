@@ -2,6 +2,7 @@
 set -eo pipefail
 
 source libs/main.sh
+source libs/host-dirs.sh
 define_env
 define_paths
 
@@ -66,6 +67,7 @@ default_cleanup() {
   delete_app_dirs ".env"
   app_down "nginx"
   delete_app_dirs "nginx"
+  cleanup_common_dirs
 
   # If defined NETWORK_NAME , then remove DEFAULT network
   if [ -n "$NETWORK_NAME" ]; then

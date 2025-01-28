@@ -72,6 +72,10 @@ services:
         target: /frontend/mssp_config.json
         read_only: false
       - type: bind
+        source: ../tmp/
+        target: /tmp/
+        read_only: false
+      - type: bind
         source: ../velociraptor/velociraptor/clients
         target: /velociraptor/clients
         read_only: true
