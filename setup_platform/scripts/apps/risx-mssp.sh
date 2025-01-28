@@ -74,7 +74,7 @@ rm -rf risx-mssp-front
 
 jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
 '.backendUrl = $backendUrl | .expiryDate = $expiryDate' frontend/public/mssp_config.json > frontend/mssp_config.json
-chown -R "$username" frontend
+chown -R 1000:1000 frontend
 chmod 664 frontend/mssp_config.json
 
 # Step 6. Start the service
