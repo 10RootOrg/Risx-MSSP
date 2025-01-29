@@ -74,11 +74,8 @@ rm -rf risx-mssp-front
 
 jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
 '.backendUrl = $backendUrl | .expiryDate = $expiryDate' frontend/public/mssp_config.json > frontend/mssp_config.json
-# TODO: Clarify the dst path of the config
-#rsync frontend/mssp_config.json frontend/public/mssp_config.json
-
-
-#unset_env frontend/.env
+chown -R 1000:1000 frontend
+chmod 664 frontend/mssp_config.json
 
 # Step 6. Start the service
 # Step 6.1 Check related dirs

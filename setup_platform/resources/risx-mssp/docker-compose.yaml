@@ -68,12 +68,20 @@ services:
         target: /python-scripts/logs/
         read_only: false
       - type: bind
+        source: ./frontend/mssp_config.json
+        target: /frontend/mssp_config.json
+        read_only: false
+      - type: bind
+        source: ../tmp/
+        target: /tmp/
+        read_only: false
+      - type: bind
         source: ../velociraptor/velociraptor/clients
         target: /velociraptor/clients
         read_only: true
       - type: bind
         source: /var/run/docker.sock
-        target: /var/run/docker.sock  
+        target: /var/run/docker.sock
     networks:
       - net
       - main_network
