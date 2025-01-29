@@ -6,7 +6,9 @@ source libs/host-dirs.sh
 define_env
 define_paths
 
-APPS_TO_RESTART=${APPS_TO_RESTART:-"portainer nginx"}
+# You can provide this variable from the main default.env file like it works for the APPS_TO_INSTALL var
+# Ex: "portainer elk"
+APPS_TO_RESTART=${APPS_TO_RESTART:-"portainer"}
 APPS_TO_RESTART=($APPS_TO_RESTART)
 
 printf "Post deployment steps:\n"
@@ -33,4 +35,5 @@ function restart_apps() {
       restart_app "$app"
     fi
   done
+  restart_app "nginx"
 }

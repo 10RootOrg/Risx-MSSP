@@ -2,16 +2,18 @@
 set -eo pipefail
 
 source libs/main.sh
-source libs/host-dirs.sh
-source post-steps.sh
 rsync -a ../resources/default.env ../workdir/.env
 define_env ../workdir/.env
 define_paths
+
+source libs/host-dirs.sh
+source post-steps.sh
 
 source libs/prerquiests-check.sh
 
 # Function to deploy the services
 make_common_dirs
+
 deploy_service() {
   local service_name="$1"
   print_with_border "Deploying $service_name"
