@@ -3,6 +3,7 @@ set -eo pipefail
 
 source libs/main.sh
 source libs/host-dirs.sh
+source post-steps.sh
 rsync -a ../resources/default.env ../workdir/.env
 define_env ../workdir/.env
 define_paths
@@ -38,6 +39,11 @@ ENDPOINTS=(
 "timesketch   : $PROTO://$MYIP/"
 "velociraptor : $PROTO://$MYIP/velociraptor"
 )
+
+# --- Post deployment steps
+# 1. Restart some apps if they are enabled
+restart_apps
+
 print_green "All the docker services are deployed successfully."
 print_with_border "Access the services using below links"
 for service in "${APPS_TO_INSTALL[@]}"; do
