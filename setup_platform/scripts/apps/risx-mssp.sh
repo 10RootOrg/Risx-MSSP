@@ -57,6 +57,10 @@ sudo ./velociraptor --config server.config.yaml config api_client \
   --name api --role api,administrator \
     "${workdir}"/"${service_name}"/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
 cd -
+sudo chown 1000:1000 backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
+# change 0.0.0.0:8001 to $FRONT_IP:8001
+sed -i "s/0.0.0.0:8001/${FRONT_IP}:8001/g" backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
+cat backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
 
 # TODO: N.B.: Duty workaround to add secret to the env file for the PYTHON script
 rsync backend/.env backend/risx-mssp-back/.env
@@ -88,5 +92,4 @@ print_green "Starting the services..."
 docker compose up -d --build --force-recreate
 # Step 6.3: Clean up
 rm -rf backend/python-scripts backend/risx-mssp-back
-
 print_green_v2 "$service_name deployment started." "Successfully"
