@@ -13,9 +13,10 @@ RUN apt-get update \
     && npm install -g yarn \
     && apt-get clean
 
+# TODO: the number of the group docker should be exactly the same as for host !
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node \
-  && groupadd -g 999 docker \
+  && groupadd -g 123 docker \
   && usermod -aG docker node
 
 # Set working directory
