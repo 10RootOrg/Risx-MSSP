@@ -9,7 +9,7 @@ RUN apt-get update \
     && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
-    && apt-get install -y docker-ce-cli \
+    && apt-get install -y docker-ce-cli sudo \
     && npm install -g yarn \
     && apt-get clean
 
@@ -17,7 +17,9 @@ RUN apt-get update \
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node \
   && groupadd -g 123 docker \
-  && usermod -aG docker node
+  && usermod -aG docker node \
+  && usermod -aG sudo node \
+  && echo "node ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/node
 
 # Set working directory
 WORKDIR /risx-mssp-back
