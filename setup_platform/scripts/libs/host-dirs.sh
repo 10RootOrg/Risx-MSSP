@@ -9,7 +9,7 @@ define_env
 define_paths
 
 printf "Prepare common directories on the host machine...\n"
-DIRS=${HOST_COMMON_DIRS:-"logs tmp"}
+DIRS=${HOST_COMMON_DIRS:-"logs tmp plaso"}
 DIRS=($DIRS)
 
 function create_dir() {
