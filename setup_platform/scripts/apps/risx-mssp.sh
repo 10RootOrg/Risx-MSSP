@@ -40,9 +40,10 @@ mkdir -p backend/risx-mssp-back
 rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
 rm -rf risx-mssp-back
 # Workaround for attached volumes
-mkdir -p backend/logs/node backend/logs/python-scripts
+mkdir -p backend/logs/node backend/logs/python-scripts backend/plaso
 touch backend/logs/node/msspBack.log
 chown -R 1000:1000 backend/logs
+chown -R 1000:1000 backend/plaso
 mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
 
 ## Step 4.2: Clone PYTHON repo to the frontend
