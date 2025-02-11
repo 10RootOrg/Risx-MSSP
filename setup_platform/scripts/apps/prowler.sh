@@ -11,8 +11,8 @@ source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
 pre_install "prowler"
-replace_env "PROWLER_IMAGE_TAG"
-replace_env "PROWLER_COMMAND"
+# replace_env "PROWLER_IMAGE_TAG"
+# replace_env "PROWLER_COMMAND"
 
 # Step 2: Start the service
 printf "Starting the service...\n"
