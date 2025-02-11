@@ -1,6 +1,7 @@
 services:
   api:
     hostname: "prowler-api"
+    container_name: "prowler-backend"
     image: prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}
     env_file:
       - path: .env
@@ -21,6 +22,7 @@ services:
       - "prod"
 
   ui:
+    container_name: "prowler-frontend"
     image: prowlercloud/prowler-ui:${PROWLER_UI_VERSION:-stable}
     env_file:
       - path: .env
