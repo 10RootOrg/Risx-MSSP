@@ -1,7 +1,7 @@
 #!/bin/bash
 # Reference: https://github.com/prowler-cloud/prowler/
 
-# Exit immediately if a command exits with a non-zero status
+# Exit immediately if a command exits with a non-zero status 
 set -e
 
 source "./libs/main.sh"
