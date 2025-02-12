@@ -9,7 +9,7 @@ services:
     ports:
       - "${DJANGO_PORT:-8080}:${DJANGO_PORT:-8080}"
     expose:
-      - "${DJANGO_PORT:-8080}
+      - ${DJANGO_PORT:-8080}
     networks:
       - main_network
     depends_on:
