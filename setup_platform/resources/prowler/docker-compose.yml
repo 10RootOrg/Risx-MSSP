@@ -6,8 +6,8 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${DJANGO_PORT:-8080}:${DJANGO_PORT:-8080}"
+    # ports:
+    #   - "${DJANGO_PORT:-8080}:${DJANGO_PORT:-8080}"
     expose:
       - ${DJANGO_PORT:-8080}
     networks:
@@ -27,8 +27,8 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - ${UI_PORT:-3000}:${UI_PORT:-3000}
+    # ports:
+    #   - ${UI_PORT:-3000}:${UI_PORT:-3000}
     expose:
       - ${UI_PORT:-3000}
     networks:
@@ -47,8 +47,8 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+    # ports:
+    #   - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
     networks:
       - main_network
     healthcheck:
@@ -69,8 +69,8 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${VALKEY_PORT:-6379}:6379"
+    # ports:
+    #   - "${VALKEY_PORT:-6379}:6379"
     networks:
       - main_network
     healthcheck:
