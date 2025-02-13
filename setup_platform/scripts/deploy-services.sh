@@ -35,7 +35,7 @@ ENDPOINTS=(
 "iris-web     : $PROTO://$MYIP:8443/"
 "nightingale  : $PROTO://$MYIP/nightingale/"
 "portainer    : $PROTO://$MYIP/portainer/"
-"prowler      : $PROTO://$MYIP:8844/"
+"prowler      : $PROTO://$MYIP:3111/"
 "risx-mssp    : $PROTO://$MYIP:3003/"
 "strelka      : $PROTO://$MYIP:8843/"
 "timesketch   : $PROTO://$MYIP/"
