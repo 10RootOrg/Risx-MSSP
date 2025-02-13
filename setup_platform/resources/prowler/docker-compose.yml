@@ -1,12 +1,17 @@
 services:
   api:
     hostname: "prowler-api"
+    container_name: "prowler-backend"
     image: prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${DJANGO_PORT:-8080}:${DJANGO_PORT:-8080}"
+    # ports:
+    #   - "${DJANGO_PORT:-8080}:${DJANGO_PORT:-8080}"
+    expose:
+      - ${DJANGO_PORT:-8080}
+    networks:
+      - main_network
     depends_on:
       postgres:
         condition: service_healthy
@@ -15,16 +20,20 @@ services:
     entrypoint:
       - "/home/prowler/docker-entrypoint.sh"
       - "prod"
-    restart: unless-stopped
 
   ui:
+    container_name: "prowler-frontend"
     image: prowlercloud/prowler-ui:${PROWLER_UI_VERSION:-stable}
     env_file:
       - path: .env
         required: false
-    ports:
-      - ${UI_PORT:-3000}:${UI_PORT:-3000}
-    restart: unless-stopped
+    # ports:
+    #   - ${UI_PORT:-3000}:${UI_PORT:-3000}
+    expose:
+      - ${UI_PORT:-3000}
+    networks:
+      - main_network
+
 
   postgres:
     image: postgres:16.3-alpine3.20
@@ -38,14 +47,19 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+    # ports:
+    #   - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+    networks:
+      - main_network
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_ADMIN_USER} -d ${POSTGRES_DB}'"]
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_ADMIN_USER} -d ${POSTGRES_DB}'",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
   valkey:
     image: valkey/valkey:7-alpine3.19
@@ -55,20 +69,23 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${VALKEY_PORT:-6379}:6379"
+    # ports:
+    #   - "${VALKEY_PORT:-6379}:6379"
+    networks:
+      - main_network
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'valkey-cli ping'"]
       interval: 10s
       timeout: 5s
       retries: 3
-    restart: unless-stopped
 
   worker:
     image: prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}
     env_file:
       - path: .env
         required: false
+    networks:
+      - main_network
     depends_on:
       valkey:
         condition: service_healthy
@@ -77,13 +94,14 @@ services:
     entrypoint:
       - "/home/prowler/docker-entrypoint.sh"
       - "worker"
-    restart: unless-stopped
 
   worker-beat:
     image: prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}
     env_file:
       - path: ./.env
         required: false
+    networks:
+      - main_network
     depends_on:
       valkey:
         condition: service_healthy
@@ -92,4 +110,7 @@ services:
     entrypoint:
       - "../docker-entrypoint.sh"
       - "beat"
-    restart: unless-stopped
+
+networks:
+  main_network:
+    external: true

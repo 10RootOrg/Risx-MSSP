@@ -9,6 +9,7 @@ services:
         - VELOCIRAPTOR_VERSION=${VELOCIRAPTOR_VERSION}
     volumes:
       - ./velociraptor:/velociraptor/:rw
+      - ../tmp:/tmp/:rw
     env_file:
       - .env
     ports:
