@@ -10,6 +10,7 @@ services:
     #   - "${DJANGO_PORT:-8080}:${DJANGO_PORT:-8080}"
     expose:
       - ${DJANGO_PORT:-8080}
+    restart: unless-stopped
     networks:
       - main_network
     depends_on:
@@ -29,6 +30,7 @@ services:
         required: false
     # ports:
     #   - ${UI_PORT:-3000}:${UI_PORT:-3000}
+    restart: unless-stopped
     expose:
       - ${UI_PORT:-3000}
     networks:
@@ -49,6 +51,7 @@ services:
         required: false
     # ports:
     #   - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+    restart: unless-stopped
     networks:
       - main_network
     healthcheck:
@@ -71,6 +74,7 @@ services:
         required: false
     # ports:
     #   - "${VALKEY_PORT:-6379}:6379"
+    restart: unless-stopped
     networks:
       - main_network
     healthcheck:
@@ -84,6 +88,7 @@ services:
     env_file:
       - path: .env
         required: false
+    restart: unless-stopped
     networks:
       - main_network
     depends_on:
@@ -100,6 +105,7 @@ services:
     env_file:
       - path: ./.env
         required: false
+    restart: unless-stopped
     networks:
       - main_network
     depends_on:
