@@ -25,6 +25,7 @@ replace_env "VELOX_USER"
 
 replace_env "VELOX_FRONTEND_HOSTNAME"
 replace_env "VELOX_SERVER_URL"
+replace_env "VELOX_PUBLIC_IP"
 
 replace_env "VELOX_PASSWORD_2"
 replace_env "VELOX_ROLE_2"
