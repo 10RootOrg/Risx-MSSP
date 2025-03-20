@@ -11,8 +11,8 @@ services:
       - ${TIMESKETCH_UPLOAD_PATH}:/usr/share/timesketch/upload/
       - ${TIMESKETCH_LOGS_PATH}:/var/log/timesketch/
     expose:
-      - 9222:9200
-      - 5000:5000
+      - 9222
+      - 5000
     networks:
       - main_network
 
@@ -30,11 +30,10 @@ services:
       - ./upload:/usr/share/timesketch/upload/
       - ./logs:/var/log/timesketch/
     ports:
-      - 9222:9200
-      - 5000:5000
+      - "5666:5000"
     expose:
-      - 9222:9200
-      - 5000:5000
+      - 9222
+      - 5000
     networks:
       - main_network
 
@@ -93,7 +92,6 @@ services:
     restart: always
     networks:
       - main_network
-
 
 networks:
   main_network:
