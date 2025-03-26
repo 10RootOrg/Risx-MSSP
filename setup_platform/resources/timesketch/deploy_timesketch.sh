@@ -61,7 +61,7 @@ POSTGRES_PASSWORD="$(
   tr </dev/urandom -dc A-Za-z0-9 | head -c 32
   echo
 )"
-POSTGRES_ADDRESS="postgres"
+POSTGRES_ADDRESS="timesketch-postgres"
 POSTGRES_PORT=5432
 SECRET_KEY="$(
   tr </dev/urandom -dc A-Za-z0-9 | head -c 32

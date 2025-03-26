@@ -1,7 +1,25 @@
 services:
+  postgres:
+    container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=timesketch
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: always
+    volumes:
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    networks:
+      main_network:
+        aliases:
+          - timesketch-postgres
+
   timesketch-web:
     container_name: timesketch-web
     image: us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:${TIMESKETCH_VERSION}
+    env_file:
+      - .env
     environment:
       - NUM_WSGI_WORKERS=${NUM_WSGI_WORKERS}
     restart: always
@@ -21,6 +39,8 @@ services:
   timesketch-web-legacy:
     container_name: timesketch-web-legacy
     image: us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:${TIMESKETCH_VERSION}
+    env_file:
+      - .env
     environment:
       - NUM_WSGI_WORKERS=${NUM_WSGI_WORKERS}
     restart: always
@@ -40,6 +60,8 @@ services:
   timesketch-worker:
     container_name: timesketch-worker
     image: us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:${TIMESKETCH_VERSION}
+    env_file:
+      - .env
     environment:
       - WORKER_LOG_LEVEL=${WORKER_LOG_LEVEL}
     restart: always
@@ -54,6 +76,8 @@ services:
   opensearch:
     container_name: opensearch
     image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
+    env_file:
+      - .env
     restart: always
     environment:
       - TAKE_FILE_OWNERSHIP=1
@@ -73,20 +97,10 @@ services:
     networks:
       - main_network
 
-  postgres:
-    container_name: postgres
-    image: postgres:${POSTGRES_VERSION}
-    environment:
-      - POSTGRES_USER=timesketch
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    restart: always
-    volumes:
-      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
-    networks:
-      - main_network
-
   redis:
     container_name: redis
+    env_file:
+      - .env
     image: redis:${REDIS_VERSION}
     command: "redis-server"
     restart: always
