@@ -177,6 +177,7 @@ if [ "$CREATE_USER" != "${CREATE_USER#[Yy]}" ]; then
 
   docker compose exec timesketch-web tsctl create-user "$NEWUSERNAME" --password "${NEWUSERNAME_PASSWORD}" \
   && echo "New user has been created"
+  docker compose exec timesketch-web tsctl make-admin "$NEWUSERNAME"
   echo "############################################"
   echo "### User created: $NEWUSERNAME"
   echo "### Password: $NEWUSERNAME_PASSWORD"
@@ -187,10 +188,11 @@ if [ "$CREATE_USER" != "${CREATE_USER#[Yy]}" ]; then
   echo "TIMESKETCH_PASSWORD=$NEWUSERNAME_PASSWORD" >> "${workdir}/.env"
 fi
 
-echo "############################################"
-echo "Creating a username for importing data"
-echo "############################################"
-docker compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --password "${IMPORT_USER_PASSWORD}" \
+# echo "############################################"
+# echo "Creating a username for importing data"
+# echo "############################################"
+# docker compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --password "${IMPORT_USER_PASSWORD}" \
+
 && echo "New user has been created"
 
 # TASK-8911: auto analyzers run

@@ -45,6 +45,9 @@ touch backend/logs/node/msspBack.log
 chown -R 1000:1000 backend/logs
 chown -R 1000:1000 backend/plaso
 sed -i "s/localhost/${FRONT_IP}/g" backend/risx-mssp-back/db/seeds/production/config_seed.json
+sed -i "s/importing/${TIMESKETCH_PASSWORD}/g" backend/risx-mssp-back/db/seeds/production/config_seed.json
+sed -i "s/import/${TIMESKETCH_USERNAME}/g" backend/risx-mssp-back/db/seeds/production/config_seed.json
+
 mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
 
 ## Step 4.2: Clone PYTHON repo to the frontend
