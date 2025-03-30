@@ -193,7 +193,7 @@ fi
 # echo "############################################"
 # docker compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --password "${IMPORT_USER_PASSWORD}" \
 
-&& echo "New user has been created"
+# && echo "New user has been created"
 
 # TASK-8911: auto analyzers run
 CONFIG_FILE=etc/timesketch/timesketch.conf
