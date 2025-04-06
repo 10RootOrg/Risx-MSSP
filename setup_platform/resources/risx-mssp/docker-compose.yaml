@@ -52,8 +52,8 @@ services:
       - .env
     expose:
       - 5555
-#    ports:
-#      - 5555:5555
+    #    ports:
+    #      - 5555:5555
     volumes:
       - type: bind
         source: ./backend/init_check/
@@ -76,8 +76,8 @@ services:
         target: /tmp/
         read_only: false
       - type: bind
-        source: ../velociraptor/velociraptor/clients
-        target: /velociraptor/clients
+        source: ../velociraptor/velociraptor
+        target: /velociraptor
         read_only: true
       - type: bind
         source: /var/run/docker.sock
@@ -103,8 +103,8 @@ services:
       - .env
     expose:
       - 3003
-#    ports:
-#      - 3003:3003
+    #    ports:
+    #      - 3003:3003
     configs:
       - source: mssp_config.json
         target: /usr/share/nginx/html/mssp_config.json
