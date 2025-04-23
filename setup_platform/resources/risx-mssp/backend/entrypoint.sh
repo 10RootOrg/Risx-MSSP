@@ -19,4 +19,4 @@ then
     && touch "${INIT_CHECK_DIR}/init_done"
 fi
 
-npm run start
+nodemon

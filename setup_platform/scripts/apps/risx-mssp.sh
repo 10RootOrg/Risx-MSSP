@@ -1,8 +1,9 @@
 #!/bin/bash
-# Reference: https://github.com/dfir-iris/iris-web/tree/master
+# Development environment setup script for RISX-MSSP
 
 set -eo pipefail
 
+# Source the existing scripts
 source "./libs/main.sh"
 define_env
 define_paths
@@ -28,73 +29,131 @@ if [[ $GENERATE_ALL_PASSWORDS =~ ^[Yy]$ || $GENERATE_ALL_PASSWORDS =~ ^[Yy][Ee][
   echo "############## END $service_name #################" | tee -a "$workdir/.env"
 fi
 
-# Step 4: Prepare backend
-## Step 4.1:  Setup ENV variables
-# Read an app level .env file and replace values in the .env file with the default.env values (already in memory)
-print_green "Setting up backend ..."
+# Step 3: Setup directories and ENV variables
+print_green "Setting up development environment..."
+
+# Setup backend environment
+print_green "Setting up backend environment..."
 silent=true \
   replace_envs "${workdir}/${service_name}/backend/.env"
 export_env "${workdir}/${service_name}/backend/.env"
-git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" risx-mssp-back
-mkdir -p backend/risx-mssp-back
-rsync -avh --progress --exclude=".git" risx-mssp-back/ backend/risx-mssp-back/
-rm -rf risx-mssp-back
-# Workaround for attached volumes
-mkdir -p backend/logs/node backend/logs/python-scripts backend/plaso
-touch backend/logs/node/msspBack.log
-chown -R 1000:1000 backend/logs
-chown -R 1000:1000 backend/plaso
-sed -i "s/localhost/${FRONT_IP}/g" backend/risx-mssp-back/db/seeds/production/config_seed.json
-sed -i "s/importing/${TIMESKETCH_PASSWORD}/g" backend/risx-mssp-back/db/seeds/production/config_seed.json
-sed -i "s/import/${TIMESKETCH_USERNAME}/g" backend/risx-mssp-back/db/seeds/production/config_seed.json
 
-mkdir -p backend/init_check && chown 1000:1000 backend/init_check && chmod -R 777 backend/init_check
+# Clone repositories for development
+print_green "Cloning repositories for development..."
 
-## Step 4.2: Clone PYTHON repo to the frontend
-print_green "Setting up backend python ..."
-git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" risx-mssp-python
-rsync -avh --progress --exclude=".git" risx-mssp-python/ backend/python-scripts/
-rm -rf risx-mssp-python
+# Clone backend repository
+if [[ ! -d "${workdir}/${service_name}/backend/risx-mssp-back" ]]; then
+  git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" "${workdir}/${service_name}/backend/risx-mssp-back"
+  # Modify config for the right IP
+  sed -i "s/localhost/${FRONT_IP}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
+  sed -i "s/importing/${TIMESKETCH_PASSWORD}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
+  sed -i "s/import/${TIMESKETCH_USERNAME}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
+  
+  # Add development script to package.json if not exists
+  if ! grep -q '"dev"' "${workdir}/${service_name}/backend/risx-mssp-back/package.json"; then
+    sed -i '/"scripts": {/a \    "dev": "nodemon --exec babel-node src/server.js",' "${workdir}/${service_name}/backend/risx-mssp-back/package.json"
+  fi
+fi
 
-rm -f backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
-cd "${workdir}"/velociraptor/velociraptor/
-sudo ./velociraptor --config server.config.yaml config api_client \
-  --name api --role api,administrator \
-    "${workdir}"/"${service_name}"/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
-cd -
-sudo chown 1000:1000 backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
-# change 0.0.0.0:8001 to $FRONT_IP:8001
-sed -i "s/0.0.0.0:8001/${FRONT_IP}:8001/g" backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
-cat backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
+# Clone Python repository
+if [[ ! -d "${workdir}/${service_name}/backend/python-scripts" ]]; then
+  git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" "${workdir}/${service_name}/backend/python-scripts"
+  
+  # Setup Velociraptor config
+  rm -f "${workdir}/${service_name}/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml"
+  cd "${workdir}"/velociraptor/velociraptor/
+  sudo ./velociraptor --config server.config.yaml config api_client \
+    --name api --role api,administrator \
+      "${workdir}"/"${service_name}"/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml
+  cd -
+  sudo chown 1000:1000 "${workdir}/${service_name}/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml"
+  sed -i "s/0.0.0.0:8001/${FRONT_IP}:8001/g" "${workdir}/${service_name}/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml"
+fi
 
-# TODO: N.B.: Duty workaround to add secret to the env file for the PYTHON script
-rsync backend/.env backend/risx-mssp-back/.env
-echo "DATABASE_PASSWORD=$(cat shoresh.passwd)" >> backend/risx-mssp-back/.env
+# Create necessary directories
+mkdir -p "${workdir}/${service_name}/backend/init_check" && chmod 777 "${workdir}/${service_name}/backend/init_check"
+mkdir -p "${workdir}/${service_name}/backend/logs/node" "${workdir}/${service_name}/backend/logs/python-scripts" "${workdir}/${service_name}/backend/plaso"
+touch "${workdir}/${service_name}/backend/logs/node/msspBack.log"
+chown -R 1000:1000 "${workdir}/${service_name}/backend/logs"
+chown -R 1000:1000 "${workdir}/${service_name}/backend/plaso"
 
-# Step 5: Prepare frontend
-## Step 5.1: Generate config based on the variables
-print_green "Setting up frontend ..."
+# Copy env file to backend for Python script
+cp "${workdir}/${service_name}/backend/.env" "${workdir}/${service_name}/backend/risx-mssp-back/.env"
+echo "DATABASE_PASSWORD=$(cat shoresh.passwd)" >> "${workdir}/${service_name}/backend/risx-mssp-back/.env"
+
+# Setup frontend environment
+print_green "Setting up frontend environment..."
 silent=true \
   replace_envs "${workdir}/${service_name}/frontend/.env"
 export_env "${workdir}/${service_name}/frontend/.env"
+
+# Clone frontend repository
 git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front
-rsync -avh --progress --exclude=".git" risx-mssp-front/ frontend/
+rsync -avh --progress  risx-mssp-front/ frontend/Code
 rm -rf risx-mssp-front
+# Create frontend config
+# jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
+# '.backendUrl = $backendUrl | .expiryDate = $expiryDate' "${workdir}/${service_name}/frontend/Code/public/mssp_config.json" > "${workdir}/${service_name}/frontend/mssp_config.json"
+# jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
+# '.backendUrl = $backendUrl | .expiryDate = $expiryDate' "${workdir}/${service_name}/frontend/Code/public/mssp_config.json" > "${workdir}/${service_name}/frontend/Code/public/mssp_config.json"
+tmpfile=$(mktemp)
 
-jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
-'.backendUrl = $backendUrl | .expiryDate = $expiryDate' frontend/public/mssp_config.json > frontend/mssp_config.json
-chown -R 1000:1000 frontend
-chmod 664 frontend/mssp_config.json
+jq --arg backendUrl "$RISX_MSSP_BACKEND_FULL_URL" \
+   --arg expiryDate "$RISX_MSSP_FE_EXPIRY_DATE" \
+   '.backendUrl = $backendUrl | .expiryDate = $expiryDate' \
+   "${workdir}/${service_name}/frontend/Code/public/mssp_config.json" > "$tmpfile" && \
+mv "$tmpfile" "${workdir}/${service_name}/frontend/Code/public/mssp_config.json"
 
-# Step 6. Start the service
-# Step 6.1 Check related dirs
+
+chown -R 1000:1000 "${workdir}/${service_name}/frontend"
+chown -R 1000:1000 "${workdir}/${service_name}/frontend/Code"
+chown -R 1000:1000 "${workdir}/${service_name}/backend/risx-mssp-back"
+chown -R 1000:1000 "${workdir}/${service_name}/backend/python-scripts"
+
+chmod 664 "${workdir}/${service_name}/frontend/Code/public/mssp_config.json"
+
+# Check for Velociraptor clients directory
 if [[ ! -d "${workdir}/velociraptor/velociraptor/clients" ]]; then
   print_red "Velociraptor clients directory not found. Please run the velociraptor script first."
   exit 1
 fi
-# Step 6.2: Start the services
+
+# Copy development Docker files
+# print_green "Setting up development Docker files..."
+# cp "${curr_dir}/Dockerfile.dev" "${workdir}/${service_name}/backend/Dockerfile.dev"
+# cp "${curr_dir}/Dockerfile.dev.frontend" "${workdir}/${service_name}/frontend/Dockerfile.dev"
+# cp "${curr_dir}/docker-compose.dev.yml" "${workdir}/${service_name}/docker-compose.dev.yml"
+
+# # Create backend entrypoint script if it doesn't exist
+# if [[ ! -f "${workdir}/${service_name}/backend/entrypoint.sh" ]]; then
+#   cat > "${workdir}/${service_name}/backend/entrypoint.sh" << 'EOF'
+# #!/bin/sh
+
+# # Initialize database if needed
+# if [ ! -f "$INIT_CHECK_DIR/initialized" ] || [ "$FORCE_INIT" = "1" ]; then
+#   echo "Initializing database..."
+#   cd /risx-mssp-back && npm run db:migrate && npm run db:seed
+#   touch "$INIT_CHECK_DIR/initialized"
+#   echo "Database initialized."
+# fi
+
+# # Execute the provided command (likely 'npm run dev')
+# exec "$@"
+# EOF
+#   chmod +x "${workdir}/${service_name}/backend/entrypoint.sh"
+# fi
+
+# Start the development environment
+# print_green "Starting the development environment..."
+# (cd "${workdir}/${service_name}" && docker compose -f docker-compose.dev.yml up -d)
 print_green "Starting the services..."
 docker compose up -d --build --force-recreate
-# Step 6.3: Clean up
-rm -rf backend/python-scripts backend/risx-mssp-back
-print_green_v2 "$service_name deployment started." "Successfully"
+
+print_green_v2 "$service_name development environment started." "Successfully"
+echo ""
+echo "You can now make changes to your code in the following directories:"
+echo "- Backend: ${workdir}/${service_name}/backend/risx-mssp-back"
+echo "- Python Scripts: ${workdir}/${service_name}/backend/python-scripts"
+echo "- Frontend: ${workdir}/${service_name}/frontend"
+echo ""
+echo "Changes will be automatically reflected in the running containers."

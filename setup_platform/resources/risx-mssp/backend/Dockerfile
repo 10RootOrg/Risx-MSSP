@@ -10,10 +10,10 @@ RUN apt-get update \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
     && apt-get install -y docker-ce-cli p7zip-full sudo \
-    && npm install -g yarn \
+    && npm install -g yarn nodemon \
     && apt-get clean
 
-# TODO: the number of the group docker should be exactly the same as for host !
+# Create the docker group with the same GID as the host
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node \
   && groupadd -g 123 docker \
@@ -24,31 +24,37 @@ RUN groupadd --gid 1000 node \
 # Set working directory
 WORKDIR /risx-mssp-back
 
-# Backend
-# Copy package.json and package-lock.json
+# Install Python dependencies for the Python scripts
+WORKDIR /python-scripts
+COPY /python-scripts/requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+# Return to backend working directory
+WORKDIR /risx-mssp-back
+
+# Only copy package files for initial installation
+# The actual source code will be mounted via volume
 COPY /risx-mssp-back/package*.json ./
-# Install dependencies
-RUN npm ci
-# Copy the rest of the application code
-COPY --chown=1000:1000 /risx-mssp-back/ .
+RUN npm install
 
-# PYTHON SCRIPTS
-COPY --chown=1000:1000 /python-scripts /python-scripts
-RUN pip install -r /python-scripts/requirements.txt
-
-# Final steps
+# Copy entrypoint script
 COPY /entrypoint.sh /entrypoint.sh
-# Ensure entrypoint script is executable
 RUN chmod +x /entrypoint.sh
 
 # Use a non-root user
 USER node
+
 # Expose the application port
 EXPOSE 5555
 
 # Set environment variables
 ENV FORCE_INIT=0
 ENV INIT_CHECK_DIR=/init_check
+ENV NODE_ENV=development
 
 # Define the entrypoint
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+
+# The actual command will be provided in docker-compose.yml
+# Default to development mode with nodemon for auto-reloading
+CMD ["npm", "run", "dev"]
