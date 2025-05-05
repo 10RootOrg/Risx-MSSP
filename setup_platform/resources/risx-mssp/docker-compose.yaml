@@ -66,8 +66,8 @@ services:
         target: /init_check
         read_only: false
       - type: bind
-        source: ./backend/logs/node/msspBack.log
-        target: /risx-mssp-back/msspBack.log
+        source: ./backend/logs/node/
+        target: /risx-mssp-back/logs
         read_only: false
       - type: bind
         source: ./backend/logs/python-scripts/
