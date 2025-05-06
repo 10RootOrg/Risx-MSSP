@@ -38,7 +38,7 @@ services:
 
 
   postgres:
-    image: postgres:16.3-alpine3.20
+    image: postgres:${PROWLER_POSTGRES_VERSION:-16.3-alpine3.20}
     hostname: "postgres-db"
     volumes:
       - ./_data/postgres:/var/lib/postgresql/data
@@ -65,7 +65,7 @@ services:
       retries: 5
 
   valkey:
-    image: valkey/valkey:7-alpine3.19
+    image: valkey/valkey:${PROWLER_VALKEY_VERSION:-7-alpine3.19}
     hostname: "valkey"
     volumes:
       - ./_data/valkey:/data

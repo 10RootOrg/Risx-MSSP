@@ -16,6 +16,7 @@ print_yellow "Past part 1"
 pre_install "prowler"
 # replace_env "PROWLER_IMAGE_TAG"
 # replace_env "PROWLER_COMMAND"
+replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Start the service
 print_yellow "Start Part 2"

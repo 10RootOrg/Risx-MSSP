@@ -1,6 +1,6 @@
 services:
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:${IRIS_RABBITMQ_VERSION:-3-management-alpine}
     container_name: iriswebapp_rabbitmq
     restart: always
     networks:
@@ -9,12 +9,12 @@ services:
   db:
     container_name: iriswebapp_db
     restart: always
-    image: ghcr.io/dfir-iris/iriswebapp_db:v2.4.10
+    image: ghcr.io/dfir-iris/iriswebapp_db:${IRIS_VERSION:-v2.4.10}
     entrypoint: /bin/bash
     command:
       - postgres_start_with_secrets.sh
     env_file:
-      - environment.sh
+      - .env
     secrets:
       - POSTGRES_PASSWORD
       - POSTGRES_ADMIN_PASSWORD
@@ -30,7 +30,7 @@ services:
     command:
       - /iriswebapp_start_with_secrets.sh
     user: "65534"
-    image: ghcr.io/dfir-iris/iriswebapp_app:v2.4.10
+    image: ghcr.io/dfir-iris/iriswebapp_app:${IRIS_VERSION:-v2.4.10}
     volumes:
       - ./iriswebapp_start_with_secrets.sh:/iriswebapp_start_with_secrets.sh:ro,Z
       - ./certificates/rootCA/irisRootCACert.pem:/etc/irisRootCACert.pem:ro
@@ -44,7 +44,7 @@ services:
       - "rabbitmq"
       - "db"
     env_file:
-      - environment.sh
+      - .env
     secrets:
       - POSTGRES_PASSWORD
       - POSTGRES_ADMIN_PASSWORD
@@ -58,7 +58,7 @@ services:
   worker:
     container_name: iriswebapp_worker
     restart: always
-    image: ghcr.io/dfir-iris/iriswebapp_app:v2.4.10
+    image: ghcr.io/dfir-iris/iriswebapp_app:${IRIS_VERSION:-v2.4.10}
     entrypoint: /bin/bash
     command:
       - /worker_start_with_secrets.sh
@@ -76,7 +76,7 @@ services:
       - "db"
       - "app"
     env_file:
-      - environment.sh
+      - .env
     secrets:
       - POSTGRES_PASSWORD
       - POSTGRES_ADMIN_PASSWORD
@@ -87,9 +87,9 @@ services:
 
   nginx:
     container_name: iriswebapp-nginx
-    image: ghcr.io/dfir-iris/iriswebapp_nginx:v2.4.10
+    image: ghcr.io/dfir-iris/iriswebapp_nginx:${IRIS_VERSION:-v2.4.10}
     env_file:
-      - environment.sh
+      - .env
     networks:
       - main_network
     ports:

@@ -43,6 +43,7 @@ grep -v '^#' .env | while read -r line; do
     # Replace the environment variable with the value from the .env file
     replace_env "${key}"
 done
+replace_envs "${workdir}/${service_name}/.env"
 replace_env "ELASTIC_VERSION"
 
 # Step 2: Use Docker Compose to bring up the setup service and then the rest of the services in detached mode

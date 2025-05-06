@@ -1,7 +1,7 @@
 services:
   cyberchef:
     container_name: cyberchef
-    image: ghcr.io/gchq/cyberchef:${IMAGE_TAG:-latest}
+    image: ghcr.io/gchq/cyberchef:${CYBERCHEF_IMAGE_TAG:-latest}
     env_file:
       - .env
     networks:

@@ -1,6 +1,6 @@
 services:
   nightingale:
-    image: ghcr.io/rajanagori/nightingale:${image_tag:-stableXXX}
+    image: ghcr.io/rajanagori/nightingale:${NIGHTINGALE_IMAGE_TAG:-stableXXX}
     container_name: nightingale
     env_file:
       - .env

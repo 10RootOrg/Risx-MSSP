@@ -1,12 +1,14 @@
 services:
   frontend:
-    image: target/strelka-frontend:0.24.07.09
+    image: target/strelka-frontend:${STRELKA_VERSION:-0.24.07.09}
     command: strelka-frontend -locallog=true -kafkalog=false
     expose:
-      - 57314:57314  # must match the port in frontend.yaml
+      - 57314:57314 # must match the port in frontend.yaml
     networks:
       - net
       - main_network
+    env_file:
+      - .env
     volumes:
       - ./configs/go/frontend/:/etc/strelka/:ro
       - logs:/var/log/strelka/
@@ -16,12 +18,14 @@ services:
       - gatekeeper
 
   backend:
-    image: target/strelka-backend:0.24.07.09
+    image: target/strelka-backend:${STRELKA_VERSION:-0.24.07.09}
     command: strelka-backend
-    shm_size: 512mb  # increase as necessary, required for some scanners
+    shm_size: 512mb # increase as necessary, required for some scanners
     networks:
       - net
       - main_network
+    env_file:
+      - .env
     volumes:
       - ./configs/python/backend/:/etc/strelka/:ro
     restart: unless-stopped
@@ -29,35 +33,37 @@ services:
       - coordinator
 
   manager:
-    image: target/strelka-manager:0.24.07.09
+    image: target/strelka-manager:${STRELKA_VERSION:-0.24.07.09}
     command: strelka-manager
     restart: unless-stopped
     networks:
       - net
       - main_network
+    env_file:
+      - .env
     volumes:
       - ./configs/go/manager/:/etc/strelka/:ro
     depends_on:
       - coordinator
 
   coordinator:
-    image: redis:7.4.0-alpine3.20
+    image: redis:${STRELKA_REDIS_VERSION:-7.4.0-alpine3.20}
     restart: unless-stopped
-    command: redis-server --save "" --appendonly no  # alt: use config file via volume mapping
+    command: redis-server --save "" --appendonly no # alt: use config file via volume mapping
     networks:
       - net
       - main_network
 
   gatekeeper:
-    image: redis:7.4.0-alpine3.20
+    image: redis:${STRELKA_REDIS_VERSION:-7.4.0-alpine3.20}
     restart: unless-stopped
-    command: redis-server --save "" --appendonly no --maxmemory-policy allkeys-lru  # alt: use config file via volume mapping
+    command: redis-server --save "" --appendonly no --maxmemory-policy allkeys-lru # alt: use config file via volume mapping
     networks:
       - net
       - main_network
 
   jaeger:
-    image: jaegertracing/all-in-one:1.42
+    image: jaegertracing/all-in-one:${STRELKA_JAEGER_VERSION:-1.42}
     restart: unless-stopped
     environment:
       - COLLECTOR_OTLP_ENABLED=true
@@ -65,14 +71,14 @@ services:
       - net
       - main_network
     expose:
-      - "16686:16686"    # HTTP query     frontend UI
-      - "6831:6831/udp"  # UDP  agent     accept jaeger.thrift over Thrift-compact protocol (used by most SDKs)
-      - "4317:4317"      # HTTP collector accept OpenTelemetry Protocol (OTLP) over gRPC
-      - "4318:4318"      # HTTP collector accept OpenTelemetry Protocol (OTLP) over HTTP
-      - "14268:14268"    # HTTP collector accept jaeger.thrift
+      - "16686:16686" # HTTP query     frontend UI
+      - "6831:6831/udp" # UDP  agent     accept jaeger.thrift over Thrift-compact protocol (used by most SDKs)
+      - "4317:4317" # HTTP collector accept OpenTelemetry Protocol (OTLP) over gRPC
+      - "4318:4318" # HTTP collector accept OpenTelemetry Protocol (OTLP) over HTTP
+      - "14268:14268" # HTTP collector accept jaeger.thrift
 
   ui:
-    image: target/strelka-ui:v2.13
+    image: target/strelka-ui:${STRELKA_UI_VERSION:-v2.13}
     restart: unless-stopped
     container_name: strelka-ui
     environment:
@@ -84,6 +90,8 @@ services:
     networks:
       - net
       - main_network
+    env_file:
+      - .env
     expose:
       - "8080"
     depends_on:
@@ -91,7 +99,7 @@ services:
 
   postgresdb:
     image: docker.io/bitnami/postgresql:11
-    restart: unless-stopped      
+    restart: unless-stopped
     environment:
       - POSTGRESQL_DATABASE=strelka_ui
       - POSTGRESQL_PASSWORD=postgres

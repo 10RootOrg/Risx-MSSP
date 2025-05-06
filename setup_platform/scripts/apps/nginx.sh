@@ -7,6 +7,7 @@ source "./libs/main.sh"
 define_env
 define_paths
 source "./libs/install-helper.sh"
+replace_envs "${workdir}/${service_name}/.env"
 
 # Step 1: Copy the stack configs
 pre_install "nginx"
