@@ -8,10 +8,10 @@ source "./libs/main.sh"
 define_env
 define_paths
 source "./libs/install-helper.sh"
-replace_envs "${workdir}/${service_name}/.env"
 
 # Step 1: Pre-installation
 pre_install "strelka"
+replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Start the service
 printf "Starting the service...\n"

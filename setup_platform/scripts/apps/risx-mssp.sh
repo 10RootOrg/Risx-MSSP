@@ -45,7 +45,7 @@ print_green "Cloning repositories for development..."
 if [[ ! -d "${workdir}/${service_name}/backend/risx-mssp-back" ]]; then
   git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" "${workdir}/${service_name}/backend/risx-mssp-back"
   # Modify config for the right IP
-  sed -i "s/localhost/${FRONT_IP}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
+  sed -i "s/localhost/${INTERNAL_IP_OF_HOST_MACHINE}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
   sed -i "s/importing/${TIMESKETCH_PASSWORD}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
   sed -i "s/import/${TIMESKETCH_USERNAME}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"
   

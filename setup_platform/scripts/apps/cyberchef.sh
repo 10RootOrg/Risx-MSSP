@@ -6,11 +6,11 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
-replace_envs "${workdir}/${service_name}/.env"
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
 pre_install "cyberchef"
+replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Start the service
 printf "Starting the service...\n"

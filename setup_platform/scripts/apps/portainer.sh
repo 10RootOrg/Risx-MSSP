@@ -7,10 +7,10 @@ source "./libs/main.sh"
 define_env
 define_paths
 source "./libs/install-helper.sh"
-replace_envs "${workdir}/${service_name}/.env"
 
 # Step 1: Copy the stack configs
 pre_install "portainer"
+replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Use Docker Compose to bring up the services in detached mode
 printf "Starting the service...\n"

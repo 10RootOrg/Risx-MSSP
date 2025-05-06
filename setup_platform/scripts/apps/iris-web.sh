@@ -8,7 +8,6 @@ source "./libs/main.sh"
 define_env
 define_paths
 source "./libs/install-helper.sh"
-replace_envs "${workdir}/${service_name}/.env"
 
 # App specific variables
 IRIS_GIT_COMMIT=${IRIS_GIT_COMMIT:-"v2.4.10"}
@@ -27,6 +26,7 @@ git clone --branch "$IRIS_GIT_COMMIT" --single-branch --depth 1 \
 
 # Step 1: Pre-installation
 pre_install "iris-web" false
+replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Copy necessary files from the specified directory
 printf "Copying docker-compose.yml and .env from %s...\n" "${src_dir}"
