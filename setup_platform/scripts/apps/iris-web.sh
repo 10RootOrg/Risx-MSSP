@@ -26,13 +26,13 @@ git clone --branch "$IRIS_GIT_COMMIT" --single-branch --depth 1 \
 
 # Step 1: Pre-installation
 pre_install "iris-web" false
-replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Copy necessary files from the specified directory
 printf "Copying docker-compose.yml and .env from %s...\n" "${src_dir}"
 cp "$src_dir"/*start_with_secrets.sh .
 cp "$src_dir/docker-compose.yml" .
 cp "$src_dir/.env" .
+replace_envs "${workdir}/${service_name}/.env"
 chmod a+rx,go-w *start_with_secrets.sh
 
 # Replaces direct `cp` for the situation of no secrets exists
