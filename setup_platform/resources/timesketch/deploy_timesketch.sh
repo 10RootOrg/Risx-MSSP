@@ -27,6 +27,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+
 # Exit early if a timesketch directory already exists.
 if [ -d "./timesketch" ]; then
   echo "ERROR: Timesketch directory already exist."
@@ -56,6 +57,164 @@ mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc
 chown 1000 timesketch/data/opensearch
 
 echo -n "* Setting default config parameters.."
+echo " hello $TIMESKETCH_VERSION this is the TIMESKETCH_VERSION 111111"
+
+source ./config.env
+
+
+#!/bin/bash
+
+# Download the docker-compose.yml file from GitHub
+echo "Downloading docker-compose.yml from GitHub... from https://raw.githubusercontent.com/google/timesketch/$TIMESKETCH_VERSION/docker/release/docker-compose.yml"
+curl -s -o docker-compose.yml "https://raw.githubusercontent.com/google/timesketch/$TIMESKETCH_VERSION/docker/release/docker-compose.yml"
+
+# Create a backup of the downloaded file
+cp docker-compose.yml docker-compose.yml.backup
+
+# Remove nginx and postgres sections from the new file
+echo "Removing nginx and postgres sections..."
+sed -i '/^  nginx:/,/^  [^ ]/ {/^  [^ ]/!d}' docker-compose.yml
+sed -i '/^  postgres:/,/^  [^ ]/ {/^  [^ ]/!d}' docker-compose.yml
+
+# Remove any remaining empty postgres: lines
+sed -i '/^  postgres:$/d' docker-compose.yml
+# Remove any remaining empty nginx: lines
+sed -i '/^  nginx:$/d' docker-compose.yml
+
+# Add the postgres section from original (hardcoded)
+echo "Adding the postgres service with all configurations..."
+sed -i '/^services:/a\
+  postgres:\
+    container_name: postgres\
+    image: postgres:${POSTGRES_VERSION}\
+    env_file:\
+      - .env\
+    environment:\
+      - POSTGRES_USER=timesketch\
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}\
+    restart: always\
+    volumes:\
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data\
+    networks:\
+      main_network:\
+        aliases:\
+          - timesketch-postgres' docker-compose.yml
+
+# Add missing configurations to timesketch-web
+echo "Adding missing configurations to timesketch-web..."
+# Add env_file before environment
+sed -i '/^  timesketch-web:/,/^    environment:/ s/^    environment:/    env_file:\n      - .env\n    environment:/' docker-compose.yml
+
+# Add networks and expose after volumes
+sed -i '/^  timesketch-web:/,/^  [^ ]/ {
+    /^    volumes:/,/^  [^ ]/ {
+        /^      - ${TIMESKETCH_LOGS_PATH}:/a\
+    expose:\
+      - 9222\
+      - 5000\
+    networks:\
+      - main_network
+    }
+}' docker-compose.yml
+
+# Add missing configurations to timesketch-web-legacy
+echo "Adding missing configurations to timesketch-web-legacy..."
+# Add env_file before environment
+sed -i '/^  timesketch-web-legacy:/,/^    environment:/ s/^    environment:/    env_file:\n      - .env\n    environment:/' docker-compose.yml
+
+# Add missing ports, expose, and networks after volumes
+sed -i '/^  timesketch-web-legacy:/,/^  [^ ]/ {
+    /^    volumes:/,/^  [^ ]/ {
+        /^      - .\/logs:/a\
+    ports:\
+      - "5666:5000"\
+    expose:\
+      - 9222\
+      - 5000\
+    networks:\
+      - main_network
+    }
+}' docker-compose.yml
+
+# Add missing configurations to timesketch-worker
+echo "Adding missing configurations to timesketch-worker..."
+# Add env_file before environment
+sed -i '/^  timesketch-worker:/,/^    environment:/ s/^    environment:/    env_file:\n      - .env\n    environment:/' docker-compose.yml
+
+# Add missing networks after volumes
+sed -i '/^  timesketch-worker:/,/^  [^ ]/ {
+    /^    volumes:/,/^  [^ ]/ {
+        /^      - ${TIMESKETCH_LOGS_PATH}:/a\
+    networks:\
+      - main_network
+    }
+}' docker-compose.yml
+
+# Add missing configurations to opensearch
+echo "Adding missing configurations to opensearch..."
+# Add env_file before restart
+sed -i '/^  opensearch:/,/^    restart:/ s/^    restart:/    env_file:\n      - .env\n    restart:/' docker-compose.yml
+
+# Add missing networks after volumes
+sed -i '/^  opensearch:/,/^  [^ ]/ {
+    /^    volumes:/,/^  [^ ]/ {
+        /^      - ${OPENSEARCH_DATA_PATH}:/a\
+    networks:\
+      - main_network
+    }
+}' docker-compose.yml
+
+# Add missing configurations to redis
+echo "Adding missing configurations to redis..."
+# Add env_file after image
+sed -i '/^  redis:/,/^    image:/ s/^    image:\(.*\)$/    image:\1\n    env_file:\n      - .env/' docker-compose.yml
+
+# Add missing networks before restart or after command
+sed -i '/^  redis:/,/^  [^ ]/ {
+    /^    restart: always$/a\
+    networks:\
+      - main_network
+}' docker-compose.yml
+
+# # Final cleanup to remove any leftover empty postgres: entries
+# echo "Final cleanup of any duplicate/empty postgres entries..."
+# sed -i '/^  postgres:$/d' docker-compose.yml
+
+# Add networks section at the end of the file if it doesn't exist
+if ! grep -q "^networks:" docker-compose.yml; then
+  echo "Adding networks section..."
+  echo "
+networks:
+  main_network:
+    external: true" >> docker-compose.yml
+fi
+
+echo "Docker compose file has been updated successfully!"
+echo "Original file downloaded from GitHub"
+echo "Backup created as docker-compose.yml.backup"
+echo "Updated file saved as docker-compose.yml"
+
+
+# **************************************************************************
+
+# Download the config.env file
+echo "Downloading config.env from GitHub..."
+curl -s -o config.env https://raw.githubusercontent.com/google/timesketch/$TIMESKETCH_VERSION/docker/release/config.env
+
+# Add the additional configuration values to config.env
+echo "Adding additional configuration values to config.env..."
+echo "
+START_CONTAINER=yes
+CREATE_USER=yes
+NEWUSERNAME=10admin
+IMPORT_USER_NAME=import
+IMPORT_USER_PASSWORD=importing" >> config.env
+
+echo "config.env has been downloaded and updated successfully!"
+
+
+echo
+echo " hello $TIMESKETCH_VERSION this is the TIMESKETCH_VERSION "
 POSTGRES_USER="timesketch"
 POSTGRES_PASSWORD="$(
   tr </dev/urandom -dc A-Za-z0-9 | head -c 32
@@ -72,8 +231,8 @@ OPENSEARCH_PORT=9200
 OPENSEARCH_MEM_USE_GB=$(cat /proc/meminfo | grep MemTotal | awk '{printf "%.0f", ($2 / (1024 * 1024) / 2)}')
 REDIS_ADDRESS="redis"
 REDIS_PORT=6379
-GITHUB_COMMIT="20240828"
-GITHUB_BASE_URL="https://raw.githubusercontent.com/google/timesketch/${GITHUB_COMMIT}"
+# GITHUB_COMMIT="20240828"
+GITHUB_BASE_URL="https://raw.githubusercontent.com/google/timesketch/${TIMESKETCH_VERSION}"
 echo "OK"
 echo "* Setting OpenSearch memory allocation to ${OPENSEARCH_MEM_USE_GB}GB"
 
@@ -81,6 +240,9 @@ echo "* Setting OpenSearch memory allocation to ${OPENSEARCH_MEM_USE_GB}GB"
 echo -n "* Fetching configuration files.."
 mv docker-compose.yml timesketch/docker-compose.yml
 mv config.env timesketch/config.env
+
+
+
 
 # Fetch default Timesketch config files
 curl -s $GITHUB_BASE_URL/data/context_links.yaml >timesketch/etc/timesketch/context_links.yaml
