@@ -1,0 +1,13 @@
+services:
+  misp:
+    image: harvarditsecurity/misp:${MISP_VERSION:-2.4.185}
+    container_name: misp
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - main_network
+
+networks:
+  main_network:
+    external: true
