@@ -9,7 +9,7 @@ services:
   db:
     container_name: iriswebapp_db
     restart: always
-    image: ghcr.io/dfir-iris/iriswebapp_db:${IRIS_VERSION:-v2.4.10}
+    image: ghcr.io/dfir-iris/iriswebapp_db:${IRIS_VERSION:-v2.4.20}
     entrypoint: /bin/bash
     command:
       - postgres_start_with_secrets.sh
@@ -30,7 +30,7 @@ services:
     command:
       - /iriswebapp_start_with_secrets.sh
     user: "65534"
-    image: ghcr.io/dfir-iris/iriswebapp_app:${IRIS_VERSION:-v2.4.10}
+    image: ghcr.io/dfir-iris/iriswebapp_app:${IRIS_VERSION:-v2.4.20}
     volumes:
       - ./iriswebapp_start_with_secrets.sh:/iriswebapp_start_with_secrets.sh:ro,Z
       - ./certificates/rootCA/irisRootCACert.pem:/etc/irisRootCACert.pem:ro
@@ -58,7 +58,7 @@ services:
   worker:
     container_name: iriswebapp_worker
     restart: always
-    image: ghcr.io/dfir-iris/iriswebapp_app:${IRIS_VERSION:-v2.4.10}
+    image: ghcr.io/dfir-iris/iriswebapp_app:${IRIS_VERSION:-v2.4.20}
     entrypoint: /bin/bash
     command:
       - /worker_start_with_secrets.sh
@@ -87,7 +87,7 @@ services:
 
   nginx:
     container_name: iriswebapp-nginx
-    image: ghcr.io/dfir-iris/iriswebapp_nginx:${IRIS_VERSION:-v2.4.10}
+    image: ghcr.io/dfir-iris/iriswebapp_nginx:${IRIS_VERSION:-v2.4.20}
     env_file:
       - .env
     networks:
