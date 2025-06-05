@@ -133,6 +133,7 @@ else
 fi
 
 # Section 7: Check required ports
+echo -e "\n--- Will work only after installation!"
 echo -e "\n--- Checking Required Ports ---"
 required_ports=(22 80 443 3003 5555 8000 8001 8443 8843 8844)
 ports_status=0
