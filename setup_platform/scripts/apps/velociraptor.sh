@@ -32,6 +32,9 @@ replace_env "VELOX_ROLE_2"
 replace_env "VELOX_USER_2"
 replace_env "VELOX_USER_2"
 replace_env "VELOCIRAPTOR_VERSION"
+replace_env "VELOCIRAPTOR_ARTIFACTS_URL"
+replace_env "VELOCIRAPTOR_ARTIFACTS_DST_FOLDER"
+
 
 
 mkdir -p "${workdir}/${service_name}/velociraptor"
@@ -55,6 +58,8 @@ if [[ -v VELOCIRAPTOR_ARTIFACTS_URL ]]; then
   sudo rsync -r server_artifacts/* "$VELOCIRAPTOR_ARTIFACTS_DST_FOLDER"
   sudo rm -rf server_artifacts
   sudo rm -rf velociraptor_artifacts.zip
+else
+  print_yellow "No env Variable called VELOCIRAPTOR_ARTIFACTS_URL = $VELOCIRAPTOR_ARTIFACTS_URL   || "
 fi
 
 if [ -d custom ]; then
