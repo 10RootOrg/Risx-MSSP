@@ -38,6 +38,7 @@ ENDPOINTS=(
 "prowler      : $PROTO://$MYIP:3111/"
 "risx-mssp    : $PROTO://$MYIP:3003/"
 "strelka      : $PROTO://$MYIP:8843/"
+"misp         : $PROTO://$MYIP:9713/"
 "timesketch   : $PROTO://$MYIP/"
 "velociraptor : $PROTO://$MYIP/velociraptor"
 )
