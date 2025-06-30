@@ -64,8 +64,6 @@ ID_ARRAY=($FEEDS_ID)
 for id in "${ID_ARRAY[@]}"; do
     echo "Processing ID: $id"
     docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake Server toggleFeed "$id"
-
-    # Your logic here
 done
 
 
@@ -86,4 +84,33 @@ echo "MISP_PASSWORD=$NEWUSERNAME_PASSWORD" >> "${workdir}/.env"
 
 sleep 5
 docker restart misp-misp-core-1
+sleep 10
+
+echo "Pull Start"
+
+for id in "${ID_ARRAY[@]}"; do
+    echo "Fetching Feed ID: $id"
+    nohup docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake Server fetchFeed 1 "$id" &
+done
+
+
+sleep 5
+echo "Pull End"
+
+CRON_COMMAND="0 1 * * * docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake Server pullall 1 update"
+
+echo "Adding cron job..."
+
+# Add the cron job
+(crontab -l 2>/dev/null; echo "$CRON_COMMAND") | crontab -
+
+# Verify it was actually added
+if crontab -l 2>/dev/null | grep -F "docker exec misp-misp-core-1" > /dev/null; then
+    echo "Cron job added successfully"
+else
+    echo "Failed to add cron job - not found in crontab"
+    exit 1
+fi
+echo "crontab End"
+
 print_green_v2 "$service_name deployment started." "Successfully"
