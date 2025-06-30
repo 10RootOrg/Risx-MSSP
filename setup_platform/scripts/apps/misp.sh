@@ -97,20 +97,90 @@ done
 sleep 5
 echo "Pull End"
 
-CRON_COMMAND="0 1 * * * docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake Server pullall 1 update"
+#!/bin/bash
 
-echo "Adding cron job..."
+CONTAINER_NAME="misp-misp-core-1"
+CRON_COMMAND="0 1 * * * docker exec $CONTAINER_NAME /var/www/MISP/app/Console/cake Server pullall 1 update"
 
-# Add the cron job
-(crontab -l 2>/dev/null; echo "$CRON_COMMAND") | crontab -
+echo "=== DEBUGGING CRONTAB ISSUE ==="
 
-# Verify it was actually added
-if crontab -l 2>/dev/null | grep -F "docker exec misp-misp-core-1" > /dev/null; then
-    echo "Cron job added successfully"
+# 1. Check current user
+echo "Current user: $(whoami)"
+
+# 2. Check if cron service is running
+echo "Checking cron service..."
+if command -v systemctl > /dev/null; then
+    systemctl is-active cron 2>/dev/null || systemctl is-active crond 2>/dev/null || echo "Cron service status unknown"
+elif command -v service > /dev/null; then
+    service cron status 2>/dev/null || service crond status 2>/dev/null || echo "Cron service status unknown"
 else
-    echo "Failed to add cron job - not found in crontab"
+    if pgrep cron > /dev/null || pgrep crond > /dev/null; then
+        echo "Cron process is running"
+    else
+        echo "ERROR: No cron process found!"
+    fi
+fi
+
+# 3. Check current crontab
+echo "Current crontab BEFORE adding:"
+crontab -l 2>/dev/null || echo "(no existing crontab)"
+
+# 4. Try to add the cron job with detailed output
+echo "Adding cron job..."
+echo "Command to add: $CRON_COMMAND"
+
+# Create a temporary file to debug
+TEMP_CRON=$(mktemp)
+crontab -l 2>/dev/null > "$TEMP_CRON"
+echo "$CRON_COMMAND" >> "$TEMP_CRON"
+
+echo "Contents of temp cron file:"
+cat "$TEMP_CRON"
+
+# Apply the crontab
+if crontab "$TEMP_CRON" 2>&1; then
+    echo "crontab command executed successfully"
+else
+    echo "crontab command failed"
+    rm "$TEMP_CRON"
     exit 1
 fi
-echo "crontab End"
+
+rm "$TEMP_CRON"
+
+# 5. Check crontab immediately after
+echo "Current crontab AFTER adding:"
+crontab -l 2>/dev/null || echo "(no crontab found - this is the problem!)"
+
+# 6. Verify the specific job exists
+if crontab -l 2>/dev/null | grep -F "docker exec $CONTAINER_NAME" > /dev/null; then
+    echo "SUCCESS: Cron job found in crontab"
+else
+    echo "FAILURE: Cron job NOT found in crontab"
+    
+    # Additional checks
+    echo "=== ADDITIONAL DIAGNOSTICS ==="
+    
+    # Check if we can write to crontab at all
+    echo "Testing basic crontab functionality..."
+    echo "# Test entry" | crontab -
+    if crontab -l 2>/dev/null | grep -F "# Test entry" > /dev/null; then
+        echo "Basic crontab write works"
+        # Clean up test entry
+        crontab -l 2>/dev/null | grep -v "# Test entry" | crontab -
+    else
+        echo "ERROR: Cannot write to crontab at all!"
+    fi
+    
+    # Check crontab directory permissions
+    if [ -d /var/spool/cron ]; then
+        echo "Cron spool directory permissions:"
+        ls -la /var/spool/cron/ 2>/dev/null || echo "Cannot access /var/spool/cron/"
+    fi
+    
+    exit 1
+fi
+
+echo "=== END DEBUG ==="
 
 print_green_v2 "$service_name deployment started." "Successfully"
