@@ -4,7 +4,7 @@ source ../.env
 tag_name=${1:-""}
 
 cd "frontend/Code" || { echo "Failed to cd into directory"; exit 1; }
-
+git fetch --tags
 if [ -z "$tag_name" ]; then
     tag_name=$(git tag --sort=-v:refname | head -n 1)
 fi
@@ -17,6 +17,7 @@ git checkout $tag_name
 sed -i -E "s#(\"backendUrl\":\s*\")[^\"]*(\")#\1${RISX_MSSP_BACKEND_FULL_URL}\2#" "public/mssp_config.json"
 
 cd "../../backend/risx-mssp-back" || { echo "Failed to cd into directory"; exit 1; }
+git fetch --tags
 git checkout -- .
 git checkout $tag_name
   sed -i "s/localhost/${INTERNAL_IP_OF_HOST_MACHINE}/g" "db/seeds/production/config_seed.json"
@@ -25,6 +26,7 @@ git checkout $tag_name
 
 
 cd "../python-scripts" || { echo "Failed to cd into directory"; exit 1; }
+git fetch --tags
 git checkout -- .
 git checkout $tag_name
 printf "All repositories have been updated to %s\n" "$tag_name"

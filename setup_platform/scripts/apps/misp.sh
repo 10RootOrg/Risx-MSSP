@@ -39,8 +39,20 @@ ADMINE_PASSWORD="$(
   echo
 )"
 
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user list
-printf "user list end\n"
+USER_LIST=$(docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake user list)
+
+echo "=== Current MISP user list ==="
+echo "$USER_LIST"
+
+# Basic empty check
+if [[ -z "$USER_LIST" ]]; then
+  echo "No users found — running setup logic..."
+  docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake user create admin@admin.test 1 1 "Aa1234567890"
+  echo "No users found — Ending setup logic..."
+
+else
+  echo "Users already exist — skipping user creation."
+fi
 
 docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user create "${READ_ONLY_USER}" 6 1 "Aa1234567890"
 sleep 5
@@ -100,8 +112,8 @@ echo "Pull End"
 #!/bin/bash
 
 CONTAINER_NAME="misp-misp-core-1"
-CRON_COMMAND="0 1 * * * docker exec $CONTAINER_NAME /var/www/MISP/app/Console/cake Server pullall 1 update"
-
+# Redefine cleanly to avoid any hidden character issues
+CRON_COMMAND="0 1 * * * docker exec ${CONTAINER_NAME} /var/www/MISP/app/Console/cake Server pullall 1 update"
 echo "=== DEBUGGING CRONTAB ISSUE ==="
 
 # 1. Check current user
@@ -131,7 +143,12 @@ echo "Command to add: $CRON_COMMAND"
 
 # Create a temporary file to debug
 TEMP_CRON=$(mktemp)
-crontab -l 2>/dev/null > "$TEMP_CRON"
+echo crontab -l 2>/dev/null > "$TEMP_CRON"
+
+# crontab -l 2>/dev/null > "$TEMP_CRON"
+crontab -l 2>/dev/null > "$TEMP_CRON" || echo "# empty crontab" > "$TEMP_CRON"
+
+
 echo "$CRON_COMMAND" >> "$TEMP_CRON"
 
 echo "Contents of temp cron file:"
@@ -178,7 +195,7 @@ else
         ls -la /var/spool/cron/ 2>/dev/null || echo "Cannot access /var/spool/cron/"
     fi
     
-    exit 1
+    # exit 1
 fi
 
 echo "=== END DEBUG ==="
