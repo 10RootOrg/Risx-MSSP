@@ -52,7 +52,8 @@ if [ -z "$(grep vm.max_map_count /etc/sysctl.conf)" ]; then
 fi
 
 # Create dirs
-mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc/timesketch/sigma/rules,upload}
+# mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc/timesketch/sigma/rules,upload}
+mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc/timesketch/sigma/rules,upload,etc/timesketch/llm_summarize,etc/timesketch/nl2q}
 # TODO: Switch to named volumes instead of host volumes.
 chown 1000 timesketch/data/opensearch
 
@@ -257,7 +258,10 @@ curl -s $GITHUB_BASE_URL/data/sigma_config.yaml >timesketch/etc/timesketch/sigma
 curl -s $GITHUB_BASE_URL/data/sigma_rule_status.csv >timesketch/etc/timesketch/sigma_rule_status.csv
 curl -s $GITHUB_BASE_URL/data/timesketch.conf >timesketch/etc/timesketch/timesketch.conf
 curl -s $GITHUB_BASE_URL/data/winevt_features.yaml >timesketch/etc/timesketch/winevt_features.yaml
-
+curl -s $GITHUB_BASE_URL/data/llm_summarize/prompt.txt > timesketch/etc/timesketch/llm_summarize/prompt.txt
+curl -s $GITHUB_BASE_URL/data/nl2q/data_types.csv > timesketch/etc/timesketch/nl2q/data_types.csv
+curl -s $GITHUB_BASE_URL/data/nl2q/prompt_nl2q > timesketch/etc/timesketch/nl2q/prompt_nl2q
+curl -s $GITHUB_BASE_URL/data/nl2q/examples_nl2q > timesketch/etc/timesketch/nl2q/examples_nl2q
 # Replace the original tagger
 GITHUB_COMMIT_blueteam0ps=${GITHUB_COMMIT_blueteam0ps:-"07d4df90d8686b8379f97c5755dd9ebe5f534ca9"} # Default to the latest commit
 GITHUB_URL_blueteam0ps="https://raw.githubusercontent.com/blueteam0ps/AllthingsTimesketch/${GITHUB_COMMIT_blueteam0ps}"
