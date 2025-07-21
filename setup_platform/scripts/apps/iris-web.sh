@@ -90,4 +90,7 @@ if [[ "$IRIS_VT_MODULE_ENABLED" == "true" || $IRIS_MISP_MODULE_ENABLED == "true"
   fi
 fi
 
+
+# sudo chown -R 65534:65534 /var/lib/docker/volumes/iris-web_server_data/_data
+docker exec -it --user root iriswebapp_app chown -R nobody:nogroup /home/iris/server_data/
 print_green_v2 "$service_name deployment started." "Successfully"
