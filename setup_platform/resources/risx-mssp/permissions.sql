@@ -15,4 +15,4 @@ GRANT ALL PRIVILEGES ON \\*.\\* TO "'shoresh'"@"'%'" WITH GRANT OPTION\\;
 
 FLUSH PRIVILEGES\\;
 
-EXIT\\;
+-- EXIT\\;
