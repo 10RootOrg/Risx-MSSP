@@ -268,7 +268,7 @@ GITHUB_URL_blueteam0ps="https://raw.githubusercontent.com/blueteam0ps/AllthingsT
 curl -o timesketch/etc/timesketch/tags.yaml -s "${GITHUB_URL_blueteam0ps}"/tags.yaml
 
 # TODO: we don't use an nginx on this level
-#curl -s $GITHUB_BASE_URL/contrib/nginx.conf > timesketch/etc/nginx.conf
+#curl -s $GITHUB_BASE_URL/contrib/nginx.conf > timesketch/etc/nginx.conf 
 echo "OK"
 
 # Create a minimal Timesketch config
@@ -285,6 +285,26 @@ sed -i 's#^UPLOAD_FOLDER = \x27/tmp\x27#UPLOAD_FOLDER = \x27/usr/share/timesketc
 
 sed -i 's#^CELERY_BROKER_URL =.*#CELERY_BROKER_URL = \x27redis://'$REDIS_ADDRESS':'$REDIS_PORT'\x27#' timesketch/etc/timesketch/timesketch.conf
 sed -i 's#^CELERY_RESULT_BACKEND =.*#CELERY_RESULT_BACKEND = \x27redis://'$REDIS_ADDRESS':'$REDIS_PORT'\x27#' timesketch/etc/timesketch/timesketch.conf
+
+# Setup Ai
+
+# Update the configuration
+sudo sed -i 's/DFIQ_ENABLED = False/DFIQ_ENABLED = True/' timesketch/etc/timesketch/timesketch.conf
+
+ sed -i "/    'nl2q': {/,/    },/ {
+    s/'vertexai':/'aistudio':/
+    s/'project_id': ''/'api_key': '${TIMESKETCH_LLM_KEY}'/
+}" timesketch/etc/timesketch/timesketch.conf
+
+ sed -i "/    'llm_summarize': {/,/    },/ {
+    s/'api_key': ''/'api_key': '${TIMESKETCH_LLM_KEY}'/
+}" timesketch/etc/timesketch/timesketch.conf
+
+ sed -i "/    'default': {/,/    }/ {
+    s/'ollama':/'aistudio':/
+    s/'server_url': '',/'model': 'gemini-2.0-flash-001',/
+    s/'model': '',/'api_key': '${TIMESKETCH_LLM_KEY}',/
+}" timesketch/etc/timesketch/timesketch.conf
 
 # Set up the Postgres connection
 sed -i 's#postgresql://<USERNAME>:<PASSWORD>@localhost#postgresql://'$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_ADDRESS':'$POSTGRES_PORT'#' timesketch/etc/timesketch/timesketch.conf
@@ -340,7 +360,7 @@ if [ "$CREATE_USER" != "${CREATE_USER#[Yy]}" ]; then
     )"
   fi
   sleep 10
-
+  docker compose exec timesketch-web pip3 install google-generativeai
   docker compose exec timesketch-web tsctl create-user "$NEWUSERNAME" --password "${NEWUSERNAME_PASSWORD}" \
   && echo "New user has been created"
   docker compose exec timesketch-web tsctl make-admin "$NEWUSERNAME"
