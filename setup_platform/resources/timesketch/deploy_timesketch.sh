@@ -53,12 +53,14 @@ fi
 
 # Create dirs
 # mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc/timesketch/sigma/rules,upload}
-mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc/timesketch/sigma/rules,upload,etc/timesketch/llm_summarize,etc/timesketch/nl2q}
+mkdir -p timesketch/{data/postgresql,data/opensearch,logs,etc,etc/timesketch,etc/timesketch/sigma/rules,upload,etc/timesketch/llm_summarize,etc/timesketch/nl2q,etc/timesketch/dfiq}
 # TODO: Switch to named volumes instead of host volumes.
 chown 1000 timesketch/data/opensearch
 
 echo -n "* Setting default config parameters.."
 echo " hello $TIMESKETCH_VERSION this is the TIMESKETCH_VERSION 111111"
+echo " hello $TIMESKETCH_GEMINI_LLM_KEY this is the TIMESKETCH_GEMINI_LLM_KEY 111111"
+
 
 source ./config.env
 
@@ -216,6 +218,8 @@ source ./config.env
 
 echo
 echo " hello $TIMESKETCH_VERSION this is the TIMESKETCH_VERSION "
+echo " hello $TIMESKETCH_GEMINI_LLM_KEY this is the TIMESKETCH_GEMINI_LLM_KEY "
+
 POSTGRES_USER="timesketch"
 POSTGRES_PASSWORD="$(
   tr </dev/urandom -dc A-Za-z0-9 | head -c 32
@@ -293,18 +297,22 @@ sudo sed -i 's/DFIQ_ENABLED = False/DFIQ_ENABLED = True/' timesketch/etc/timeske
 
  sed -i "/    'nl2q': {/,/    },/ {
     s/'vertexai':/'aistudio':/
-    s/'project_id': ''/'api_key': '${TIMESKETCH_LLM_KEY}'/
+    s/'project_id': ''/'api_key': '${TIMESKETCH_GEMINI_LLM_KEY}'/
 }" timesketch/etc/timesketch/timesketch.conf
 
  sed -i "/    'llm_summarize': {/,/    },/ {
-    s/'api_key': ''/'api_key': '${TIMESKETCH_LLM_KEY}'/
+    s/'api_key': ''/'api_key': '${TIMESKETCH_GEMINI_LLM_KEY}'/
 }" timesketch/etc/timesketch/timesketch.conf
 
  sed -i "/    'default': {/,/    }/ {
     s/'ollama':/'aistudio':/
     s/'server_url': '',/'model': 'gemini-2.0-flash-001',/
-    s/'model': '',/'api_key': '${TIMESKETCH_LLM_KEY}',/
+    s/'model': '',/'api_key': '${TIMESKETCH_GEMINI_LLM_KEY}',/
 }" timesketch/etc/timesketch/timesketch.conf
+
+
+git clone https://github.com/google/dfiq.git
+sudo cp -r dfiq/dfiq/data/* timesketch/etc/timesketch/dfiq/
 
 # Set up the Postgres connection
 sed -i 's#postgresql://<USERNAME>:<PASSWORD>@localhost#postgresql://'$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_ADDRESS':'$POSTGRES_PORT'#' timesketch/etc/timesketch/timesketch.conf
