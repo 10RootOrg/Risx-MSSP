@@ -4,6 +4,8 @@ services:
   mail:
     image: ixdotai/smtp
     restart: unless-stopped
+    networks:
+      - main_network
     environment:
       - "SMARTHOST_ADDRESS=${SMARTHOST_ADDRESS}"
       - "SMARTHOST_PORT=${SMARTHOST_PORT}"
@@ -14,6 +16,8 @@ services:
   redis:
     image: valkey/valkey:7.2
     restart: unless-stopped
+    networks:
+      - main_network
     command: "--requirepass '${REDIS_PASSWORD:-redispassword}'"
     healthcheck:
       test: "valkey-cli -a '${REDIS_PASSWORD:-redispassword}' -p ${REDIS_PORT:-6379} ping | grep -q PONG || exit 1"
@@ -27,6 +31,8 @@ services:
     # We use MariaDB because it supports ARM and has the expected collations
     image: mariadb:10.11
     restart: unless-stopped
+    networks:
+      - main_network
     environment:
       - "MYSQL_USER=${MYSQL_USER:-misp}"
       - "MYSQL_PASSWORD=${MYSQL_PASSWORD:-example}"
@@ -56,6 +62,8 @@ services:
   misp-core:
     image: ghcr.io/misp/misp-docker/misp-core:${CORE_RUNNING_TAG:-latest}
     restart: unless-stopped
+    networks:
+      - main_network
     entrypoint: >
       bash -c "/entrypoint.sh && tail -f /dev/null"
 
@@ -261,6 +269,8 @@ services:
   misp-modules:
     image: ghcr.io/misp/misp-docker/misp-modules:${MODULES_RUNNING_TAG:-latest}
     restart: unless-stopped
+    networks:
+      - main_network
     build:
       context: modules/.
       args:
@@ -283,3 +293,8 @@ services:
 
 volumes:
   mysql_data:
+
+
+networks:
+  main_network:
+    external: true
