@@ -12,16 +12,39 @@ declare -a FAILED_CHECKS
 
 echo "Running Risx-MSSP/IR System Checks..."
 
-# Section 1: Check Ubuntu version
-echo -e "\n--- Checking Ubuntu Version ---"
-ubuntu_version=$(lsb_release -rs)
+# Section 1: Check Operating System
+echo -e "\n--- Checking Operating System ---"
+supported_os=false
 
-if [[ $ubuntu_version =~ ^22\.04(\.[0-9]+)?$ ]]; then
-    echo -e "${GREEN}✓${NC} Ubuntu version is $ubuntu_version (22.04 based)"
-    PASSED_CHECKS+=("Ubuntu version (22.04)")
+if [[ -r /etc/os-release ]]; then
+    # shellcheck disable=SC1091
+    source /etc/os-release
+    if [[ $ID == "ubuntu" && $VERSION_ID =~ ^22\.04(\.[0-9]+)?$ ]]; then
+        echo -e "${GREEN}✓${NC} Ubuntu version is ${VERSION_ID} (22.04 based)"
+        PASSED_CHECKS+=("Ubuntu version (22.04)")
+        supported_os=true
+    elif [[ $ID == "rhel" || $ID == "redhat" || $ID_LIKE =~ (rhel|centos|fedora) ]]; then
+        if [[ $VERSION_ID =~ ^(8|9|10)(\.|$) ]]; then
+            echo -e "${GREEN}✓${NC} Red Hat compatible version detected (${NAME:-$ID} ${VERSION_ID})"
+            PASSED_CHECKS+=("Red Hat compatible version (8/9/10)")
+            supported_os=true
+        else
+            echo -e "${RED}✗${NC} Red Hat compatible OS detected but unsupported version (${NAME:-$ID} ${VERSION_ID})"
+            FAILED_CHECKS+=("Red Hat compatible version (8/9/10)")
+        fi
+    else
+        echo -e "${RED}✗${NC} Unsupported operating system: ${NAME:-$ID} ${VERSION_ID}"
+        FAILED_CHECKS+=("Supported operating system")
+    fi
 else
-    echo -e "${RED}✗${NC} Ubuntu version is $ubuntu_version (not 22.04 based)"
-    FAILED_CHECKS+=("Ubuntu version (22.04)")
+    echo -e "${RED}✗${NC} Unable to determine operating system (missing /etc/os-release)"
+    FAILED_CHECKS+=("Supported operating system")
+fi
+
+if [[ $supported_os == false ]]; then
+    if [[ ! " ${FAILED_CHECKS[*]} " =~ "Supported operating system" ]]; then
+        FAILED_CHECKS+=("Supported operating system")
+    fi
 fi
 
 # Section 2: Check storage size and free space
@@ -30,11 +53,12 @@ root_partition=$(df -h / | awk 'NR==2 {print $1}')
 total_size_kb=$(df -k / | awk 'NR==2 {print $2}')
 free_space_kb=$(df -k / | awk 'NR==2 {print $4}')
 
-# Convert KB to GB
-total_size_gb=$(echo "scale=2; $total_size_kb/1024/1024" | bc)
-free_space_gb=$(echo "scale=2; $free_space_kb/1024/1024" | bc)
+# Convert KB to GB for display
+total_size_gb=$(awk -v total="$total_size_kb" 'BEGIN {printf "%.2f", total/1024/1024}')
+free_space_gb=$(awk -v free="$free_space_kb" 'BEGIN {printf "%.2f", free/1024/1024}')
+required_storage_kb=$((200 * 1024 * 1024))
 
-if (( $(echo "$total_size_gb >= 200" | bc -l) )); then
+if (( total_size_kb >= required_storage_kb )); then
     echo -e "${GREEN}✓${NC} Total storage size: ${total_size_gb}GB (>= 200GB)"
     PASSED_CHECKS+=("Storage size (≥ 200GB)")
 else
@@ -42,7 +66,7 @@ else
     FAILED_CHECKS+=("Storage size (≥ 200GB)")
 fi
 
-if (( $(echo "$free_space_gb >= 200" | bc -l) )); then
+if (( free_space_kb >= required_storage_kb )); then
     echo -e "${GREEN}✓${NC} Free space available: ${free_space_gb}GB (>= 200GB)"
     PASSED_CHECKS+=("Free space (≥ 200GB)")
 else
@@ -108,23 +132,45 @@ fi
 
 # Section 5: Check for static IP
 echo -e "\n--- Checking for Static IP ---"
-interface=$(ip route | grep default | awk '{print $5}')
-ip_config=$(cat /etc/netplan/*.yaml 2>/dev/null | grep -A10 "$interface" | grep -E "dhcp4:|addresses:")
+interface=$(ip route | awk '/default/ {print $5; exit}')
+static_ip_detected=false
+if [[ -n $interface ]]; then
+    if compgen -G "/etc/netplan/*.yaml" >/dev/null; then
+        ip_config=$(cat /etc/netplan/*.yaml 2>/dev/null | grep -A10 "$interface" | grep -E "dhcp4:|addresses:")
+        if [[ $ip_config == *"dhcp4: false"* ]] || [[ $ip_config == *"addresses:"* ]]; then
+            static_ip_detected=true
+        fi
+    elif command -v nmcli &>/dev/null; then
+        dhcp_state=$(nmcli -g IP4.DHCP device show "$interface" 2>/dev/null | tr '[:upper:]' '[:lower:]')
+        ip_addresses=$(nmcli -g IP4.ADDRESS device show "$interface" 2>/dev/null)
+        if [[ $dhcp_state != "yes" && -n $ip_addresses ]]; then
+            static_ip_detected=true
+        fi
+    else
+        if ! ip addr show "$interface" | grep -qw "dynamic"; then
+            static_ip_detected=true
+        fi
+    fi
 
-if [[ $ip_config == *"dhcp4: false"* ]] || [[ $ip_config == *"addresses:"* ]]; then
-    echo -e "${GREEN}✓${NC} Static IP configured on $interface"
-    PASSED_CHECKS+=("Static IP configuration")
+    if [[ $static_ip_detected == true ]]; then
+        echo -e "${GREEN}✓${NC} Static IP configured on $interface"
+        PASSED_CHECKS+=("Static IP configuration")
+    else
+        echo -e "${RED}✗${NC} No static IP found on $interface"
+        FAILED_CHECKS+=("Static IP configuration")
+    fi
 else
-    echo -e "${RED}✗${NC} No static IP found on $interface"
-    FAILED_CHECKS+=("Static IP configuration")
+    echo -e "${YELLOW}?${NC} Unable to determine network interface for default route"
+    FAILED_CHECKS+=("Static IP configuration (unknown)")
 fi
 
 # Section 6: Check RAM
 echo -e "\n--- Checking RAM Size ---"
 total_ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-total_ram_gb=$(echo "scale=2; $total_ram_kb/1024/1024" | bc)
+total_ram_gb=$(awk -v ram="$total_ram_kb" 'BEGIN {printf "%.2f", ram/1024/1024}')
+required_ram_kb=$((16 * 1024 * 1024))
 
-if (( $(echo "$total_ram_gb >= 16" | bc -l) )); then
+if (( total_ram_kb >= required_ram_kb )); then
     echo -e "${GREEN}✓${NC} RAM: ${total_ram_gb}GB (>= 16GB required)"
     PASSED_CHECKS+=("RAM size (≥ 16GB)")
 else
