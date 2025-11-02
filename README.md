@@ -61,18 +61,18 @@ our version is a modified version of the original code
 
 ## Checking out the Red Hat support branch
 
-The Red Hat enablement work lives on the `redhat-support` branch. Clone or
+The Red Hat enablement work lives on the `redhat-port` branch. Clone or
 switch to that branch to test the RHEL-specific workflow without touching the
 default branch:
 
 ```bash
 # Fresh clone that only downloads the PR branch
-git clone --branch redhat-support --single-branch \
+git clone --branch redhat-port --single-branch \
   https://github.com/<your-org>/Risx-MSSP.git
 
 # Or fetch the branch inside an existing clone
-git fetch origin redhat-support:redhat-support
-git checkout redhat-support
+git fetch origin redhat-port:redhat-port
+git checkout redhat-port
 ```
 
 Once you are on the branch, follow the platform installer instructions for
