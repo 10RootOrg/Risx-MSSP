@@ -178,6 +178,18 @@ function add_docker_as_sudoer() {
 }
 
 # TODO: Deprecated, because now it's a part of the Docker CLI
+function has_docker_compose() {
+  if command -v docker-compose &>/dev/null; then
+    return 0
+  fi
+
+  if command -v docker &>/dev/null && docker compose version &>/dev/null; then
+    return 0
+  fi
+
+  return 1
+}
+
 function install_docker_compose_plugin() {
   echo "Installing docker compose plugin"
 
@@ -190,7 +202,7 @@ function install_docker_compose_plugin() {
   sudo ln -sf /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose
   sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-  if [[ ! -x "$(command -v docker-compose)" || ! -x "$(command -v docker compose)" ]]; then
+  if ! has_docker_compose; then
     printf "Docker compose plugins installation failed.\n"
     exit 1
   fi
@@ -200,7 +212,7 @@ function install_docker_compose_plugin() {
 
 function install_docker() {
   # Check if Docker is installed
-  if [[ ! -x "$(command -v docker)" ]]; then
+  if ! command -v docker &>/dev/null; then
     echo "Docker is not installed. Installing Docker..."
     curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
     sudo sh /tmp/get-docker.sh --version "$DOCKER_VERSION"
@@ -210,7 +222,7 @@ function install_docker() {
     echo "Docker is already installed."
   fi
 
-  if [[ ! -x "$(command -v docker-compose)" || ! -x "$(command -v docker compose)" ]]; then
+  if ! has_docker_compose; then
     echo "Docker Compose is not installed. Installing Docker Compose..."
     install_docker_compose_plugin
   else

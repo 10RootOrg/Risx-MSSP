@@ -24,13 +24,13 @@ if [[ -r /etc/os-release ]]; then
         PASSED_CHECKS+=("Ubuntu version (22.04)")
         supported_os=true
     elif [[ $ID == "rhel" || $ID == "redhat" || $ID_LIKE =~ (rhel|centos|fedora) ]]; then
-        if [[ $VERSION_ID =~ ^(8|9)(\.|$) ]]; then
+        if [[ $VERSION_ID =~ ^(8|9|10)(\.|$) ]]; then
             echo -e "${GREEN}✓${NC} Red Hat compatible version detected (${NAME:-$ID} ${VERSION_ID})"
-            PASSED_CHECKS+=("Red Hat compatible version (8/9)")
+            PASSED_CHECKS+=("Red Hat compatible version (8/9/10)")
             supported_os=true
         else
             echo -e "${RED}✗${NC} Red Hat compatible OS detected but unsupported version (${NAME:-$ID} ${VERSION_ID})"
-            FAILED_CHECKS+=("Red Hat compatible version (8/9)")
+            FAILED_CHECKS+=("Red Hat compatible version (8/9/10)")
         fi
     else
         echo -e "${RED}✗${NC} Unsupported operating system: ${NAME:-$ID} ${VERSION_ID}"
