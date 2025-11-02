@@ -7,6 +7,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # App specific variables
@@ -64,8 +65,8 @@ fi
 
 # Step 4: Build and bring up the services
 printf "Building and bringing up the services...\n"
-docker compose build
-docker compose up -d --force-recreate
+container_compose build
+container_compose up -d --force-recreate
 
 # Step 5: Enable VT module if the IRIS_VT_MODULE_ENABLED is true
 if [[ "$IRIS_VT_MODULE_ENABLED" == "true" || $IRIS_MISP_MODULE_ENABLED == "true" ]]; then
@@ -73,7 +74,7 @@ if [[ "$IRIS_VT_MODULE_ENABLED" == "true" || $IRIS_MISP_MODULE_ENABLED == "true"
   printf "Enabling Iris modules\nWaiting %s s for the services to start...\n" "$timeout"
   sleep $timeout
   # Waiting until the app services are up and running "IRIS IS READY"
-  while [[ $(docker compose logs app | grep -c "IRIS IS READY") -eq 0 ]]; do
+  while [[ $(container_compose logs app | grep -c "IRIS IS READY") -eq 0 ]]; do
     printf "Sleeping 5; Still waiting for the services to start...\n"
     sleep 5
   done
@@ -92,5 +93,5 @@ fi
 
 
 # sudo chown -R 65534:65534 /var/lib/docker/volumes/iris-web_server_data/_data
-docker exec -it --user root iriswebapp_app chown -R nobody:nogroup /home/iris/server_data/
+container_exec -it --user root iriswebapp_app chown -R nobody:nogroup /home/iris/server_data/
 print_green_v2 "$service_name deployment started." "Successfully"

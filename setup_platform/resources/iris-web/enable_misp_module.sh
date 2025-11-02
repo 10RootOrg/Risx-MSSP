@@ -5,16 +5,30 @@
 
 set -eo pipefail
 
+if ! declare -f container_compose >/dev/null 2>&1; then
+  script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
+  if [ -f "$script_root/scripts/libs/main.sh" ]; then
+    # shellcheck source=setup_platform/scripts/libs/main.sh
+    source "$script_root/scripts/libs/main.sh"
+  else
+    echo "Container helpers are not available. Run this script via the setup tooling." >&2
+    exit 1
+  fi
+fi
+
+if [ -z "$CONTAINER_ENGINE" ] && declare -f initialize_container_runtime >/dev/null 2>&1; then
+  initialize_container_runtime
+fi
+
 export DB_NAME=${IRIS_DB_NAME:-"iris_db"}
 export TABLE_NAME=${IRIS_TABLE_NAME:-"iris_module"}
 export MODULE_NAME=${IRIS_MODULE_NAME:-"iris_misp_module"}
 export MODULE_CONFIG_FILE=${IRIS_MISP_MODULE_CONFIG_FILE:-"misp_config.json"}
 
-
 # Function to check if the module exists in the DB
 check_if_exists() {
   local QUERY="SELECT EXISTS (SELECT 1 FROM $TABLE_NAME WHERE module_name = '$MODULE_NAME');"
-  local RESP=$(docker compose exec -T db psql -U postgres -d "$DB_NAME" -c "$QUERY" | grep f)
+  local RESP=$(container_compose exec -T db psql -U postgres -d "$DB_NAME" -c "$QUERY" | grep f)
 
   printf "Checking if the module %s exists\n" "$MODULE_NAME"
   if [[ $RESP == " f" ]]; then
@@ -38,7 +52,7 @@ function update_config() {
   MODULE_CONFIG_SETTINGS=$(jq -Rs . "$MODULE_CONFIG_FILE")
 
   QUERY=$(
-    cat <<EOF
+    cat <<'SQL'
       UPDATE $TABLE_NAME
       SET module_config = (
         SELECT jsonb_agg(
@@ -53,15 +67,15 @@ function update_config() {
       WHERE EXISTS (
         SELECT 1 FROM jsonb_array_elements(module_config::jsonb) AS elem WHERE elem->>'param_name' = 'misp_config'
       );
-EOF
+SQL
   )
 
-  docker compose exec -T db psql -U postgres -d "$DB_NAME" -c "$QUERY"
+  container_compose exec -T db psql -U postgres -d "$DB_NAME" -c "$QUERY"
   printf "Config for the module %s has been updated\n" "$MODULE_NAME"
 
 #  Show current value to debug
 #  CURR_CONFIG_JSON_QUERY="SELECT module_config FROM $TABLE_NAME WHERE module_name = '$MODULE_NAME';"
-#  RESP="$(docker compose exec -T db psql -U postgres -d "$DB_NAME" -q -t -c "$CURR_CONFIG_JSON_QUERY")"
+#  RESP="$(container_compose exec -T db psql -U postgres -d "$DB_NAME" -q -t -c "$CURR_CONFIG_JSON_QUERY")"
 #  jq '.[] | select(.param_name == "misp_config").value' <<<"$RESP" | jq -r .
 }
 
@@ -70,7 +84,7 @@ function enable_module() {
   printf "Enabling the module %s\n" "$MODULE_NAME"
 
   local QUERY="UPDATE $TABLE_NAME SET is_active = true WHERE module_name = '$MODULE_NAME';"
-  docker compose exec -T db psql -U postgres -d "$DB_NAME" -c "$QUERY"
+  container_compose exec -T db psql -U postgres -d "$DB_NAME" -c "$QUERY"
   printf "Module %s has been enabled\n" "$MODULE_NAME"
 }
 

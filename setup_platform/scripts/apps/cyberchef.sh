@@ -6,6 +6,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
@@ -14,6 +15,6 @@ replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Start the service
 printf "Starting the service...\n"
-docker compose up -d --force-recreate
+container_compose up -d --force-recreate
 
 print_green_v2 "$service_name deployment started." "Successfully"

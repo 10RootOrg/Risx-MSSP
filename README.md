@@ -2,7 +2,7 @@
 
 **Goal**: The goal of this project is to create a stack of services that can be used for incident response and threat hunting.
 
-**Description**: This stack contains a set of the services, which are combined with the docker compose file. Each app has its own folder with the docker compose file, all apps use one network.
+**Description**: This stack contains a set of the services, which are combined with the compose file executed via a Docker-compatible interface. Each app has its own folder with the compose file, all apps use one network.
 
 ## Current status
 
@@ -47,8 +47,8 @@ The following scripts are available:
 This stack is growing,
 you find a complete list of the requirements in the file `resources/default.env` in the environment variable `REQUIRED_PACKAGES`.
 
-- Docker; client and server ~ 20.10
-- docker compose plugin v2 ~ 2.26
+- Podman with the podman-docker compatibility layer
+- podman-compose (provides compatibility for docker compose workflows)
 - Git ~ 2.34
 - [yq](https://github.com/mikefarah/yq/#install) ~ 4.44
 - bash shell ~ 5.0

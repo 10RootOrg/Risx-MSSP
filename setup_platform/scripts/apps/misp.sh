@@ -7,6 +7,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 pre_install "misp"
 
@@ -15,7 +16,7 @@ source .env
 
 # Step 2: Start the service
 printf "Starting the service...\n"
-docker compose up -d --force-recreate
+container_compose up -d --force-recreate
 printf "Starting the Sllep...\n"
 sleep 70
 printf "Ending the Sllep...\n"
@@ -39,7 +40,7 @@ ADMINE_PASSWORD="$(
   echo
 )"
 
-USER_LIST=$(docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake user list)
+USER_LIST=$(container_exec misp-misp-core-1 /var/www/MISP/app/Console/cake user list)
 
 echo "=== Current MISP user list ==="
 echo "$USER_LIST"
@@ -47,35 +48,35 @@ echo "$USER_LIST"
 # Basic empty check
 if [[ -z "$USER_LIST" ]]; then
   echo "No users found — running setup logic..."
-  docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake user create admin@admin.test 1 1 "Aa1234567890"
+  container_exec misp-misp-core-1 /var/www/MISP/app/Console/cake user create admin@admin.test 1 1 "Aa1234567890"
   echo "No users found — Ending setup logic..."
 
 else
   echo "Users already exist — skipping user creation."
 fi
 
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user create "${READ_ONLY_USER}" 6 1 "Aa1234567890"
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user create "${READ_ONLY_USER}" 6 1 "Aa1234567890"
 sleep 5
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user list
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user list
 printf "user list end\n"
 
 sleep 2
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user change_pw --no_password_change 2 "$NEWUSERNAME_PASSWORD"
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user change_pw --no_password_change 2 "$NEWUSERNAME_PASSWORD"
 sleep 2
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user change_pw --no_password_change 1 "$ADMINE_PASSWORD"
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user change_pw --no_password_change 1 "$ADMINE_PASSWORD"
 sleep 2
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user list
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake admin setSetting Security.password_policy_length 8
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake admin setSetting MISP.default_publish_alert false  
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake admin setSetting MISP.correlation_engine "NoAcl"
-docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake Server loadDefaultFeeds
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake user list
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake admin setSetting Security.password_policy_length 8
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake admin setSetting MISP.default_publish_alert false
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake admin setSetting MISP.correlation_engine "NoAcl"
+container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake Server loadDefaultFeeds
 sleep 5
 ID_ARRAY=($FEEDS_ID)
 
 # Iterate over the array
 for id in "${ID_ARRAY[@]}"; do
     echo "Processing ID: $id"
-    docker exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake Server toggleFeed "$id"
+    container_exec -it misp-misp-core-1 /var/www/MISP/app/Console/cake Server toggleFeed "$id"
 done
 
 
@@ -95,14 +96,14 @@ echo "MISP_PASSWORD=$NEWUSERNAME_PASSWORD" >> "${workdir}/.env"
 
 
 sleep 5
-docker restart misp-misp-core-1
+container_restart misp-misp-core-1
 sleep 10
 
 echo "Pull Start"
 
 for id in "${ID_ARRAY[@]}"; do
     echo "Fetching Feed ID: $id"
-    nohup docker exec misp-misp-core-1 /var/www/MISP/app/Console/cake Server fetchFeed 1 "$id" &
+    nohup $CONTAINER_ENGINE exec misp-misp-core-1 /var/www/MISP/app/Console/cake Server fetchFeed 1 "$id" &
 done
 
 
@@ -113,7 +114,7 @@ echo "Pull End"
 
 CONTAINER_NAME="misp-misp-core-1"
 # Redefine cleanly to avoid any hidden character issues
-CRON_COMMAND="0 1 * * * docker exec ${CONTAINER_NAME} /var/www/MISP/app/Console/cake Server pullall 1 update"
+CRON_COMMAND="0 1 * * * $CONTAINER_ENGINE exec ${CONTAINER_NAME} /var/www/MISP/app/Console/cake Server pullall 1 update"
 echo "=== DEBUGGING CRONTAB ISSUE ==="
 
 # 1. Check current user
@@ -170,7 +171,7 @@ echo "Current crontab AFTER adding:"
 crontab -l 2>/dev/null || echo "(no crontab found - this is the problem!)"
 
 # 6. Verify the specific job exists
-if crontab -l 2>/dev/null | grep -F "docker exec $CONTAINER_NAME" > /dev/null; then
+if crontab -l 2>/dev/null | grep -F "$CONTAINER_ENGINE exec $CONTAINER_NAME" > /dev/null; then
     echo "SUCCESS: Cron job found in crontab"
 else
     echo "FAILURE: Cron job NOT found in crontab"

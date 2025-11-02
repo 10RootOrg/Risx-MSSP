@@ -1,15 +1,14 @@
 #!/bin/bash
 set -eo pipefail
 
-DOCKER_VERSION=${DOCKER_VERSION:-"27.3"}
-# TODO: Deprecated, because now it's a part of the Docker CLI
-DOCKER_COMPOSE_VERSION=${DOCKER_COMPOSE_VERSION:-"2.29.7"}
+CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
+DOCKER_COMPAT_PACKAGE=${DOCKER_COMPAT_PACKAGE:-"podman-docker"}
 
 # HELP describe output and options
 function show_help() {
   echo "Usage: $0 [OPTIONS]"
   echo "Options:"
-  echo "  --reinstall-docker Cleanup Docker and reinstall"
+  echo "  --reinstall-docker Cleanup container runtime packages and reinstall"
   echo "  --reinstall Cleanup all dependencies and reinstall"
   echo "  --help Show help"
   echo "######################"
@@ -18,16 +17,20 @@ function show_help() {
 
 function cleanup_docker() {
   local NETWORK_NAME=${NETWORK_NAME:-"main_network"}
-  # Cleanup Docker
-  echo "Cleaning up Docker and deps..."
-  docker rm "$NETWORK_NAME" || true
+  # Cleanup container runtime packages
+  echo "Cleaning up container runtime and dependencies..."
+  if command -v docker >/dev/null 2>&1; then
+    docker network rm "$NETWORK_NAME" 2>/dev/null || true
+  elif command -v podman >/dev/null 2>&1; then
+    podman network rm "$NETWORK_NAME" 2>/dev/null || true
+  fi
   sudo apt-get remove --purge -y \
-    docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc \
-    docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin || true
+    docker.io docker-doc docker-compose docker-compose-v2 containerd runc docker-ce docker-ce-cli containerd.io \
+    docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin podman podman-docker podman-compose crun || true
   sudo apt-get autoremove -y
   sudo rm -rf /usr/local/lib/docker/cli-plugins || true
   sudo rm -rf "$HOME/.docker" || true
-  printf "\n###\nDocker cleanup finished.\n###\n"
+  printf "\n###\nContainer runtime cleanup finished.\n###\n"
 }
 
 # shellcheck disable=SC2120
@@ -41,73 +44,63 @@ function cleanup_dependencies() {
   printf "\n###\nDependencies cleanup finished.\n###\n"
 }
 
-# shellcheck disable=SC2120
-function add_docker_as_sudoer() {
-  ENV_FILE=${1:-"../resources/default.env"}
-  source "$ENV_FILE"
-  local username=${username:-$USER}
-  # Check if the current user is in the docker group
-  if ! groups | grep -q "\bdocker\b"; then
-    echo "Adding \"$username\" user to the docker group..."
-    # Add the current user to the docker group
-    sudo usermod -aG docker "$username"
-    printf "User '%s' added to the docker group successfully.\n" "$username"
-    printf "Please logout and login again to apply the changes.\n"
+function install_container_runtime() {
+  if [[ ! -x "$(command -v podman)" ]]; then
+    echo "Podman is not installed. Installing Podman..."
+    sudo apt-get update
+    sudo apt-get install --yes podman podman-compose
   else
-    echo "Current user is already a member of the docker group."
-  fi
-}
-
-# TODO: Deprecated, because now it's a part of the Docker CLI
-function install_docker_compose_plugin() {
-  echo "Installing docker compose plugin"
-
-  # Legacy docker-compose command
-  sudo curl --show-error --silent --location --output /usr/local/bin/docker-compose \
-    https://github.com/docker/compose/releases/download/v"${DOCKER_COMPOSE_VERSION}"/docker-compose-$(uname -s)-$(uname -m)
-  sudo chmod +x /usr/local/bin/docker-compose
-
-  sudo mkdir -p /usr/local/lib/docker/cli-plugins
-  sudo ln -sf /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose
-  sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-
-  if [[ ! -x "$(command -v docker-compose)" || ! -x "$(command -v docker compose)" ]]; then
-    printf "Docker compose plugins installation failed.\n"
-    exit 1
+    echo "Podman is already installed."
   fi
 
-  printf "Docker compose plugins installed successfully.\n"
-}
+  if [[ ! -x "$(command -v podman-compose)" ]]; then
+    echo "Installing podman-compose for compose compatibility..."
+    sudo apt-get install --yes podman-compose
+  fi
 
-function install_docker() {
-  # Check if Docker is installed
   if [[ ! -x "$(command -v docker)" ]]; then
-    echo "Docker is not installed. Installing Docker..."
-    curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
-    sudo sh /tmp/get-docker.sh --version "$DOCKER_VERSION"
-    rm -f /tmp/get-docker.sh
-    add_docker_as_sudoer
+    echo "Installing podman-docker for Docker CLI compatibility..."
+    sudo apt-get install --yes "${DOCKER_COMPAT_PACKAGE}"
   else
-    echo "Docker is already installed."
+    echo "podman-docker compatibility layer is already installed."
   fi
 
-  if [[ ! -x "$(command -v docker-compose)" || ! -x "$(command -v docker compose)" ]]; then
-    echo "Docker Compose is not installed. Installing Docker Compose..."
-    install_docker_compose_plugin
-  else
-    echo "Docker Compose is already installed."
+  if [[ ! -x "$(command -v docker-compose)" ]]; then
+    echo "Creating docker-compose shim backed by podman compose..."
+    sudo tee /usr/local/bin/docker-compose >/dev/null <<'EOS'
+#!/bin/bash
+if podman compose --help >/dev/null 2>&1; then
+  exec podman compose "$@"
+elif command -v podman-compose >/dev/null 2>&1; then
+  exec podman-compose "$@"
+else
+  echo "podman compose support is not available. Install podman-compose." >&2
+  exit 1
+fi
+EOS
+    sudo chmod +x /usr/local/bin/docker-compose
+  fi
+
+  if [[ ! -x "/usr/local/lib/docker/cli-plugins/docker-compose" ]]; then
+    echo "Ensuring docker compose plugin wrapper exists..."
+    sudo mkdir -p /usr/local/lib/docker/cli-plugins
+    sudo ln -sf /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose
   fi
 }
 
 function create_docker_network() {
   local NETWORK_NAME=${NETWORK_NAME:-"main_network"}
-  printf "Creating Docker network: %s\n" "$NETWORK_NAME"
-  # Create Docker network
-  if [[ $(docker network ls --format '{{.Name}}' | grep -w "$NETWORK_NAME") ]]; then
+  printf "Creating container network: %s\n" "$NETWORK_NAME"
+  local cli_cmd="${CONTAINER_RUNTIME}"
+  if command -v docker >/dev/null 2>&1; then
+    cli_cmd="docker"
+  fi
+  # Create container network
+  if [[ $($cli_cmd network ls --format '{{.Name}}' | grep -w "$NETWORK_NAME") ]]; then
     echo "Network '$NETWORK_NAME' already exists. Skipping creation..."
   else
-    docker network create "$NETWORK_NAME"
-    printf "Docker network '%s' created successfully.\n" "$NETWORK_NAME"
+    $cli_cmd network create "$NETWORK_NAME"
+    printf "Container network '%s' created successfully.\n" "$NETWORK_NAME"
   fi
 }
 
@@ -117,9 +110,12 @@ function install_dependencies() {
   local ENV_FILE=${1:-"../resources/default.env"}
   local install_dependencies="false"
   source "$ENV_FILE"
-  # remove docker and docker-compose from the list
+  # remove container runtime packages from the list (handled separately)
   dependencies=("${REQUIRED_PACKAGES[@]/docker-compose/}")
   dependencies=("${dependencies[@]/docker/}")
+  dependencies=("${dependencies[@]/podman-docker/}")
+  dependencies=("${dependencies[@]/podman/}")
+  dependencies=("${dependencies[@]/podman-compose/}")
   # If at least one package is not installed, install all
   for package in "${dependencies[@]}"; do
       if [[ -n $package ]] && [[ ! -x "$(command -v "$package")" ]]; then
@@ -140,7 +136,7 @@ function install_dependencies() {
 function default_func() {
   printf "Default: Install dependencies...\n"
   install_dependencies
-  install_docker
+  install_container_runtime
   create_docker_network
 }
 

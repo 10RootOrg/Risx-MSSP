@@ -15,6 +15,52 @@
 
 set -e
 
+CONTAINER_ENGINE=""
+CONTAINER_COMPOSE_CMD=()
+
+initialize_container_runtime() {
+  if [ -n "$CONTAINER_ENGINE" ]; then
+    return
+  fi
+
+  local preferred=${CONTAINER_ENGINE_PREFERENCE:-}
+  if [ -n "$preferred" ] && command -v "$preferred" >/dev/null 2>&1; then
+    CONTAINER_ENGINE="$preferred"
+  else
+    for candidate in podman docker; do
+      if command -v "$candidate" >/dev/null 2>&1; then
+        CONTAINER_ENGINE="$candidate"
+        break
+      fi
+    done
+  fi
+
+  if [ -z "$CONTAINER_ENGINE" ]; then
+    echo "No supported container runtime found (podman or docker)." >&2
+    exit 1
+  fi
+
+  if [ "$CONTAINER_ENGINE" = "podman" ]; then
+    if command -v podman-compose >/dev/null 2>&1; then
+      CONTAINER_COMPOSE_CMD=(podman-compose)
+    else
+      CONTAINER_COMPOSE_CMD=("$CONTAINER_ENGINE" compose)
+    fi
+  else
+    CONTAINER_COMPOSE_CMD=("$CONTAINER_ENGINE" compose)
+  fi
+}
+
+container_compose() {
+  initialize_container_runtime
+  "${CONTAINER_COMPOSE_CMD[@]}" "$@"
+}
+
+container_ps() {
+  initialize_container_runtime
+  "$CONTAINER_ENGINE" ps "$@"
+}
+
 START_CONTAINER=
 
 if [ "$1" == "--start-container" ]; then
@@ -27,6 +73,9 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+initialize_container_runtime
+COMPOSE_CLI_DISPLAY="${CONTAINER_COMPOSE_CMD[*]}"
+
 
 # Exit early if a timesketch directory already exists.
 if [ -d "./timesketch" ]; then
@@ -37,7 +86,7 @@ if [ -d "./timesketch" ]; then
 fi
 
 # Exit early if there are Timesketch containers already running.
-if [ ! -z "$(docker ps | grep timesketch)" ]; then
+if [ -n "$(container_ps | grep timesketch)" ]; then
   echo "ERROR: Timesketch containers already running."
   echo "You can run the following command to remove the directory:"
   echo "./cleanup.sh --app timesketch"
@@ -331,7 +380,7 @@ fi
 
 cd timesketch
 if [ "$START_CONTAINER" != "${START_CONTAINER#[Yy]}" ]; then # this grammar (the #[] operator) means that the variable $start_cnt where any Y or y in 1st position will be dropped if they exist.
-  docker compose up -d
+  container_compose up -d
   echo "sleep 5..."
   sleep 5
 else
@@ -341,8 +390,8 @@ else
   echo
   echo "Start the system:"
   echo "1. cd timesketch"
-  echo "2. docker compose up -d"
-  echo "3. docker compose exec timesketch-web tsctl create-user <USERNAME>"
+  echo "2. ${COMPOSE_CLI_DISPLAY} up -d"
+  echo "3. ${COMPOSE_CLI_DISPLAY} exec timesketch-web tsctl create-user <USERNAME>"
   echo
   echo "WARNING: The server is running without encryption."
   echo "Follow the instructions to enable SSL to secure the communications:"
@@ -368,10 +417,10 @@ if [ "$CREATE_USER" != "${CREATE_USER#[Yy]}" ]; then
     )"
   fi
   sleep 10
-  docker compose exec timesketch-web pip3 install google-generativeai
-  docker compose exec timesketch-web tsctl create-user "$NEWUSERNAME" --password "${NEWUSERNAME_PASSWORD}" \
+  container_compose exec timesketch-web pip3 install google-generativeai
+  container_compose exec timesketch-web tsctl create-user "$NEWUSERNAME" --password "${NEWUSERNAME_PASSWORD}" \
   && echo "New user has been created"
-  docker compose exec timesketch-web tsctl make-admin "$NEWUSERNAME"
+  container_compose exec timesketch-web tsctl make-admin "$NEWUSERNAME"
   echo "############################################"
   echo "### User created: $NEWUSERNAME"
   echo "### Password: $NEWUSERNAME_PASSWORD"
@@ -385,7 +434,7 @@ fi
 # echo "############################################"
 # echo "Creating a username for importing data"
 # echo "############################################"
-# docker compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --password "${IMPORT_USER_PASSWORD}" \
+# container_compose exec timesketch-web tsctl create-user "${IMPORT_USER_NAME}" --password "${IMPORT_USER_PASSWORD}" \
 
 # && echo "New user has been created"
 
@@ -406,7 +455,7 @@ fi
 
 echo "############################################"
 echo "### Starting the Timesketch container ###"
-docker compose restart timesketch-web
-docker compose restart timesketch-web-legacy
-docker compose restart timesketch-worker
+container_compose restart timesketch-web
+container_compose restart timesketch-web-legacy
+container_compose restart timesketch-worker
 echo "############################################"
