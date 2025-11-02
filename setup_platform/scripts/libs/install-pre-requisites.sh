@@ -5,6 +5,125 @@ DOCKER_VERSION=${DOCKER_VERSION:-"27.3"}
 # TODO: Deprecated, because now it's a part of the Docker CLI
 DOCKER_COMPOSE_VERSION=${DOCKER_COMPOSE_VERSION:-"2.29.7"}
 
+PKG_MANAGER=""
+
+function detect_package_manager() {
+  if [[ -n "$PKG_MANAGER" ]]; then
+    return
+  fi
+
+  if command -v apt-get &>/dev/null; then
+    PKG_MANAGER="apt"
+  elif command -v dnf5 &>/dev/null; then
+    PKG_MANAGER="dnf5"
+  elif command -v dnf &>/dev/null; then
+    PKG_MANAGER="dnf"
+  elif command -v yum &>/dev/null; then
+    PKG_MANAGER="yum"
+  else
+    echo "Unsupported package manager. Please install dependencies manually." >&2
+    exit 1
+  fi
+}
+
+function pkg_update() {
+  detect_package_manager
+  case "$PKG_MANAGER" in
+  apt)
+    sudo apt-get update
+    ;;
+  dnf5)
+    sudo dnf5 makecache --refresh
+    ;;
+  dnf)
+    sudo dnf makecache --refresh
+    ;;
+  yum)
+    sudo yum makecache
+    ;;
+  esac
+}
+
+function pkg_install() {
+  detect_package_manager
+  local packages=("$@")
+  local filtered=()
+  for pkg in "${packages[@]}"; do
+    if [[ -n "$pkg" ]]; then
+      filtered+=("$pkg")
+    fi
+  done
+  packages=("${filtered[@]}")
+  if ((${#packages[@]} == 0)); then
+    return
+  fi
+  case "$PKG_MANAGER" in
+  apt)
+    sudo apt-get install --yes "${packages[@]}"
+    ;;
+  dnf5)
+    sudo dnf5 install -y "${packages[@]}"
+    ;;
+  dnf)
+    sudo dnf install -y "${packages[@]}"
+    ;;
+  yum)
+    sudo yum install -y "${packages[@]}"
+    ;;
+  esac
+}
+
+function pkg_remove() {
+  detect_package_manager
+  local packages=("$@")
+  local filtered=()
+  for pkg in "${packages[@]}"; do
+    if [[ -n "$pkg" ]]; then
+      filtered+=("$pkg")
+    fi
+  done
+  packages=("${filtered[@]}")
+  if ((${#packages[@]} == 0)); then
+    return
+  fi
+  case "$PKG_MANAGER" in
+  apt)
+    sudo apt-get remove --purge -y "${packages[@]}" || true
+    ;;
+  dnf5)
+    sudo dnf5 remove -y "${packages[@]}" || true
+    ;;
+  dnf)
+    sudo dnf remove -y "${packages[@]}" || true
+    ;;
+  yum)
+    sudo yum remove -y "${packages[@]}" || true
+    ;;
+  esac
+}
+
+function pkg_autoremove() {
+  detect_package_manager
+  case "$PKG_MANAGER" in
+  apt)
+    sudo apt-get autoremove -y
+    ;;
+  dnf5)
+    sudo dnf5 autoremove -y
+    ;;
+  dnf)
+    sudo dnf autoremove -y
+    ;;
+  yum)
+    if yum help autoremove >/dev/null 2>&1; then
+      sudo yum autoremove -y
+    else
+      echo "Skipping yum autoremove (command not available)"
+    fi
+    ;;
+  esac
+}
+
 # HELP describe output and options
 function show_help() {
   echo "Usage: $0 [OPTIONS]"
@@ -21,10 +140,10 @@ function cleanup_docker() {
   # Cleanup Docker
   echo "Cleaning up Docker and deps..."
   docker rm "$NETWORK_NAME" || true
-  sudo apt-get remove --purge -y \
+  pkg_remove \
     docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc \
     docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin || true
-  sudo apt-get autoremove -y
+  pkg_autoremove || true
   sudo rm -rf /usr/local/lib/docker/cli-plugins || true
   sudo rm -rf "$HOME/.docker" || true
   printf "\n###\nDocker cleanup finished.\n###\n"
@@ -36,8 +155,8 @@ function cleanup_dependencies() {
   source "$ENV_FILE"
   # Cleanup dependencies
   echo "Cleaning up dependencies..."
-  sudo apt-get remove --purge -y "${REQUIRED_PACKAGES[@]}"
-  sudo apt-get autoremove -y
+  pkg_remove "${REQUIRED_PACKAGES[@]}"
+  pkg_autoremove || true
   printf "\n###\nDependencies cleanup finished.\n###\n"
 }
 
@@ -133,8 +252,8 @@ function install_dependencies() {
     return
   fi
   printf "Installing dependencies...\n"
-  sudo apt-get update
-  sudo apt-get install --yes "${dependencies[@]}"
+  pkg_update
+  pkg_install "${dependencies[@]}"
 }
 
 function default_func() {
