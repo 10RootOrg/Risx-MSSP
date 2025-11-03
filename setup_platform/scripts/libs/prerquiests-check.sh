@@ -38,7 +38,7 @@ for package in "${REQUIRED_PACKAGES_LIST[@]}"; do
     continue
   fi
 
-  if [[ "$package" == "podman-docker" ]]; then
+  if [[ "${package,,}" == "podman-docker" ]]; then
     print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
     continue
   fi
@@ -60,7 +60,7 @@ REQUIRED_PACKAGES_LIST=("${sanitized_packages[@]}")
 # Function to check if a package is installed
 check_package_installed() {
   local package=$1
-  if [[ "$package" == "podman-docker" ]]; then
+  if [[ "${package,,}" == "podman-docker" ]]; then
     print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
     return
   fi

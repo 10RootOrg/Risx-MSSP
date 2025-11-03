@@ -6,8 +6,9 @@ CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
 PKG_MANAGER_NAME=""
 PKG_MANAGER_CMD=""
 for candidate in dnf dnf-3 yum apt-get zypper; do
-  if PKG_MANAGER_CMD=$(type -P "$candidate" 2>/dev/null); then
+  if command_path=$(command -v "$candidate" 2>/dev/null); then
     PKG_MANAGER_NAME="$candidate"
+    PKG_MANAGER_CMD="$command_path"
     break
   fi
 done
@@ -19,7 +20,7 @@ fi
 
 PKG_MANAGER_CMD="${PKG_MANAGER_CMD:-$PKG_MANAGER_NAME}"
 
-printf "Using package manager: %s\n" "$PKG_MANAGER_NAME"
+printf "Using package manager: %s (%s)\n" "$PKG_MANAGER_NAME" "$PKG_MANAGER_CMD"
 
 function pkg_install() {
   local packages=("$@")
@@ -174,6 +175,21 @@ function install_dependencies() {
   local ENV_FILE=${1:-"../resources/default.env"}
   local install_dependencies="false"
   source "$ENV_FILE"
+
+  local required_packages_list=()
+  if declare -p REQUIRED_PACKAGES >/dev/null 2>&1; then
+    if [[ $(declare -p REQUIRED_PACKAGES) == "declare -a"* ]]; then
+      required_packages_list=("${REQUIRED_PACKAGES[@]}")
+    else
+      read -r -a required_packages_list <<<"${REQUIRED_PACKAGES}"
+    fi
+  fi
+
+  if [[ ${#required_packages_list[@]} -eq 0 ]]; then
+    printf "No required packages defined in %s.\n" "$ENV_FILE"
+    return
+  fi
+
   # remove container runtime packages from the list (handled separately)
   local runtime_packages=(
     docker
@@ -194,7 +210,7 @@ function install_dependencies() {
     crun
   )
   local filtered_dependencies=()
-  for package in "${REQUIRED_PACKAGES[@]}"; do
+  for package in "${required_packages_list[@]}"; do
     package="${package//$'\r'/}"
     package="${package//$'\n'/}"
     package="${package//$'\t'/}"
@@ -206,9 +222,10 @@ function install_dependencies() {
       printf "Skipping invalid package entry: %s\n" "$package"
       continue
     fi
+    local package_lower=${package,,}
     local skip="false"
     for runtime_package in "${runtime_packages[@]}"; do
-      if [[ "$package" == "$runtime_package" ]]; then
+      if [[ "$package_lower" == "${runtime_package,,}" ]]; then
         skip="true"
         break
       fi
