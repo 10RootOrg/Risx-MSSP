@@ -4,6 +4,75 @@ set -eo pipefail
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
 DOCKER_COMPAT_PACKAGE=${DOCKER_COMPAT_PACKAGE:-"podman-docker"}
 
+if command -v dnf >/dev/null 2>&1; then
+  PKG_MANAGER="dnf"
+elif command -v yum >/dev/null 2>&1; then
+  PKG_MANAGER="yum"
+elif command -v apt-get >/dev/null 2>&1; then
+  PKG_MANAGER="apt-get"
+elif command -v zypper >/dev/null 2>&1; then
+  PKG_MANAGER="zypper"
+else
+  echo "No supported package manager found (dnf, yum, apt-get, zypper)." >&2
+  exit 1
+fi
+
+function pkg_install() {
+  local packages=("$@")
+  [[ ${#packages[@]} -eq 0 ]] && return
+  case "$PKG_MANAGER" in
+  apt-get)
+    sudo apt-get update
+    sudo apt-get install --yes "${packages[@]}"
+    ;;
+  dnf)
+    sudo dnf install -y "${packages[@]}"
+    ;;
+  yum)
+    sudo yum install -y "${packages[@]}"
+    ;;
+  zypper)
+    sudo zypper --non-interactive install --no-confirm "${packages[@]}"
+    ;;
+  esac
+}
+
+function pkg_remove() {
+  local packages=("$@")
+  [[ ${#packages[@]} -eq 0 ]] && return
+  case "$PKG_MANAGER" in
+  apt-get)
+    sudo apt-get remove --purge -y "${packages[@]}" || true
+    ;;
+  dnf)
+    sudo dnf remove -y "${packages[@]}" || true
+    ;;
+  yum)
+    sudo yum remove -y "${packages[@]}" || true
+    ;;
+  zypper)
+    sudo zypper --non-interactive remove --clean-deps --no-confirm "${packages[@]}" || true
+    ;;
+  esac
+}
+
+function pkg_autoremove() {
+  case "$PKG_MANAGER" in
+  apt-get)
+    sudo apt-get autoremove -y || true
+    ;;
+  dnf)
+    sudo dnf autoremove -y || true
+    ;;
+  yum)
+    sudo yum autoremove -y || true
+    ;;
+  zypper)
+    :
+    ;;
+  esac
+}
+
 # HELP describe output and options
 function show_help() {
   echo "Usage: $0 [OPTIONS]"
@@ -24,10 +93,10 @@ function cleanup_docker() {
   elif command -v podman >/dev/null 2>&1; then
     podman network rm "$NETWORK_NAME" 2>/dev/null || true
   fi
-  sudo apt-get remove --purge -y \
-    docker.io docker-doc docker-compose docker-compose-v2 containerd runc docker-ce docker-ce-cli containerd.io \
-    docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin podman podman-docker podman-compose crun || true
-  sudo apt-get autoremove -y
+  pkg_remove docker.io docker-doc docker-compose docker-compose-v2 containerd runc docker-ce docker-ce-cli \
+    containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin podman podman-docker \
+    podman-compose crun
+  pkg_autoremove
   sudo rm -rf /usr/local/lib/docker/cli-plugins || true
   sudo rm -rf "$HOME/.docker" || true
   printf "\n###\nContainer runtime cleanup finished.\n###\n"
@@ -39,28 +108,27 @@ function cleanup_dependencies() {
   source "$ENV_FILE"
   # Cleanup dependencies
   echo "Cleaning up dependencies..."
-  sudo apt-get remove --purge -y "${REQUIRED_PACKAGES[@]}"
-  sudo apt-get autoremove -y
+  pkg_remove "${REQUIRED_PACKAGES[@]}"
+  pkg_autoremove
   printf "\n###\nDependencies cleanup finished.\n###\n"
 }
 
 function install_container_runtime() {
   if [[ ! -x "$(command -v podman)" ]]; then
     echo "Podman is not installed. Installing Podman..."
-    sudo apt-get update
-    sudo apt-get install --yes podman podman-compose
+    pkg_install podman podman-compose
   else
     echo "Podman is already installed."
   fi
 
   if [[ ! -x "$(command -v podman-compose)" ]]; then
     echo "Installing podman-compose for compose compatibility..."
-    sudo apt-get install --yes podman-compose
+    pkg_install podman-compose
   fi
 
   if [[ ! -x "$(command -v docker)" ]]; then
     echo "Installing podman-docker for Docker CLI compatibility..."
-    sudo apt-get install --yes "${DOCKER_COMPAT_PACKAGE}"
+    pkg_install "${DOCKER_COMPAT_PACKAGE}"
   else
     echo "podman-docker compatibility layer is already installed."
   fi
@@ -129,8 +197,7 @@ function install_dependencies() {
     return
   fi
   printf "Installing dependencies...\n"
-  sudo apt-get update
-  sudo apt-get install --yes "${dependencies[@]}"
+  pkg_install "${dependencies[@]}"
 }
 
 function default_func() {
