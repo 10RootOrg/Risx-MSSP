@@ -31,6 +31,10 @@ for package in "${REQUIRED_PACKAGES_LIST[@]}"; do
     continue
   fi
 
+  if [[ "$package" == -* ]]; then
+    continue
+  fi
+
   if [[ "$package" == "podman-docker" ]]; then
     print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
     continue

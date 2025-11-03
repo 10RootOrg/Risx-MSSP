@@ -3,17 +3,15 @@ set -eo pipefail
 
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
 
-if type -P dnf >/dev/null 2>&1; then
-  PKG_MANAGER="dnf"
-elif type -P dnf-3 >/dev/null 2>&1; then
-  PKG_MANAGER="dnf-3"
-elif type -P yum >/dev/null 2>&1; then
-  PKG_MANAGER="yum"
-elif type -P apt-get >/dev/null 2>&1; then
-  PKG_MANAGER="apt-get"
-elif type -P zypper >/dev/null 2>&1; then
-  PKG_MANAGER="zypper"
-else
+PKG_MANAGER=""
+for candidate in dnf dnf-3 yum apt-get zypper; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    PKG_MANAGER="$candidate"
+    break
+  fi
+done
+
+if [[ -z "$PKG_MANAGER" ]]; then
   echo "No supported package manager found (dnf, yum, apt-get, zypper)." >&2
   exit 1
 fi
@@ -193,6 +191,9 @@ function install_dependencies() {
   local filtered_dependencies=()
   for package in "${REQUIRED_PACKAGES[@]}"; do
     [[ -z "$package" ]] && continue
+    if [[ "$package" == -* ]]; then
+      continue
+    fi
     local skip="false"
     for runtime_package in "${runtime_packages[@]}"; do
       if [[ "$package" == "$runtime_package" ]]; then
