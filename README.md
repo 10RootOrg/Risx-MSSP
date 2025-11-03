@@ -39,6 +39,28 @@ The following scripts are available:
 - `cleanup.sh` - stop and remove the stack
   - Use `cleanup.sh --help` to see the available options
 
+### Checking out pull request branches
+
+To review the ongoing Podman migration work that lives in PR [#41](https://github.com/10rootorg/Risx-MSSP/pull/41) you can
+create a local branch that follows the pull request and update it as new commits land:
+
+```bash
+git clone https://github.com/10rootorg/Risx-MSSP.git
+cd Risx-MSSP
+
+# First checkout: create `pr-41` from the pull request head
+git fetch origin pull/41/head:pr-41
+git checkout pr-41
+
+# Refresh an existing checkout
+git checkout pr-41
+git fetch origin pull/41/head
+git reset --hard FETCH_HEAD
+```
+
+These update commands fetch the latest commits and fast-forward the local `pr-41` branch even when it is currently checked out,
+avoiding the "refusing to fetch into branch" error that Git produces when the branch is updated in-place.
+
 ## Pre-requirements
 
 <details>

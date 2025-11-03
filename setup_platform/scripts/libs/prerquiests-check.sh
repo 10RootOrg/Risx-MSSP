@@ -9,8 +9,41 @@ if ! declare -f print_green >/dev/null 2>&1; then
   source "$script_dir/main.sh"
 fi
 
-# List of required packages
-REQUIRED_PACKAGES=${REQUIRED_PACKAGES:-("curl" "git" "podman")}
+# Resolve the list of required packages while tolerating legacy formats
+default_required_packages=("curl" "git" "podman")
+
+if declare -p REQUIRED_PACKAGES >/dev/null 2>&1; then
+  if [[ $(declare -p REQUIRED_PACKAGES) == "declare -a"* ]]; then
+    REQUIRED_PACKAGES_LIST=("${REQUIRED_PACKAGES[@]}")
+  else
+    read -r -a REQUIRED_PACKAGES_LIST <<< "${REQUIRED_PACKAGES}"
+  fi
+else
+  REQUIRED_PACKAGES_LIST=("${default_required_packages[@]}")
+fi
+
+# Clean up empty entries and replace deprecated dependencies
+sanitized_packages=()
+for package in "${REQUIRED_PACKAGES_LIST[@]}"; do
+  package="${package//\"/}"
+  package="${package//\'/}"
+  if [[ -z "$package" ]]; then
+    continue
+  fi
+
+  if [[ "$package" == "podman-docker" ]]; then
+    print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
+    continue
+  fi
+
+  sanitized_packages+=("$package")
+done
+
+if [[ ${#sanitized_packages[@]} -eq 0 ]]; then
+  sanitized_packages=("${default_required_packages[@]}")
+fi
+
+REQUIRED_PACKAGES_LIST=("${sanitized_packages[@]}")
 
 # Function to check if a package is installed
 check_package_installed() {
@@ -34,7 +67,7 @@ check_required_packages() {
 }
 
 # Check if the required packages are installed
-check_required_packages "${REQUIRED_PACKAGES[@]}"
+check_required_packages "${REQUIRED_PACKAGES_LIST[@]}"
 
 # Ensure a supported container runtime and compose interface are available
 if declare -f initialize_container_runtime >/dev/null 2>&1; then
