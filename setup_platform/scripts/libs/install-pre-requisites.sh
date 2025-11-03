@@ -3,35 +3,40 @@ set -eo pipefail
 
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
 
-PKG_MANAGER=""
+PKG_MANAGER_NAME=""
+PKG_MANAGER_CMD=""
 for candidate in dnf dnf-3 yum apt-get zypper; do
-  if command -v "$candidate" >/dev/null 2>&1; then
-    PKG_MANAGER="$candidate"
+  if PKG_MANAGER_CMD=$(type -P "$candidate" 2>/dev/null); then
+    PKG_MANAGER_NAME="$candidate"
     break
   fi
 done
 
-if [[ -z "$PKG_MANAGER" ]]; then
+if [[ -z "$PKG_MANAGER_NAME" ]]; then
   echo "No supported package manager found (dnf, yum, apt-get, zypper)." >&2
   exit 1
 fi
 
+PKG_MANAGER_CMD="${PKG_MANAGER_CMD:-$PKG_MANAGER_NAME}"
+
+printf "Using package manager: %s\n" "$PKG_MANAGER_NAME"
+
 function pkg_install() {
   local packages=("$@")
   [[ ${#packages[@]} -eq 0 ]] && return
-  case "$PKG_MANAGER" in
+  case "$PKG_MANAGER_NAME" in
   apt-get)
-    sudo apt-get update
-    sudo apt-get install --yes "${packages[@]}"
+    sudo "$PKG_MANAGER_CMD" update
+    sudo "$PKG_MANAGER_CMD" install --yes "${packages[@]}"
     ;;
   dnf|dnf-3)
-    sudo "$PKG_MANAGER" install -y "${packages[@]}"
+    sudo "$PKG_MANAGER_CMD" install -y "${packages[@]}"
     ;;
   yum)
-    sudo yum install -y "${packages[@]}"
+    sudo "$PKG_MANAGER_CMD" install -y "${packages[@]}"
     ;;
   zypper)
-    sudo zypper --non-interactive install --no-confirm "${packages[@]}"
+    sudo "$PKG_MANAGER_CMD" --non-interactive install --no-confirm "${packages[@]}"
     ;;
   esac
 }
@@ -39,32 +44,32 @@ function pkg_install() {
 function pkg_remove() {
   local packages=("$@")
   [[ ${#packages[@]} -eq 0 ]] && return
-  case "$PKG_MANAGER" in
+  case "$PKG_MANAGER_NAME" in
   apt-get)
-    sudo apt-get remove --purge -y "${packages[@]}" || true
+    sudo "$PKG_MANAGER_CMD" remove --purge -y "${packages[@]}" || true
     ;;
   dnf|dnf-3)
-    sudo "$PKG_MANAGER" remove -y "${packages[@]}" || true
+    sudo "$PKG_MANAGER_CMD" remove -y "${packages[@]}" || true
     ;;
   yum)
-    sudo yum remove -y "${packages[@]}" || true
+    sudo "$PKG_MANAGER_CMD" remove -y "${packages[@]}" || true
     ;;
   zypper)
-    sudo zypper --non-interactive remove --clean-deps --no-confirm "${packages[@]}" || true
+    sudo "$PKG_MANAGER_CMD" --non-interactive remove --clean-deps --no-confirm "${packages[@]}" || true
     ;;
   esac
 }
 
 function pkg_autoremove() {
-  case "$PKG_MANAGER" in
+  case "$PKG_MANAGER_NAME" in
   apt-get)
-    sudo apt-get autoremove -y || true
+    sudo "$PKG_MANAGER_CMD" autoremove -y || true
     ;;
   dnf|dnf-3)
-    sudo "$PKG_MANAGER" autoremove -y || true
+    sudo "$PKG_MANAGER_CMD" autoremove -y || true
     ;;
   yum)
-    sudo yum autoremove -y || true
+    sudo "$PKG_MANAGER_CMD" autoremove -y || true
     ;;
   zypper)
     :
@@ -190,8 +195,15 @@ function install_dependencies() {
   )
   local filtered_dependencies=()
   for package in "${REQUIRED_PACKAGES[@]}"; do
+    package="${package//$'\r'/}"
+    package="${package//$'\n'/}"
+    package="${package//$'\t'/}"
     [[ -z "$package" ]] && continue
     if [[ "$package" == -* ]]; then
+      continue
+    fi
+    if [[ ! "$package" =~ ^[A-Za-z0-9][A-Za-z0-9_.+-]*$ ]]; then
+      printf "Skipping invalid package entry: %s\n" "$package"
       continue
     fi
     local skip="false"

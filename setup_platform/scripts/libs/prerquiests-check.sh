@@ -27,6 +27,9 @@ sanitized_packages=()
 for package in "${REQUIRED_PACKAGES_LIST[@]}"; do
   package="${package//\"/}"
   package="${package//\'/}"
+  package="${package//$'\r'/}"
+  package="${package//$'\n'/}"
+  package="${package//$'\t'/}"
   if [[ -z "$package" ]]; then
     continue
   fi
@@ -37,6 +40,11 @@ for package in "${REQUIRED_PACKAGES_LIST[@]}"; do
 
   if [[ "$package" == "podman-docker" ]]; then
     print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
+    continue
+  fi
+
+  if [[ ! "$package" =~ ^[A-Za-z0-9][A-Za-z0-9_.+-]*$ ]]; then
+    print_yellow "Skipping invalid dependency entry '$package'"
     continue
   fi
 
@@ -52,6 +60,10 @@ REQUIRED_PACKAGES_LIST=("${sanitized_packages[@]}")
 # Function to check if a package is installed
 check_package_installed() {
   local package=$1
+  if [[ "$package" == "podman-docker" ]]; then
+    print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
+    return
+  fi
   if command -v "$package" &> /dev/null; then
     echo "$package is installed."
   else
