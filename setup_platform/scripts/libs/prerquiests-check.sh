@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
+shopt -s extglob
 # Verify if the required packages are installed
 
 # Ensure shared helpers are available when the script is sourced directly
@@ -11,6 +12,38 @@ fi
 
 # Resolve the list of required packages while tolerating legacy formats
 default_required_packages=("curl" "git" "podman")
+
+# Detect an available package query helper so we can validate packages that do
+# not expose an executable (e.g. podman-docker on RHEL only provides the
+# docker shim).  The helper is optional – we still fall back to command checks
+# when nothing suitable is available.
+PACKAGE_QUERY_TOOL=""
+if command -v rpm >/dev/null 2>&1; then
+  PACKAGE_QUERY_TOOL="rpm"
+elif command -v dpkg-query >/dev/null 2>&1; then
+  PACKAGE_QUERY_TOOL="dpkg-query"
+elif command -v apk >/dev/null 2>&1; then
+  PACKAGE_QUERY_TOOL="apk"
+fi
+
+package_installed_via_manager() {
+  local package=$1
+  case "$PACKAGE_QUERY_TOOL" in
+  rpm)
+    rpm -q "$package" >/dev/null 2>&1
+    return $?
+    ;;
+  dpkg-query)
+    dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "install ok installed"
+    return $?
+    ;;
+  apk)
+    apk info -e "$package" >/dev/null 2>&1
+    return $?
+    ;;
+  esac
+  return 1
+}
 
 if declare -p REQUIRED_PACKAGES >/dev/null 2>&1; then
   if [[ $(declare -p REQUIRED_PACKAGES) == "declare -a"* ]]; then
@@ -30,6 +63,9 @@ for package in "${REQUIRED_PACKAGES_LIST[@]}"; do
   package="${package//$'\r'/}"
   package="${package//$'\n'/}"
   package="${package//$'\t'/}"
+  # Trim leading and trailing whitespace that may appear in legacy .env files
+  package="${package##+([[:space:]])}"
+  package="${package%%+([[:space:]])}"
   if [[ -z "$package" ]]; then
     continue
   fi
@@ -60,11 +96,22 @@ REQUIRED_PACKAGES_LIST=("${sanitized_packages[@]}")
 # Function to check if a package is installed
 check_package_installed() {
   local package=$1
-  if [[ "${package,,}" == "podman-docker" ]]; then
-    print_yellow "Skipping deprecated dependency 'podman-docker'; Podman is used directly."
-    return
+  local package_lower=${package,,}
+  if [[ "$package_lower" == "podman-docker" ]]; then
+    if command -v docker >/dev/null 2>&1; then
+      echo "podman-docker is installed (docker shim available)."
+      return
+    fi
+    if package_installed_via_manager "$package"; then
+      echo "podman-docker is installed."
+      return
+    fi
+    echo "podman-docker is not installed."
+    exit 1
   fi
   if command -v "$package" &> /dev/null; then
+    echo "$package is installed."
+  elif package_installed_via_manager "$package"; then
     echo "$package is installed."
   else
     echo "$package is not installed."
