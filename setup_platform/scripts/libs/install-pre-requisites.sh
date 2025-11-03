@@ -2,7 +2,6 @@
 set -eo pipefail
 
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
-DOCKER_COMPAT_PACKAGE=${DOCKER_COMPAT_PACKAGE:-"podman-docker"}
 
 if type -P dnf >/dev/null 2>&1; then
   PKG_MANAGER="dnf"
@@ -96,8 +95,7 @@ function cleanup_docker() {
     podman network rm "$NETWORK_NAME" 2>/dev/null || true
   fi
   pkg_remove docker.io docker-doc docker-compose docker-compose-v2 containerd runc docker-ce docker-ce-cli \
-    containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin podman podman-docker \
-    podman-compose crun
+    containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin podman podman-compose crun
   pkg_autoremove
   sudo rm -rf /usr/local/lib/docker/cli-plugins || true
   sudo rm -rf "$HOME/.docker" || true
@@ -126,13 +124,6 @@ function install_container_runtime() {
   if [[ ! -x "$(command -v podman-compose)" ]]; then
     echo "Installing podman-compose for compose compatibility..."
     pkg_install podman-compose
-  fi
-
-  if [[ ! -x "$(command -v docker)" ]]; then
-    echo "Installing podman-docker for Docker CLI compatibility..."
-    pkg_install "${DOCKER_COMPAT_PACKAGE}"
-  else
-    echo "podman-docker compatibility layer is already installed."
   fi
 
   if [[ ! -x "$(command -v docker-compose)" ]]; then
@@ -184,7 +175,6 @@ function install_dependencies() {
   local dependencies=()
   dependencies=("${REQUIRED_PACKAGES[@]/docker-compose/}")
   dependencies=("${dependencies[@]/docker/}")
-  dependencies=("${dependencies[@]/podman-docker/}")
   dependencies=("${dependencies[@]/podman/}")
   dependencies=("${dependencies[@]/podman-compose/}")
   local filtered_dependencies=()

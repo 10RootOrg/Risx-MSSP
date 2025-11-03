@@ -5,7 +5,7 @@ ENV NODE_VERSION=20
 RUN apt-get update \
     && apt-get install -y curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
-    && apt-get install -y nodejs podman podman-docker uidmap slirp4netns fuse-overlayfs p7zip-full sudo \
+    && apt-get install -y nodejs podman uidmap slirp4netns fuse-overlayfs p7zip-full sudo \
     && npm install -g yarn nodemon \
     && apt-get clean
 

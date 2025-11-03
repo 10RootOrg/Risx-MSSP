@@ -47,8 +47,8 @@ The following scripts are available:
 This stack is growing,
 you find a complete list of the requirements in the file `resources/default.env` in the environment variable `REQUIRED_PACKAGES`.
 
-- Podman with the podman-docker compatibility layer
-- podman-compose (provides compatibility for docker compose workflows)
+- Podman
+- podman-compose (or the built-in `podman compose` subcommand)
 - Git ~ 2.34
 - [yq](https://github.com/mikefarah/yq/#install) ~ 4.44
 - bash shell ~ 5.0
