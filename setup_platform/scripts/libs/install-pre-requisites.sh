@@ -172,14 +172,35 @@ function install_dependencies() {
   local install_dependencies="false"
   source "$ENV_FILE"
   # remove container runtime packages from the list (handled separately)
-  local dependencies=()
-  dependencies=("${REQUIRED_PACKAGES[@]/docker-compose/}")
-  dependencies=("${dependencies[@]/docker/}")
-  dependencies=("${dependencies[@]/podman/}")
-  dependencies=("${dependencies[@]/podman-compose/}")
+  local runtime_packages=(
+    docker
+    docker.io
+    docker-ce
+    docker-ce-cli
+    docker-ce-rootless-extras
+    docker-compose
+    docker-compose-plugin
+    docker-compose-v2
+    docker-buildx-plugin
+    podman
+    podman-compose
+    podman-docker
+    containerd
+    containerd.io
+    runc
+    crun
+  )
   local filtered_dependencies=()
-  for package in "${dependencies[@]}"; do
+  for package in "${REQUIRED_PACKAGES[@]}"; do
     [[ -z "$package" ]] && continue
+    local skip="false"
+    for runtime_package in "${runtime_packages[@]}"; do
+      if [[ "$package" == "$runtime_package" ]]; then
+        skip="true"
+        break
+      fi
+    done
+    [[ "$skip" == "true" ]] && continue
     filtered_dependencies+=("$package")
   done
   # If at least one package is not installed, install all
