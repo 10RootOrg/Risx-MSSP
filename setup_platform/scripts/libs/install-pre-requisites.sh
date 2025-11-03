@@ -4,13 +4,15 @@ set -eo pipefail
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"podman"}
 DOCKER_COMPAT_PACKAGE=${DOCKER_COMPAT_PACKAGE:-"podman-docker"}
 
-if command -v dnf >/dev/null 2>&1; then
+if type -P dnf >/dev/null 2>&1; then
   PKG_MANAGER="dnf"
-elif command -v yum >/dev/null 2>&1; then
+elif type -P dnf-3 >/dev/null 2>&1; then
+  PKG_MANAGER="dnf-3"
+elif type -P yum >/dev/null 2>&1; then
   PKG_MANAGER="yum"
-elif command -v apt-get >/dev/null 2>&1; then
+elif type -P apt-get >/dev/null 2>&1; then
   PKG_MANAGER="apt-get"
-elif command -v zypper >/dev/null 2>&1; then
+elif type -P zypper >/dev/null 2>&1; then
   PKG_MANAGER="zypper"
 else
   echo "No supported package manager found (dnf, yum, apt-get, zypper)." >&2
@@ -25,8 +27,8 @@ function pkg_install() {
     sudo apt-get update
     sudo apt-get install --yes "${packages[@]}"
     ;;
-  dnf)
-    sudo dnf install -y "${packages[@]}"
+  dnf|dnf-3)
+    sudo "$PKG_MANAGER" install -y "${packages[@]}"
     ;;
   yum)
     sudo yum install -y "${packages[@]}"
@@ -44,8 +46,8 @@ function pkg_remove() {
   apt-get)
     sudo apt-get remove --purge -y "${packages[@]}" || true
     ;;
-  dnf)
-    sudo dnf remove -y "${packages[@]}" || true
+  dnf|dnf-3)
+    sudo "$PKG_MANAGER" remove -y "${packages[@]}" || true
     ;;
   yum)
     sudo yum remove -y "${packages[@]}" || true
@@ -61,8 +63,8 @@ function pkg_autoremove() {
   apt-get)
     sudo apt-get autoremove -y || true
     ;;
-  dnf)
-    sudo dnf autoremove -y || true
+  dnf|dnf-3)
+    sudo "$PKG_MANAGER" autoremove -y || true
     ;;
   yum)
     sudo yum autoremove -y || true
@@ -179,14 +181,20 @@ function install_dependencies() {
   local install_dependencies="false"
   source "$ENV_FILE"
   # remove container runtime packages from the list (handled separately)
+  local dependencies=()
   dependencies=("${REQUIRED_PACKAGES[@]/docker-compose/}")
   dependencies=("${dependencies[@]/docker/}")
   dependencies=("${dependencies[@]/podman-docker/}")
   dependencies=("${dependencies[@]/podman/}")
   dependencies=("${dependencies[@]/podman-compose/}")
-  # If at least one package is not installed, install all
+  local filtered_dependencies=()
   for package in "${dependencies[@]}"; do
-      if [[ -n $package ]] && [[ ! -x "$(command -v "$package")" ]]; then
+    [[ -z "$package" ]] && continue
+    filtered_dependencies+=("$package")
+  done
+  # If at least one package is not installed, install all
+  for package in "${filtered_dependencies[@]}"; do
+    if [[ ! -x "$(command -v "$package")" ]]; then
       printf "Installing %s...\n" "$package"
       install_dependencies="true"
       break
@@ -197,7 +205,7 @@ function install_dependencies() {
     return
   fi
   printf "Installing dependencies...\n"
-  pkg_install "${dependencies[@]}"
+  pkg_install "${filtered_dependencies[@]}"
 }
 
 function default_func() {
