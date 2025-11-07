@@ -9,6 +9,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # App specific variables
@@ -48,15 +49,15 @@ replace_env "ELASTIC_VERSION"
 
 # Step 2: Use Docker Compose to bring up the setup service and then the rest of the services in detached mode
 printf "Starting up the setup service...\n"
-docker compose up setup
+container_compose up setup
 
 printf "Starting the service...\n"
-docker compose up -d
+container_compose up -d
 
 # Step 3: Import all dashboards to Kibana
 printf "Waiting for Kibana to be ready...\n"
 sleep 10
-while ! docker compose exec kibana curl -s -u "${KIBANA_SYSTEM_USER}":"${KIBANA_SYSTEM_PASSWORD}" http://localhost:5601/api/status | grep -q '"overall":{"level":"available","summary":"All services and plugins are available"}'; do
+while ! container_compose exec kibana curl -s -u "${KIBANA_SYSTEM_USER}":"${KIBANA_SYSTEM_PASSWORD}" http://localhost:5601/api/status | grep -q '"overall":{"level":"available","summary":"All services and plugins are available"}'; do
   printf "Sleeping 5; Still waiting for Kibana to be ready...\n"
   sleep 5
 done
@@ -69,7 +70,7 @@ done
 #    http://localhost:5601/api/saved_objects/_import?overwrite=true --form \
 #    file=@"$file"
 #done
-docker compose exec kibana /bin/bash -c \
+container_compose exec kibana /bin/bash -c \
 "for file in /usr/share/kibana/dashboards/*.ndjson; do echo \"Importing \$file\"; curl -s -X POST -H 'kbn-xsrf: true' -u ${KIBANA_SYSTEM_USER}:${KIBANA_SYSTEM_PASSWORD} -H \"securitytenant: global\" http://localhost:5601/api/saved_objects/_import?overwrite=true --form file=@\"\$file\"; done"
 
 printf "\n"

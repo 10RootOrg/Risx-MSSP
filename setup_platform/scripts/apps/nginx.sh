@@ -6,6 +6,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # Step 1: Copy the stack configs
@@ -35,6 +36,6 @@ fi
 # Step 3: Start
 printf "Starting the %s service...\n" "$service_name"
 source ./.env
-docker compose up -d --force-recreate
+  container_compose up -d --force-recreate
 
 print_green_v2 "$service_name deployment started" "successfully"

@@ -5,6 +5,7 @@ source libs/main.sh
 source libs/host-dirs.sh
 define_env
 define_paths
+initialize_container_runtime
 
 # You can provide this variable from the main default.env file like it works for the APPS_TO_INSTALL var
 # Ex: "portainer elk"
@@ -20,11 +21,11 @@ function restart_app() {
     exit 1
   fi
 
-  # Find all docker-compose.yml files and stop the services
+  # Find all compose files and restart the services
   while IFS= read -r -d '' file; do
     printf "Restarting the %s app...\n" "$app_name"
     cd "$(dirname "$file")" || exit
-    docker compose restart
+    container_compose restart
     cd - || exit
   done < <(find "${workdir}/${app_name}" -maxdepth 2 -name docker-compose.yaml -print0 -o -name docker-compose.yml -print0 -o -name compose.yaml -print0)
 }

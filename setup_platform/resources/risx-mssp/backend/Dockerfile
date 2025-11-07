@@ -5,19 +5,15 @@ ENV NODE_VERSION=20
 RUN apt-get update \
     && apt-get install -y curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
-    && apt-get install -y nodejs \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" > /etc/apt/sources.list.d/docker.list \
-    && apt-get update \
-    && apt-get install -y docker-ce-cli p7zip-full sudo \
+    && apt-get install -y nodejs podman uidmap slirp4netns fuse-overlayfs p7zip-full sudo \
     && npm install -g yarn nodemon \
     && apt-get clean
 
-# Create the docker group with the same GID as the host
+# Configure the application user for Podman usage
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node \
-  && groupadd -g 123 docker \
-  && usermod -aG docker node \
+  && usermod --add-subuids 100000-165535 node \
+  && usermod --add-subgids 100000-165535 node \
   && usermod -aG sudo node \
   && echo "node ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/node
 

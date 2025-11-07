@@ -47,7 +47,7 @@ ENDPOINTS=(
 # 1. Restart some apps if they are enabled
 restart_apps
 
-print_green "All the docker services are deployed successfully."
+print_green "All containerized services are deployed successfully."
 print_with_border "Access the services using below links"
 for service in "${APPS_TO_INSTALL[@]}"; do
   for endpoint in "${ENDPOINTS[@]}"; do

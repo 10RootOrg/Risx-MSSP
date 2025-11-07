@@ -2,7 +2,7 @@
 
 **Goal**: The goal of this project is to create a stack of services that can be used for incident response and threat hunting.
 
-**Description**: This stack contains a set of the services, which are combined with the docker compose file. Each app has its own folder with the docker compose file, all apps use one network.
+**Description**: This stack contains a set of the services, which are combined with the compose file executed via a Docker-compatible interface. Each app has its own folder with the compose file, all apps use one network.
 
 ## Current status
 
@@ -39,6 +39,28 @@ The following scripts are available:
 - `cleanup.sh` - stop and remove the stack
   - Use `cleanup.sh --help` to see the available options
 
+### Checking out pull request branches
+
+To review the ongoing Podman migration work that lives in PR [#41](https://github.com/10rootorg/Risx-MSSP/pull/41) you can
+create a local branch that follows the pull request and update it as new commits land:
+
+```bash
+git clone https://github.com/10rootorg/Risx-MSSP.git
+cd Risx-MSSP
+
+# First checkout: create `pr-41` from the pull request head
+git fetch origin pull/41/head:pr-41
+git checkout pr-41
+
+# Refresh an existing checkout
+git checkout pr-41
+git fetch origin pull/41/head
+git reset --hard FETCH_HEAD
+```
+
+These update commands fetch the latest commits and fast-forward the local `pr-41` branch even when it is currently checked out,
+avoiding the "refusing to fetch into branch" error that Git produces when the branch is updated in-place.
+
 ## Pre-requirements
 
 <details>
@@ -47,8 +69,8 @@ The following scripts are available:
 This stack is growing,
 you find a complete list of the requirements in the file `resources/default.env` in the environment variable `REQUIRED_PACKAGES`.
 
-- Docker; client and server ~ 20.10
-- docker compose plugin v2 ~ 2.26
+- Podman
+- podman-compose (or the built-in `podman compose` subcommand)
 - Git ~ 2.34
 - [yq](https://github.com/mikefarah/yq/#install) ~ 4.44
 - bash shell ~ 5.0

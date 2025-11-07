@@ -7,6 +7,7 @@ set -eo pipefail
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
@@ -145,9 +146,9 @@ fi
 
 # Start the development environment
 # print_green "Starting the development environment..."
-# (cd "${workdir}/${service_name}" && docker compose -f docker-compose.dev.yml up -d)
+# (cd "${workdir}/${service_name}" && container_compose -f docker-compose.dev.yml up -d)
 print_green "Starting the services..."
-docker compose up -d --build --force-recreate
+container_compose up -d --build --force-recreate
 
 print_green_v2 "$service_name development environment started." "Successfully"
 echo ""

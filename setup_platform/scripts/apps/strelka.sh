@@ -7,6 +7,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
@@ -15,7 +16,7 @@ replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Start the service
 printf "Starting the service...\n"
-docker compose up -d --force-recreate
+container_compose up -d --force-recreate
 
 # Step 3: Update the YARA rules
 # App specific variables
@@ -27,10 +28,10 @@ printf "Downloading the %s YARA rules from YARA Forge...\n" "${GITHUB_COMMIT_YAR
 curl -o "${TMP_DIR}"/yara-forge-rules-full.zip -Ls "${GITHUB_URL_YARAHQ}"
 unzip -o "${TMP_DIR}"/yara-forge-rules-full.zip -d "${TMP_DIR}"
 
-docker compose stop
+container_compose stop
 sudo rm -rf configs/python/backend/yara/*
 cp "${TMP_DIR}"/packages/full/yara-rules-full.yar configs/python/backend/yara/rules.yara
-docker compose up -d
+container_compose up -d
 
 rm -rf "${TMP_DIR}"
 printf "YARA rules updated successfully.\n"

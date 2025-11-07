@@ -7,6 +7,7 @@ set -e
 source "./libs/main.sh"
 define_env
 define_paths
+initialize_container_runtime
 source "./libs/install-helper.sh"
 
 # Step 1: Pre-installation
@@ -39,10 +40,10 @@ replace_env "VELOCIRAPTOR_ARTIFACTS_DST_FOLDER"
 
 mkdir -p "${workdir}/${service_name}/velociraptor"
 sudo chmod 755 -R "${workdir}/${service_name}/velociraptor"
-docker compose up -d --build
+container_compose up -d --build
 print_yellow "Waiting for the $service_name service to start..."
 sleep 5
-docker compose stop
+container_compose stop
 
 # Step 3: Update permissions and add custom resources
 sudo rsync -a "${src_dir}/custom" .
@@ -72,7 +73,7 @@ else
 fi
 
 # Step 4: Finally restart the service
-docker compose restart
+container_compose restart
 print_green_v2 "$service_name deployment started." "Successfully"
 
 # Step 5: Show login credentials

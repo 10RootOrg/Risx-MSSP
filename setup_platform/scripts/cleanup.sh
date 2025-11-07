@@ -5,6 +5,7 @@ source libs/main.sh
 source libs/host-dirs.sh
 define_env
 define_paths
+initialize_container_runtime
 
 # HELP describe output and options
 function show_help() {
@@ -18,24 +19,45 @@ function show_help() {
   print_green "Default: Cleanup all services defined in the .env file"
 }
 
-# docker compose down
+# Helper to run compose down for an application
 app_down() {
   local app_name=$1
-  # Find all docker-compose.yml files and stop the services
+  # Find all compose files and stop the services
   while IFS= read -r -d '' file; do
     printf "Stopping the %s app...\n" "$app_name"
     cd "$(dirname "$file")" || exit
-    docker compose down --volumes --remove-orphans --timeout 1
+    container_compose down --volumes --remove-orphans --timeout 1
     cd - || exit
   done < <(find "${workdir}/${app_name}" -maxdepth 2 -name docker-compose.yaml -print0 -o -name docker-compose.yml -print0 -o -name compose.yaml -print0)
 }
 
 cleanup_all_force() {
-  print_yellow "Cleaning up FORCE all docker containers and related files ..."
-  docker container stop $(docker container ls -aq) || print_yellow "No containers to stop"
-  docker container rm $(docker container ls -aq) || print_yellow "No containers to remove"
-  docker network rm $(docker network ls -q) || true
-  docker volume rm $(docker volume ls -q) || true
+  local engine="$CONTAINER_ENGINE"
+  if [ -z "$engine" ]; then
+    initialize_container_runtime
+    engine="$CONTAINER_ENGINE"
+  fi
+  print_yellow "Cleaning up FORCE all container instances and related files ..."
+  local containers
+  containers=$("$engine" container ls -aq)
+  if [ -n "$containers" ]; then
+    "$engine" container stop $containers || print_yellow "No containers to stop"
+    "$engine" container rm $containers || print_yellow "No containers to remove"
+  else
+    print_yellow "No containers to stop"
+  fi
+
+  local networks
+  networks=$("$engine" network ls -q)
+  if [ -n "$networks" ]; then
+    "$engine" network rm $networks || true
+  fi
+
+  local volumes
+  volumes=$("$engine" volume ls -q)
+  if [ -n "$volumes" ]; then
+    "$engine" volume rm $volumes || true
+  fi
 
   printf "Cleaning up related workdir...\n"
   sudo rm -rf "${workdir}"/*
@@ -57,7 +79,7 @@ delete_app_dirs() {
 
 # Default function
 default_cleanup() {
-  printf "Default: Cleaning up the docker services...\n"
+  printf "Default: Cleaning up the container services...\n"
   # Iterate over APPS_TO_INSTALL and delete the app dirs
   for app in "${APPS_TO_INSTALL[@]}"; do
     app_down "$app"
@@ -72,12 +94,14 @@ default_cleanup() {
   # If defined NETWORK_NAME , then remove DEFAULT network
   if [ -n "$NETWORK_NAME" ]; then
     printf "Removing the %s network\n" "$NETWORK_NAME"
-    # Fix an issue with the removing default docker network.
-    print_yellow "Restarting the docker service."
-    sudo systemctl restart docker
-    docker network rm "$NETWORK_NAME" --force || true
+    if [ "$CONTAINER_ENGINE" = "docker" ]; then
+      # Fix an issue with removing the default Docker network.
+      print_yellow "Restarting the docker service."
+      sudo systemctl restart docker
+    fi
+    "$CONTAINER_ENGINE" network rm "$NETWORK_NAME" --force || true
   fi
-  docker network prune --force
+  "$CONTAINER_ENGINE" network prune --force
 
   print_green_v2 "Cleanup" "finished"
 }
