@@ -16,6 +16,7 @@ services:
       - ./etc/nginx:/etc/nginx
       - ./etc/ssl/certs:/etc/ssl/certs
       - ./etc/ssl/private:/etc/ssl/private
+      - ../reconftw/Recon:/usr/share/nginx/reconftw:ro
     networks:
       - net
       - main_network

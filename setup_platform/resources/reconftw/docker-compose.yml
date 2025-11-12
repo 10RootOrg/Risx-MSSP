@@ -1,0 +1,17 @@
+services:
+  reconftw:
+    container_name: reconftw
+    image: six2dez/reconftw:${RECONFTW_VERSION:-main}
+    env_file:
+      - .env
+    networks:
+      - main_network
+    volumes:
+      - ./Recon:/reconftw/Recon
+    # Keep container running for on-demand execution via docker exec
+    command: tail -f /dev/null
+    restart: unless-stopped
+
+networks:
+  main_network:
+    external: true
