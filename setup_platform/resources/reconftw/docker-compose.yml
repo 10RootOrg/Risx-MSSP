@@ -9,7 +9,7 @@ services:
     volumes:
       - ./Recon:/reconftw/Recon
     # Keep container running for on-demand execution via docker exec
-    command: tail -f /dev/null
+    entrypoint: ["/bin/bash", "-c", "tail -f /dev/null"]
     restart: unless-stopped
 
 networks:
