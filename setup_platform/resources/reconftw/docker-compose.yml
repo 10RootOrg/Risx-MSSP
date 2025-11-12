@@ -1,0 +1,25 @@
+services:
+  reconftw:
+    container_name: reconftw
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RECONFTW_IMAGE_TAG: ${RECONFTW_IMAGE_TAG:-latest}
+        RECONFTW_TTYD_VERSION: ${RECONFTW_TTYD_VERSION:-1.7.7}
+    env_file:
+      - .env
+    environment:
+      - RECONFTW_PORT=${RECONFTW_PORT:-80}
+    volumes:
+      - ./data:/root/reconftw
+      - ./config:/root/.config/reconftw
+    expose:
+      - ${RECONFTW_PORT:-80}
+    restart: unless-stopped
+    networks:
+      - main_network
+
+networks:
+  main_network:
+    external: true
