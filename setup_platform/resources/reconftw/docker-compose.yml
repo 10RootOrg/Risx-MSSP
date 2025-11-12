@@ -7,6 +7,9 @@ services:
       args:
         RECONFTW_IMAGE_TAG: ${RECONFTW_IMAGE_TAG:-latest}
         RECONFTW_TTYD_VERSION: ${RECONFTW_TTYD_VERSION:-1.7.7}
+        TARGETPLATFORM: linux/amd64
+        TARGETARCH: amd64
+    platform: linux/amd64
     env_file:
       - .env
     environment:

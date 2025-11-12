@@ -14,6 +14,7 @@ replace_envs "${workdir}/${service_name}/.env"
 
 # Step 2: Start the service
 printf "Starting the service...\n"
+export DOCKER_DEFAULT_PLATFORM="linux/amd64"
 docker compose up -d --build --force-recreate
 
 print_green_v2 "$service_name deployment started." "Successfully"

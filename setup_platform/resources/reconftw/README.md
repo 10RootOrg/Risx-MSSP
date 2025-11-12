@@ -1,6 +1,6 @@
 # reconftw
 
-Docker resources for deploying [six2dez/reconftw](https://github.com/six2dez/reconftw) within the 10root stack. The container bundles a web terminal powered by [ttyd](https://github.com/tsl0922/ttyd) so the CLI can be accessed from the browser via the platform reverse proxy.
+Docker resources for deploying [six2dez/reconftw](https://github.com/six2dez/reconftw) within the 10root stack. The container bundles a web terminal powered by [ttyd](https://github.com/tsl0922/ttyd) so the CLI can be accessed from the browser via the platform reverse proxy. The upstream image only targets `linux/amd64`, so the compose file and wrapper image pin to that platform when building and running the service.
 
 ## Files
 
