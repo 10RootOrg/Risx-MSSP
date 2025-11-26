@@ -1,0 +1,1289 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:risx-mssp-sbom-2024",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-11-26T00:00:00Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "manual-sbom-generator",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "risx-mssp-platform",
+      "name": "Risx-MSSP",
+      "version": "v0.9.0",
+      "description": "MSSP (Managed Security Service Provider) Platform - A comprehensive security operations platform",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-or-later"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/10RootOrg/Risx-MSSP"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "application",
+      "bom-ref": "risx-mssp-python",
+      "group": "10RootOrg",
+      "name": "risx-mssp-python",
+      "version": "v0.9.0",
+      "description": "Python scripts and modules for Risx-MSSP platform",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/10RootOrg/risx-mssp-python"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "risx-mssp-back",
+      "group": "10RootOrg",
+      "name": "mssp-back",
+      "version": "1.0.0",
+      "description": "Backend API for Risx-MSSP platform (Node.js/Express)",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/10RootOrg/risx-mssp-back"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "risx-mssp-front",
+      "group": "10RootOrg",
+      "name": "mssp-front",
+      "version": "0.1.0",
+      "description": "Frontend UI for Risx-MSSP platform (React)",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/10RootOrg/risx-mssp-front"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/altair@5.4.1",
+      "group": "risx-mssp-python",
+      "name": "altair",
+      "version": "5.4.1",
+      "purl": "pkg:pypi/altair@5.4.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/attrs@24.2.0",
+      "group": "risx-mssp-python",
+      "name": "attrs",
+      "version": "24.2.0",
+      "purl": "pkg:pypi/attrs@24.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/beautifulsoup4@4.12.3",
+      "group": "risx-mssp-python",
+      "name": "beautifulsoup4",
+      "version": "4.12.3",
+      "purl": "pkg:pypi/beautifulsoup4@4.12.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/cachetools@5.5.0",
+      "group": "risx-mssp-python",
+      "name": "cachetools",
+      "version": "5.5.0",
+      "purl": "pkg:pypi/cachetools@5.5.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/certifi@2024.8.30",
+      "group": "risx-mssp-python",
+      "name": "certifi",
+      "version": "2024.8.30",
+      "purl": "pkg:pypi/certifi@2024.8.30"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/cffi@1.17.1",
+      "group": "risx-mssp-python",
+      "name": "cffi",
+      "version": "1.17.1",
+      "purl": "pkg:pypi/cffi@1.17.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/charset-normalizer@3.3.2",
+      "group": "risx-mssp-python",
+      "name": "charset-normalizer",
+      "version": "3.3.2",
+      "purl": "pkg:pypi/charset-normalizer@3.3.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/click@8.1.7",
+      "group": "risx-mssp-python",
+      "name": "click",
+      "version": "8.1.7",
+      "purl": "pkg:pypi/click@8.1.7"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/click-plugins@1.1.1",
+      "group": "risx-mssp-python",
+      "name": "click-plugins",
+      "version": "1.1.1",
+      "purl": "pkg:pypi/click-plugins@1.1.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/colorama@0.4.6",
+      "group": "risx-mssp-python",
+      "name": "colorama",
+      "version": "0.4.6",
+      "purl": "pkg:pypi/colorama@0.4.6"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/cryptography@43.0.1",
+      "group": "risx-mssp-python",
+      "name": "cryptography",
+      "version": "43.0.1",
+      "purl": "pkg:pypi/cryptography@43.0.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/elastic-transport@8.15.0",
+      "group": "risx-mssp-python",
+      "name": "elastic-transport",
+      "version": "8.15.0",
+      "purl": "pkg:pypi/elastic-transport@8.15.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/elasticsearch@8.15.1",
+      "group": "risx-mssp-python",
+      "name": "elasticsearch",
+      "version": "8.15.1",
+      "purl": "pkg:pypi/elasticsearch@8.15.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/filelock@3.16.1",
+      "group": "risx-mssp-python",
+      "name": "filelock",
+      "version": "3.16.1",
+      "purl": "pkg:pypi/filelock@3.16.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/google-auth@2.35.0",
+      "group": "risx-mssp-python",
+      "name": "google-auth",
+      "version": "2.35.0",
+      "purl": "pkg:pypi/google-auth@2.35.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/google-auth-oauthlib@1.2.1",
+      "group": "risx-mssp-python",
+      "name": "google-auth-oauthlib",
+      "version": "1.2.1",
+      "purl": "pkg:pypi/google-auth-oauthlib@1.2.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/grpcio@1.66.1",
+      "group": "risx-mssp-python",
+      "name": "grpcio",
+      "version": "1.66.1",
+      "purl": "pkg:pypi/grpcio@1.66.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/grpcio-tools@1.66.1",
+      "group": "risx-mssp-python",
+      "name": "grpcio-tools",
+      "version": "1.66.1",
+      "purl": "pkg:pypi/grpcio-tools@1.66.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/idna@3.10",
+      "group": "risx-mssp-python",
+      "name": "idna",
+      "version": "3.10",
+      "purl": "pkg:pypi/idna@3.10"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/jinja2@3.1.4",
+      "group": "risx-mssp-python",
+      "name": "Jinja2",
+      "version": "3.1.4",
+      "purl": "pkg:pypi/jinja2@3.1.4"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/jsonschema@4.23.0",
+      "group": "risx-mssp-python",
+      "name": "jsonschema",
+      "version": "4.23.0",
+      "purl": "pkg:pypi/jsonschema@4.23.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/jsonschema-specifications@2023.12.1",
+      "group": "risx-mssp-python",
+      "name": "jsonschema-specifications",
+      "version": "2023.12.1",
+      "purl": "pkg:pypi/jsonschema-specifications@2023.12.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/markupsafe@2.1.5",
+      "group": "risx-mssp-python",
+      "name": "MarkupSafe",
+      "version": "2.1.5",
+      "purl": "pkg:pypi/markupsafe@2.1.5"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/mysql-connector-python@9.0.0",
+      "group": "risx-mssp-python",
+      "name": "mysql-connector-python",
+      "version": "9.0.0",
+      "purl": "pkg:pypi/mysql-connector-python@9.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/narwhals@1.8.2",
+      "group": "risx-mssp-python",
+      "name": "narwhals",
+      "version": "1.8.2",
+      "purl": "pkg:pypi/narwhals@1.8.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/networkx@3.3",
+      "group": "risx-mssp-python",
+      "name": "networkx",
+      "version": "3.3",
+      "purl": "pkg:pypi/networkx@3.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/numpy@2.1.1",
+      "group": "risx-mssp-python",
+      "name": "numpy",
+      "version": "2.1.1",
+      "purl": "pkg:pypi/numpy@2.1.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/oauthlib@3.2.2",
+      "group": "risx-mssp-python",
+      "name": "oauthlib",
+      "version": "3.2.2",
+      "purl": "pkg:pypi/oauthlib@3.2.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/packaging@24.1",
+      "group": "risx-mssp-python",
+      "name": "packaging",
+      "version": "24.1",
+      "purl": "pkg:pypi/packaging@24.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pandas@2.2.3",
+      "group": "risx-mssp-python",
+      "name": "pandas",
+      "version": "2.2.3",
+      "purl": "pkg:pypi/pandas@2.2.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/protobuf@5.28.2",
+      "group": "risx-mssp-python",
+      "name": "protobuf",
+      "version": "5.28.2",
+      "purl": "pkg:pypi/protobuf@5.28.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/psutil@6.0.0",
+      "group": "risx-mssp-python",
+      "name": "psutil",
+      "version": "6.0.0",
+      "purl": "pkg:pypi/psutil@6.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pyasn1@0.6.1",
+      "group": "risx-mssp-python",
+      "name": "pyasn1",
+      "version": "0.6.1",
+      "purl": "pkg:pypi/pyasn1@0.6.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pyasn1-modules@0.4.1",
+      "group": "risx-mssp-python",
+      "name": "pyasn1_modules",
+      "version": "0.4.1",
+      "purl": "pkg:pypi/pyasn1-modules@0.4.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pycparser@2.22",
+      "group": "risx-mssp-python",
+      "name": "pycparser",
+      "version": "2.22",
+      "purl": "pkg:pypi/pycparser@2.22"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/python-dateutil@2.9.0.post0",
+      "group": "risx-mssp-python",
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "purl": "pkg:pypi/python-dateutil@2.9.0.post0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pytz@2024.2",
+      "group": "risx-mssp-python",
+      "name": "pytz",
+      "version": "2024.2",
+      "purl": "pkg:pypi/pytz@2024.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pyvelociraptor@0.1.8",
+      "group": "risx-mssp-python",
+      "name": "pyvelociraptor",
+      "version": "0.1.8",
+      "purl": "pkg:pypi/pyvelociraptor@0.1.8"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pyyaml@6.0.2",
+      "group": "risx-mssp-python",
+      "name": "PyYAML",
+      "version": "6.0.2",
+      "purl": "pkg:pypi/pyyaml@6.0.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/referencing@0.35.1",
+      "group": "risx-mssp-python",
+      "name": "referencing",
+      "version": "0.35.1",
+      "purl": "pkg:pypi/referencing@0.35.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/requests@2.32.3",
+      "group": "risx-mssp-python",
+      "name": "requests",
+      "version": "2.32.3",
+      "purl": "pkg:pypi/requests@2.32.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/requests-file@2.1.0",
+      "group": "risx-mssp-python",
+      "name": "requests-file",
+      "version": "2.1.0",
+      "purl": "pkg:pypi/requests-file@2.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/requests-oauthlib@2.0.0",
+      "group": "risx-mssp-python",
+      "name": "requests-oauthlib",
+      "version": "2.0.0",
+      "purl": "pkg:pypi/requests-oauthlib@2.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/rpds-py@0.20.0",
+      "group": "risx-mssp-python",
+      "name": "rpds-py",
+      "version": "0.20.0",
+      "purl": "pkg:pypi/rpds-py@0.20.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/rsa@4.9",
+      "group": "risx-mssp-python",
+      "name": "rsa",
+      "version": "4.9",
+      "purl": "pkg:pypi/rsa@4.9"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/shodan@1.31.0",
+      "group": "risx-mssp-python",
+      "name": "shodan",
+      "version": "1.31.0",
+      "purl": "pkg:pypi/shodan@1.31.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/six@1.16.0",
+      "group": "risx-mssp-python",
+      "name": "six",
+      "version": "1.16.0",
+      "purl": "pkg:pypi/six@1.16.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/soupsieve@2.6",
+      "group": "risx-mssp-python",
+      "name": "soupsieve",
+      "version": "2.6",
+      "purl": "pkg:pypi/soupsieve@2.6"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/timesketch-api-client@20240828",
+      "group": "risx-mssp-python",
+      "name": "timesketch-api-client",
+      "version": "20240828",
+      "purl": "pkg:pypi/timesketch-api-client@20240828"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/timesketch-import-client@20230721",
+      "group": "risx-mssp-python",
+      "name": "timesketch-import-client",
+      "version": "20230721",
+      "purl": "pkg:pypi/timesketch-import-client@20230721"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/tldextract@5.1.2",
+      "group": "risx-mssp-python",
+      "name": "tldextract",
+      "version": "5.1.2",
+      "purl": "pkg:pypi/tldextract@5.1.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/typing-extensions@4.12.2",
+      "group": "risx-mssp-python",
+      "name": "typing_extensions",
+      "version": "4.12.2",
+      "purl": "pkg:pypi/typing-extensions@4.12.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/tzdata@2024.1",
+      "group": "risx-mssp-python",
+      "name": "tzdata",
+      "version": "2024.1",
+      "purl": "pkg:pypi/tzdata@2024.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/urllib3@2.2.3",
+      "group": "risx-mssp-python",
+      "name": "urllib3",
+      "version": "2.2.3",
+      "purl": "pkg:pypi/urllib3@2.2.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/xlrd@2.0.1",
+      "group": "risx-mssp-python",
+      "name": "xlrd",
+      "version": "2.0.1",
+      "purl": "pkg:pypi/xlrd@2.0.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/xlsxwriter@3.2.0",
+      "group": "risx-mssp-python",
+      "name": "XlsxWriter",
+      "version": "3.2.0",
+      "purl": "pkg:pypi/xlsxwriter@3.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/leakcheck@2.0.0",
+      "group": "risx-mssp-python",
+      "name": "leakcheck",
+      "version": "2.0.0",
+      "purl": "pkg:pypi/leakcheck@2.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/json-repair@0.40.0",
+      "group": "risx-mssp-python",
+      "name": "json_repair",
+      "version": "0.40.0",
+      "purl": "pkg:pypi/json-repair@0.40.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/openai@latest",
+      "group": "risx-mssp-python",
+      "name": "openai",
+      "version": "latest",
+      "purl": "pkg:pypi/openai"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/ajv@8.12.0",
+      "group": "risx-mssp-back",
+      "name": "ajv",
+      "version": "8.12.0",
+      "purl": "pkg:npm/ajv@8.12.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/axios@1.7.2",
+      "group": "risx-mssp-back",
+      "name": "axios",
+      "version": "1.7.2",
+      "purl": "pkg:npm/axios@1.7.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/bcrypt@5.1.1",
+      "group": "risx-mssp-back",
+      "name": "bcrypt",
+      "version": "5.1.1",
+      "purl": "pkg:npm/bcrypt@5.1.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/body-parser@1.20.2",
+      "group": "risx-mssp-back",
+      "name": "body-parser",
+      "version": "1.20.2",
+      "purl": "pkg:npm/body-parser@1.20.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/cors@2.8.5",
+      "group": "risx-mssp-back",
+      "name": "cors",
+      "version": "2.8.5",
+      "purl": "pkg:npm/cors@2.8.5"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/csv-parser@3.0.0",
+      "group": "risx-mssp-back",
+      "name": "csv-parser",
+      "version": "3.0.0",
+      "purl": "pkg:npm/csv-parser@3.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/csv-writer@1.6.0",
+      "group": "risx-mssp-back",
+      "name": "csv-writer",
+      "version": "1.6.0",
+      "purl": "pkg:npm/csv-writer@1.6.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/dotenv@16.4.5",
+      "group": "risx-mssp-back",
+      "name": "dotenv",
+      "version": "16.4.5",
+      "purl": "pkg:npm/dotenv@16.4.5"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/express@4.19.1",
+      "group": "risx-mssp-back",
+      "name": "express",
+      "version": "4.19.1",
+      "purl": "pkg:npm/express@4.19.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/knex@3.1.0",
+      "group": "risx-mssp-back",
+      "name": "knex",
+      "version": "3.1.0",
+      "purl": "pkg:npm/knex@3.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/multer@1.4.5-lts.1",
+      "group": "risx-mssp-back",
+      "name": "multer",
+      "version": "1.4.5-lts.1",
+      "purl": "pkg:npm/multer@1.4.5-lts.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mysql@2.18.1",
+      "group": "risx-mssp-back",
+      "name": "mysql",
+      "version": "2.18.1",
+      "purl": "pkg:npm/mysql@2.18.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mysql2@3.10.1",
+      "group": "risx-mssp-back",
+      "name": "mysql2",
+      "version": "3.10.1",
+      "purl": "pkg:npm/mysql2@3.10.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/pg@8.11.3",
+      "group": "risx-mssp-back",
+      "name": "pg",
+      "version": "8.11.3",
+      "purl": "pkg:npm/pg@8.11.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/uuid@9.0.1",
+      "group": "risx-mssp-back",
+      "name": "uuid",
+      "version": "9.0.1",
+      "purl": "pkg:npm/uuid@9.0.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/xml2js@0.6.2",
+      "group": "risx-mssp-back",
+      "name": "xml2js",
+      "version": "0.6.2",
+      "purl": "pkg:npm/xml2js@0.6.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@types/pg@8.11.4",
+      "group": "risx-mssp-back",
+      "name": "@types/pg",
+      "version": "8.11.4",
+      "purl": "pkg:npm/%40types/pg@8.11.4",
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@codemirror/lang-json@6.0.1",
+      "group": "risx-mssp-front",
+      "name": "@codemirror/lang-json",
+      "version": "6.0.1",
+      "purl": "pkg:npm/%40codemirror/lang-json@6.0.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@lezer/highlight@1.2.0",
+      "group": "risx-mssp-front",
+      "name": "@lezer/highlight",
+      "version": "1.2.0",
+      "purl": "pkg:npm/%40lezer/highlight@1.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@testing-library/jest-dom@5.17.0",
+      "group": "risx-mssp-front",
+      "name": "@testing-library/jest-dom",
+      "version": "5.17.0",
+      "purl": "pkg:npm/%40testing-library/jest-dom@5.17.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@testing-library/react@13.4.0",
+      "group": "risx-mssp-front",
+      "name": "@testing-library/react",
+      "version": "13.4.0",
+      "purl": "pkg:npm/%40testing-library/react@13.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@testing-library/user-event@13.5.0",
+      "group": "risx-mssp-front",
+      "name": "@testing-library/user-event",
+      "version": "13.5.0",
+      "purl": "pkg:npm/%40testing-library/user-event@13.5.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@uiw/codemirror-theme-vscode@4.23.0",
+      "group": "risx-mssp-front",
+      "name": "@uiw/codemirror-theme-vscode",
+      "version": "4.23.0",
+      "purl": "pkg:npm/%40uiw/codemirror-theme-vscode@4.23.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@uiw/codemirror-themes@4.23.0",
+      "group": "risx-mssp-front",
+      "name": "@uiw/codemirror-themes",
+      "version": "4.23.0",
+      "purl": "pkg:npm/%40uiw/codemirror-themes@4.23.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@uiw/react-codemirror@4.23.0",
+      "group": "risx-mssp-front",
+      "name": "@uiw/react-codemirror",
+      "version": "4.23.0",
+      "purl": "pkg:npm/%40uiw/react-codemirror@4.23.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@uiw/react-json-view@2.0.0-alpha.24",
+      "group": "risx-mssp-front",
+      "name": "@uiw/react-json-view",
+      "version": "2.0.0-alpha.24",
+      "purl": "pkg:npm/%40uiw/react-json-view@2.0.0-alpha.24"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/axios@1.6.8-front",
+      "group": "risx-mssp-front",
+      "name": "axios",
+      "version": "1.6.8",
+      "purl": "pkg:npm/axios@1.6.8"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/chart.js@4.4.2",
+      "group": "risx-mssp-front",
+      "name": "chart.js",
+      "version": "4.4.2",
+      "purl": "pkg:npm/chart.js@4.4.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/lottie-web@5.12.2",
+      "group": "risx-mssp-front",
+      "name": "lottie-web",
+      "version": "5.12.2",
+      "purl": "pkg:npm/lottie-web@5.12.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/path@0.12.7",
+      "group": "risx-mssp-front",
+      "name": "path",
+      "version": "0.12.7",
+      "purl": "pkg:npm/path@0.12.7"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react@18.2.0",
+      "group": "risx-mssp-front",
+      "name": "react",
+      "version": "18.2.0",
+      "purl": "pkg:npm/react@18.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-chartjs-2@5.2.0",
+      "group": "risx-mssp-front",
+      "name": "react-chartjs-2",
+      "version": "5.2.0",
+      "purl": "pkg:npm/react-chartjs-2@5.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-dom@18.2.0",
+      "group": "risx-mssp-front",
+      "name": "react-dom",
+      "version": "18.2.0",
+      "purl": "pkg:npm/react-dom@18.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-json-view-preview@1.0.3",
+      "group": "risx-mssp-front",
+      "name": "react-json-view-preview",
+      "version": "1.0.3",
+      "purl": "pkg:npm/react-json-view-preview@1.0.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-scripts@5.0.1",
+      "group": "risx-mssp-front",
+      "name": "react-scripts",
+      "version": "5.0.1",
+      "purl": "pkg:npm/react-scripts@5.0.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-svg@16.1.34",
+      "group": "risx-mssp-front",
+      "name": "react-svg",
+      "version": "16.1.34",
+      "purl": "pkg:npm/react-svg@16.1.34"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/web-vitals@2.1.4",
+      "group": "risx-mssp-front",
+      "name": "web-vitals",
+      "version": "2.1.4",
+      "purl": "pkg:npm/web-vitals@2.1.4"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@babel/plugin-proposal-private-property-in-object@7.21.11",
+      "group": "risx-mssp-front",
+      "name": "@babel/plugin-proposal-private-property-in-object",
+      "version": "7.21.11",
+      "purl": "pkg:npm/%40babel/plugin-proposal-private-property-in-object@7.21.11"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/cross-env@7.0.3",
+      "group": "risx-mssp-front",
+      "name": "cross-env",
+      "version": "7.0.3",
+      "purl": "pkg:npm/cross-env@7.0.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-router-dom@6.22.3",
+      "group": "risx-mssp-front",
+      "name": "react-router-dom",
+      "version": "6.22.3",
+      "purl": "pkg:npm/react-router-dom@6.22.3"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:nginx",
+      "group": "infrastructure",
+      "name": "nginx",
+      "version": "1.19.3-alpine",
+      "description": "Nginx reverse proxy server",
+      "purl": "pkg:docker/nginx@1.19.3-alpine"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:elasticsearch",
+      "group": "infrastructure",
+      "name": "elasticsearch",
+      "version": "8.15.3",
+      "description": "Elasticsearch search engine (built from deviantony/docker-elk)",
+      "purl": "pkg:docker/docker.elastic.co/elasticsearch/elasticsearch@8.15.3"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:logstash",
+      "group": "infrastructure",
+      "name": "logstash",
+      "version": "8.15.3",
+      "description": "Logstash data processing pipeline",
+      "purl": "pkg:docker/docker.elastic.co/logstash/logstash@8.15.3"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:kibana",
+      "group": "infrastructure",
+      "name": "kibana",
+      "version": "8.15.3",
+      "description": "Kibana visualization platform",
+      "purl": "pkg:docker/docker.elastic.co/kibana/kibana@8.15.3"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:timesketch",
+      "group": "infrastructure",
+      "name": "timesketch",
+      "version": "20250708",
+      "description": "Timesketch timeline analysis tool",
+      "purl": "pkg:docker/us-docker.pkg.dev/osdfir-registry/timesketch/timesketch@20250708"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:postgres:timesketch",
+      "group": "infrastructure",
+      "name": "postgres",
+      "version": "13.0-alpine",
+      "description": "PostgreSQL database for Timesketch",
+      "purl": "pkg:docker/postgres@13.0-alpine"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:opensearch",
+      "group": "infrastructure",
+      "name": "opensearch",
+      "version": "2.15.0",
+      "description": "OpenSearch for Timesketch",
+      "purl": "pkg:docker/opensearchproject/opensearch@2.15.0"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:redis:timesketch",
+      "group": "infrastructure",
+      "name": "redis",
+      "version": "6.0.8-alpine",
+      "description": "Redis for Timesketch caching",
+      "purl": "pkg:docker/redis@6.0.8-alpine"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:prowler-api",
+      "group": "infrastructure",
+      "name": "prowler-api",
+      "version": "stable",
+      "description": "Prowler cloud security assessment API",
+      "purl": "pkg:docker/prowlercloud/prowler-api@stable"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:prowler-ui",
+      "group": "infrastructure",
+      "name": "prowler-ui",
+      "version": "latest",
+      "description": "Prowler cloud security assessment UI",
+      "purl": "pkg:docker/prowlercloud/prowler-ui@latest"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:prowler-postgres",
+      "group": "infrastructure",
+      "name": "postgres",
+      "version": "16.3-alpine3.20",
+      "description": "PostgreSQL database for Prowler",
+      "purl": "pkg:docker/postgres@16.3-alpine3.20"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:valkey:prowler",
+      "group": "infrastructure",
+      "name": "valkey",
+      "version": "7-alpine3.19",
+      "description": "Valkey (Redis-compatible) for Prowler",
+      "purl": "pkg:docker/valkey/valkey@7-alpine3.19"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:glow",
+      "group": "infrastructure",
+      "name": "glow",
+      "version": "v2.0",
+      "description": "Markdown renderer for Prowler README display",
+      "purl": "pkg:docker/ghcr.io/charmbracelet/glow@v2.0"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:cyberchef",
+      "group": "infrastructure",
+      "name": "cyberchef",
+      "version": "10.19",
+      "description": "GCHQ CyberChef web-based data manipulation tool",
+      "purl": "pkg:docker/ghcr.io/gchq/cyberchef@10.19"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:misp-core",
+      "group": "infrastructure",
+      "name": "misp-core",
+      "version": "latest",
+      "description": "MISP Threat Intelligence Platform core",
+      "purl": "pkg:docker/ghcr.io/misp/misp-docker/misp-core@latest"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:misp-modules",
+      "group": "infrastructure",
+      "name": "misp-modules",
+      "version": "latest",
+      "description": "MISP modules for enrichment",
+      "purl": "pkg:docker/ghcr.io/misp/misp-docker/misp-modules@latest"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:mariadb:misp",
+      "group": "infrastructure",
+      "name": "mariadb",
+      "version": "10.11",
+      "description": "MariaDB database for MISP",
+      "purl": "pkg:docker/mariadb@10.11"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:valkey:misp",
+      "group": "infrastructure",
+      "name": "valkey",
+      "version": "7.2",
+      "description": "Valkey (Redis-compatible) for MISP",
+      "purl": "pkg:docker/valkey/valkey@7.2"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:smtp:misp",
+      "group": "infrastructure",
+      "name": "smtp",
+      "version": "latest",
+      "description": "SMTP relay for MISP",
+      "purl": "pkg:docker/ixdotai/smtp@latest"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:strelka-frontend",
+      "group": "infrastructure",
+      "name": "strelka-frontend",
+      "version": "0.24.07.09",
+      "description": "Strelka file analysis frontend",
+      "purl": "pkg:docker/target/strelka-frontend@0.24.07.09"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:strelka-backend",
+      "group": "infrastructure",
+      "name": "strelka-backend",
+      "version": "0.24.07.09",
+      "description": "Strelka file analysis backend",
+      "purl": "pkg:docker/target/strelka-backend@0.24.07.09"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:strelka-manager",
+      "group": "infrastructure",
+      "name": "strelka-manager",
+      "version": "0.24.07.09",
+      "description": "Strelka file analysis manager",
+      "purl": "pkg:docker/target/strelka-manager@0.24.07.09"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:strelka-ui",
+      "group": "infrastructure",
+      "name": "strelka-ui",
+      "version": "v2.13",
+      "description": "Strelka file analysis UI",
+      "purl": "pkg:docker/target/strelka-ui@v2.13"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:redis:strelka",
+      "group": "infrastructure",
+      "name": "redis",
+      "version": "7.4.0-alpine3.20",
+      "description": "Redis for Strelka coordination/gatekeeper",
+      "purl": "pkg:docker/redis@7.4.0-alpine3.20"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:jaeger",
+      "group": "infrastructure",
+      "name": "jaeger",
+      "version": "1.42",
+      "description": "Jaeger distributed tracing for Strelka",
+      "purl": "pkg:docker/jaegertracing/all-in-one@1.42"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:postgresql:strelka",
+      "group": "infrastructure",
+      "name": "postgresql",
+      "version": "11",
+      "description": "Bitnami PostgreSQL for Strelka UI",
+      "purl": "pkg:docker/bitnami/postgresql@11"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:velociraptor",
+      "group": "infrastructure",
+      "name": "velociraptor",
+      "version": "v0.74",
+      "description": "Velociraptor endpoint visibility and collection tool (custom build)",
+      "purl": "pkg:docker/velociraptor-tenroot@v0.74"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:nightingale",
+      "group": "infrastructure",
+      "name": "nightingale",
+      "version": "v1.0.0",
+      "description": "Nightingale security testing environment",
+      "purl": "pkg:docker/ghcr.io/rajanagori/nightingale@v1.0.0"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:iris-app",
+      "group": "infrastructure",
+      "name": "iriswebapp_app",
+      "version": "v2.4.20",
+      "description": "DFIR-IRIS incident response platform",
+      "purl": "pkg:docker/ghcr.io/dfir-iris/iriswebapp_app@v2.4.20"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:iris-db",
+      "group": "infrastructure",
+      "name": "iriswebapp_db",
+      "version": "v2.4.20",
+      "description": "PostgreSQL for DFIR-IRIS",
+      "purl": "pkg:docker/ghcr.io/dfir-iris/iriswebapp_db@v2.4.20"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:iris-nginx",
+      "group": "infrastructure",
+      "name": "iriswebapp_nginx",
+      "version": "v2.4.20",
+      "description": "Nginx for DFIR-IRIS",
+      "purl": "pkg:docker/ghcr.io/dfir-iris/iriswebapp_nginx@v2.4.20"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:rabbitmq:iris",
+      "group": "infrastructure",
+      "name": "rabbitmq",
+      "version": "3-management-alpine",
+      "description": "RabbitMQ for DFIR-IRIS",
+      "purl": "pkg:docker/rabbitmq@3-management-alpine"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:portainer",
+      "group": "infrastructure",
+      "name": "portainer-ce",
+      "version": "2.21.0",
+      "description": "Portainer container management UI",
+      "purl": "pkg:docker/portainer/portainer-ce@2.21.0"
+    },
+    {
+      "type": "container",
+      "bom-ref": "container:portainer-agent",
+      "group": "infrastructure",
+      "name": "portainer-agent",
+      "version": "2.21.0",
+      "description": "Portainer agent",
+      "purl": "pkg:docker/portainer/agent@2.21.0"
+    },
+    {
+      "type": "data",
+      "bom-ref": "data:yara-forge",
+      "group": "external-data",
+      "name": "yara-forge-rules",
+      "version": "20240922",
+      "description": "YARA rules from YARA Forge for Strelka file analysis",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://github.com/YARAHQ/yara-forge/releases/download/20240922/yara-forge-rules-full.zip"
+        }
+      ]
+    },
+    {
+      "type": "data",
+      "bom-ref": "data:velociraptor-artifacts",
+      "group": "external-data",
+      "name": "Velociraptor-Artifacts",
+      "version": "main",
+      "description": "Custom Velociraptor artifacts from 10RootOrg",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/10RootOrg/Velociraptor-Artifacts"
+        }
+      ]
+    },
+    {
+      "type": "data",
+      "bom-ref": "data:timesketch-tags",
+      "group": "external-data",
+      "name": "AllthingsTimesketch-tags",
+      "version": "07d4df90d8686b8379f97c5755dd9ebe5f534ca9",
+      "description": "Timesketch tagging rules from blueteam0ps",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/blueteam0ps/AllthingsTimesketch"
+        }
+      ]
+    },
+    {
+      "type": "data",
+      "bom-ref": "data:dfiq",
+      "group": "external-data",
+      "name": "DFIQ",
+      "version": "latest",
+      "description": "Digital Forensics Investigation Questions framework for Timesketch",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/dfiq"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "git:docker-elk",
+      "group": "external-repos",
+      "name": "docker-elk",
+      "version": "629aea49616ae8a4184b5e68da904cb88e69831d",
+      "description": "Docker ELK stack from deviantony (cloned during installation)",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/deviantony/docker-elk"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "git:iris-web",
+      "group": "external-repos",
+      "name": "iris-web",
+      "version": "v2.4.10",
+      "description": "DFIR-IRIS web application (cloned during installation)",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dfir-iris/iris-web"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "risx-mssp-platform",
+      "dependsOn": [
+        "risx-mssp-python",
+        "risx-mssp-back",
+        "risx-mssp-front",
+        "container:nginx",
+        "container:elasticsearch",
+        "container:kibana",
+        "container:logstash",
+        "container:timesketch",
+        "container:prowler-api",
+        "container:cyberchef",
+        "container:misp-core",
+        "container:strelka-frontend",
+        "container:velociraptor",
+        "container:nightingale",
+        "container:iris-app",
+        "container:portainer"
+      ]
+    }
+  ]
+}
