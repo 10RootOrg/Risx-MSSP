@@ -18,11 +18,11 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 |----------|-------|
 | Python Dependencies | 59 |
 | Node.js Backend Dependencies | 17 |
-| Node.js Frontend Dependencies | 24 |
-| Container Images | 35 |
+| Node.js Frontend Dependencies | 26 |
+| Container Images | 38 |
 | External Repositories | 2 |
 | External Data Sources | 5 |
-| **Total Components** | **142** |
+| **Total Components** | **147** |
 
 ---
 
@@ -36,14 +36,12 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 ### 2. risx-mssp-back
 - **URL:** https://github.com/10RootOrg/risx-mssp-back
 - **Type:** Node.js/Express Backend API
-- **Version:** 1.0.0
 - **Dependencies:** 17 packages
 
 ### 3. risx-mssp-front
 - **URL:** https://github.com/10RootOrg/risx-mssp-front
 - **Type:** React Frontend Application
-- **Version:** 0.1.0
-- **Dependencies:** 24 packages
+- **Dependencies:** 26 packages
 
 ---
 
@@ -71,14 +69,17 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 | grpcio-tools | 1.66.1 | gRPC tools |
 | idna | 3.10 | Internationalized domain names |
 | Jinja2 | 3.1.4 | Template engine |
+| json_repair | 0.40.0 | JSON repair utility |
 | jsonschema | 4.23.0 | JSON schema validation |
 | jsonschema-specifications | 2023.12.1 | JSON schema specs |
+| leakcheck | 2.0.0 | Leak checking API |
 | MarkupSafe | 2.1.5 | Safe string markup |
 | mysql-connector-python | 9.0.0 | MySQL database connector |
 | narwhals | 1.8.2 | DataFrame library adapter |
 | networkx | 3.3 | Graph/network analysis |
 | numpy | 2.1.1 | Numerical computing |
 | oauthlib | 3.2.2 | OAuth library |
+| openai | latest | OpenAI API client |
 | packaging | 24.1 | Python packaging utilities |
 | pandas | 2.2.3 | Data analysis library |
 | protobuf | 5.28.2 | Protocol buffers |
@@ -107,18 +108,14 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 | urllib3 | 2.2.3 | HTTP client |
 | xlrd | 2.0.1 | Excel file reading |
 | XlsxWriter | 3.2.0 | Excel file writing |
-| leakcheck | 2.0.0 | Leak checking API |
-| json_repair | 0.40.0 | JSON repair utility |
-| openai | latest | OpenAI API client |
 
 ---
 
 ## Node.js Backend Dependencies (risx-mssp-back)
 
-### Production Dependencies
-
 | Package | Version | Purpose |
 |---------|---------|---------|
+| @types/pg | ^8.11.4 | PostgreSQL TypeScript types |
 | ajv | ^8.12.0 | JSON schema validator |
 | axios | ^1.7.2 | HTTP client |
 | bcrypt | ^5.1.1 | Password hashing |
@@ -136,20 +133,14 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 | uuid | ^9.0.1 | UUID generation |
 | xml2js | ^0.6.2 | XML to JS conversion |
 
-### Dev Dependencies
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| @types/pg | ^8.11.4 | PostgreSQL TypeScript types |
-
 ---
 
 ## Node.js Frontend Dependencies (risx-mssp-front)
 
-### Production Dependencies
-
 | Package | Version | Purpose |
 |---------|---------|---------|
+| @babel/plugin-proposal-private-property-in-object | ^7.21.11 | Babel plugin |
+| @babel/plugin-proposal-private-property-in-object | ^7.21.11 | Babel plugin |
 | @codemirror/lang-json | ^6.0.1 | JSON language support |
 | @lezer/highlight | ^1.2.0 | Syntax highlighting |
 | @testing-library/jest-dom | ^5.17.0 | DOM testing utilities |
@@ -161,23 +152,19 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 | @uiw/react-json-view | ^2.0.0-alpha.24 | JSON viewer component |
 | axios | ^1.6.8 | HTTP client |
 | chart.js | ^4.4.2 | Charting library |
+| cross-env | ^7.0.3 | Cross-platform env vars |
+| cross-env | ^7.0.3 | Cross-platform env vars |
 | lottie-web | ^5.12.2 | Lottie animations |
 | path | ^0.12.7 | Path utilities |
 | react | ^18.2.0 | React framework |
 | react-chartjs-2 | ^5.2.0 | React Chart.js wrapper |
 | react-dom | ^18.2.0 | React DOM |
 | react-json-view-preview | ^1.0.3 | JSON preview component |
+| react-router-dom | ^6.22.3 | React routing |
+| react-router-dom | ^6.22.3 | React routing |
 | react-scripts | ^5.0.1 | Create React App scripts |
 | react-svg | ^16.1.34 | SVG component |
 | web-vitals | ^2.1.4 | Web performance metrics |
-
-### Dev Dependencies
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| @babel/plugin-proposal-private-property-in-object | ^7.21.11 | Babel plugin |
-| cross-env | ^7.0.3 | Cross-platform env vars |
-| react-router-dom | ^6.22.3 | React routing |
 
 ---
 
@@ -206,31 +193,31 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 |---------|-------|---------|-------------|
 | timesketch-web | us-docker.pkg.dev/osdfir-registry/timesketch/timesketch | 20250708 | Timeline analysis |
 | timesketch-worker | us-docker.pkg.dev/osdfir-registry/timesketch/timesketch | 20250708 | Background workers |
-| postgres | postgres | 15.6-alpine | Database |
+| timesketch-postgres | postgres | 15.6-alpine | Database |
 | opensearch | opensearchproject/opensearch | 2.17.0 | Search backend |
-| redis | redis | 7.2-alpine | Caching |
+| timesketch-redis | redis | 7.2-alpine | Caching |
 
-### Prowler (Cloud Security)
+### Prowler
 
 | Service | Image | Version | Description |
 |---------|-------|---------|-------------|
 | prowler-api | prowlercloud/prowler-api | stable | Security assessment API |
 | prowler-ui | prowlercloud/prowler-ui | latest | Security assessment UI |
-| postgres | postgres | 16.3-alpine3.20 | Database |
-| valkey | valkey/valkey | 7-alpine3.19 | Cache |
+| prowler-postgres | postgres | 16.3-alpine3.20 | Database |
+| prowler-valkey | valkey/valkey | 7-alpine3.19 | Cache |
 | glow | ghcr.io/charmbracelet/glow | v2.0 | README renderer utility |
 
-### MISP (Threat Intelligence)
+### MISP
 
 | Service | Image | Version | Description |
 |---------|-------|---------|-------------|
 | misp-core | ghcr.io/misp/misp-docker/misp-core | latest | MISP core platform |
 | misp-modules | ghcr.io/misp/misp-docker/misp-modules | latest | MISP enrichment modules |
-| mariadb | mariadb | 10.11 | Database |
-| valkey | valkey/valkey | 7.2 | Cache |
-| smtp | ixdotai/smtp | latest | Email relay |
+| misp-mariadb | mariadb | 10.11 | Database |
+| misp-valkey | valkey/valkey | 7.2 | Cache |
+| misp-smtp | ixdotai/smtp | latest | Email relay |
 
-### Strelka (File Analysis)
+### Strelka
 
 | Service | Image | Version | Description |
 |---------|-------|---------|-------------|
@@ -238,11 +225,11 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 | strelka-backend | target/strelka-backend | 0.24.07.09 | File analysis |
 | strelka-manager | target/strelka-manager | 0.24.07.09 | Coordination |
 | strelka-ui | target/strelka-ui | v2.13 | Web interface |
-| redis | redis | 7.4.0-alpine3.20 | Coordination/Gatekeeper |
+| strelka-redis | redis | 7.4.0-alpine3.20 | Coordination/Gatekeeper |
 | jaeger | jaegertracing/all-in-one | 1.42 | Distributed tracing |
-| postgresql | bitnami/postgresql | 11 | Database |
+| strelka-postgresql | bitnami/postgresql | 11 | Database |
 
-### DFIR-IRIS (Incident Response)
+### DFIR-IRIS
 
 | Service | Image | Version | Description |
 |---------|-------|---------|-------------|
@@ -288,10 +275,10 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 
 ### Known Security-Sensitive Dependencies
 
-1. **cryptography (43.0.1)** - Handles cryptographic operations
-2. **bcrypt (5.1.1)** - Password hashing
-3. **requests (2.32.3)** - HTTP client - ensure proper certificate validation
-4. **openai (latest)** - External API integration - secure API key handling required
+1. **cryptography** - Handles cryptographic operations
+2. **bcrypt** - Password hashing
+3. **requests** - HTTP client - ensure proper certificate validation
+4. **openai** - External API integration - secure API key handling required
 
 ### Recommendations
 
@@ -306,6 +293,7 @@ The Risx-MSSP platform is a comprehensive Managed Security Service Provider (MSS
 
 - **sbom.json** - Machine-readable CycloneDX 1.5 format SBOM
 - **SBOM.md** - This human-readable summary
+- **update_sbom.py** - Script to regenerate this SBOM
 
 ---
 
