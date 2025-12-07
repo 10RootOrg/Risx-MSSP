@@ -58,3 +58,18 @@ you find a complete list of the requirements in the file `resources/default.env`
 </details>
 
 our version is a modified version of the original code
+
+## Known Vulnerabilities
+
+The following known vulnerabilities have been identified in this project's dependencies and will be fixed in the near future:
+
+| Package | Severity | CVSS | Description | Advisory |
+|---------|----------|------|-------------|----------|
+| form-data | **Critical** | - | Uses unsafe random function for multipart boundary generation | [GHSA-fjxv-7rqg-78g4](https://github.com/advisories/GHSA-fjxv-7rqg-78g4) |
+| node-forge | **High** | 8.6 | ASN.1 Validator Desynchronization vulnerability | [GHSA-5gfm-wpxj-wjgq](https://github.com/advisories/GHSA-5gfm-wpxj-wjgq) |
+| node-forge | **High** | - | ASN.1 Unbounded Recursion | [GHSA-554w-wpv2-vw27](https://github.com/advisories/GHSA-554w-wpv2-vw27) |
+| axios | **High** | 7.5 | Denial of Service via lack of data size check | [GHSA-4hjh-wcwx-xvwj](https://github.com/advisories/GHSA-4hjh-wcwx-xvwj) |
+| axios | **High** | - | SSRF and Credential Leakage via Absolute URL | [GHSA-jr5f-v2jv-69x6](https://github.com/advisories/GHSA-jr5f-v2jv-69x6) |
+| glob | **High** | 7.5 | Command injection via CLI --cmd flag | [GHSA-5j98-mcp5-4vw2](https://github.com/advisories/GHSA-5j98-mcp5-4vw2) |
+| nth-check | **High** | 7.5 | Inefficient Regular Expression Complexity (ReDoS) | [GHSA-rp65-9cf3-cjxr](https://github.com/advisories/GHSA-rp65-9cf3-cjxr) |
+
