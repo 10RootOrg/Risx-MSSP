@@ -249,9 +249,43 @@ cd - > /dev/null
 ################################################################################
 print_with_border "Downloading System Binaries"
 
-# Docker installation script
-download_file "https://get.docker.com" "${BINARIES_DIR}/get-docker.sh"
-chmod +x "${BINARIES_DIR}/get-docker.sh" || true
+# Docker .deb packages for Ubuntu (adjust versions as needed)
+DOCKER_VERSION="27.5.1"
+DOCKER_BUILDX_VERSION="0.19.3"
+DOCKER_COMPOSE_PLUGIN_VERSION="2.32.4"
+CONTAINERD_VERSION="1.7.25"
+
+# Detect Ubuntu version
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    UBUNTU_CODENAME="${VERSION_CODENAME:-noble}"
+else
+    UBUNTU_CODENAME="noble"  # Default to Ubuntu 24.04
+fi
+
+print_green "Downloading Docker packages for Ubuntu ${UBUNTU_CODENAME}..."
+
+DOCKER_DEB_DIR="${BINARIES_DIR}/deb-packages/docker"
+mkdir -p "$DOCKER_DEB_DIR"
+
+# Docker repository base URL
+DOCKER_REPO="https://download.docker.com/linux/ubuntu/dists/${UBUNTU_CODENAME}/pool/stable/amd64"
+
+# Download Docker packages
+download_file "${DOCKER_REPO}/containerd.io_${CONTAINERD_VERSION}-1_amd64.deb" \
+    "${DOCKER_DEB_DIR}/containerd.io_${CONTAINERD_VERSION}-1_amd64.deb"
+
+download_file "${DOCKER_REPO}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb" \
+    "${DOCKER_DEB_DIR}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb"
+
+download_file "${DOCKER_REPO}/docker-ce_${DOCKER_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb" \
+    "${DOCKER_DEB_DIR}/docker-ce_${DOCKER_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb"
+
+download_file "${DOCKER_REPO}/docker-buildx-plugin_${DOCKER_BUILDX_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb" \
+    "${DOCKER_DEB_DIR}/docker-buildx-plugin_${DOCKER_BUILDX_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb"
+
+download_file "${DOCKER_REPO}/docker-compose-plugin_${DOCKER_COMPOSE_PLUGIN_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb" \
+    "${DOCKER_DEB_DIR}/docker-compose-plugin_${DOCKER_COMPOSE_PLUGIN_VERSION}-1~ubuntu.24.04~${UBUNTU_CODENAME}_amd64.deb"
 
 # Docker Compose
 DOCKER_COMPOSE_VERSION=${DOCKER_COMPOSE_VERSION:-"2.29.7"}
@@ -319,12 +353,13 @@ airgap-bundle/
 ├── binaries/           # System binaries and tools
 │   ├── velociraptor/   # Velociraptor binaries for all platforms
 │   ├── deb-packages/   # Debian packages for offline installation
+│   │   └── docker/     # Docker CE .deb packages
 │   ├── docker-compose  # Docker Compose binary
-│   ├── jq              # JSON processor
-│   └── get-docker.sh   # Docker installation script
+│   └── jq              # JSON processor
 ├── artifacts/          # External artifacts and rules
 │   ├── velociraptor-artifacts.zip
-│   └── yara-forge-rules-full.zip
+│   ├── yara-forge-rules-full.zip
+│   └── risx-mssp-repos/ # RISX-MSSP Git repositories
 └── scripts/            # Modified deployment scripts
 
 Files Included:

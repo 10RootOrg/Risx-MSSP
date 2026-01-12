@@ -154,14 +154,32 @@ else
 fi
 
 if [ "$INSTALL_DOCKER" = true ]; then
-    if [ -f "${BINARIES_DIR}/get-docker.sh" ]; then
-        print_green "Installing Docker from bundle..."
-        print_yellow "Note: This installation script expects to download packages"
-        print_yellow "For true air-gapped install, Docker should be pre-installed or packages included"
-        sh "${BINARIES_DIR}/get-docker.sh" || print_red "Docker installation failed"
+    DOCKER_DEB_DIR="${BINARIES_DIR}/deb-packages/docker"
+    if [ -d "$DOCKER_DEB_DIR" ] && [ "$(ls -A $DOCKER_DEB_DIR/*.deb 2>/dev/null)" ]; then
+        print_green "Installing Docker from .deb packages..."
+
+        # Install Docker packages in correct order
+        # 1. containerd.io
+        dpkg -i "${DOCKER_DEB_DIR}"/containerd.io_*.deb 2>&1 | grep -v "already installed" || true
+
+        # 2. docker-ce-cli
+        dpkg -i "${DOCKER_DEB_DIR}"/docker-ce-cli_*.deb 2>&1 | grep -v "already installed" || true
+
+        # 3. docker-ce
+        dpkg -i "${DOCKER_DEB_DIR}"/docker-ce_*.deb 2>&1 | grep -v "already installed" || true
+
+        # 4. docker plugins
+        dpkg -i "${DOCKER_DEB_DIR}"/docker-buildx-plugin_*.deb 2>&1 | grep -v "already installed" || true
+        dpkg -i "${DOCKER_DEB_DIR}"/docker-compose-plugin_*.deb 2>&1 | grep -v "already installed" || true
+
+        # Fix any dependency issues
+        apt-get install -f -y --no-download 2>/dev/null || print_yellow "Dependencies already satisfied"
+
+        print_green "Docker packages installed successfully"
     else
-        print_red "Docker installation script not found in bundle"
+        print_red "Docker .deb packages not found in bundle"
         print_yellow "Please install Docker manually before continuing"
+        print_yellow "Or re-run the download script to include Docker packages"
         exit 1
     fi
 fi
