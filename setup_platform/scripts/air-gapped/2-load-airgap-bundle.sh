@@ -54,7 +54,13 @@ print_with_border() {
 
 # Determine bundle directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BUNDLE_DIR="$(dirname "$SCRIPT_DIR")"
+# If docker-images exists in SCRIPT_DIR, then the script is inside the bundle
+if [ -d "${SCRIPT_DIR}/docker-images" ]; then
+    BUNDLE_DIR="$SCRIPT_DIR"
+else
+    # Otherwise, assume the bundle is in the parent directory
+    BUNDLE_DIR="$(dirname "$SCRIPT_DIR")"
+fi
 
 # Check if we're in the right directory
 if [ ! -d "${BUNDLE_DIR}/docker-images" ] || [ ! -d "${BUNDLE_DIR}/binaries" ]; then
