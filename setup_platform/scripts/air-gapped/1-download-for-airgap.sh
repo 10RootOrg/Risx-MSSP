@@ -96,8 +96,8 @@ download_file() {
 ################################################################################
 print_with_border "Downloading Docker Images"
 
-# CyberChef
-pull_and_save_image "ghcr.io/gchq/cyberchef:${CYBERCHEF_IMAGE_TAG:-10.19}"
+# CyberChef (DISABLED by default - uncomment if needed)
+# pull_and_save_image "ghcr.io/gchq/cyberchef:${CYBERCHEF_IMAGE_TAG:-10.19}"
 
 # Elastic Stack
 # Note: ELK is built from Dockerfile, but we'll save the base images
@@ -114,23 +114,23 @@ pull_and_save_image "ghcr.io/dfir-iris/iriswebapp_nginx:${IRIS_VERSION:-v2.4.20}
 # Nginx
 pull_and_save_image "nginx:${NGINX_VERSION:-1.19.3-alpine}"
 
-# Nightingale
-pull_and_save_image "ghcr.io/rajanagori/nightingale:${NIGHTINGALE_IMAGE_TAG:-v1.0.0}"
+# Nightingale (DISABLED by default - uncomment if needed)
+# pull_and_save_image "ghcr.io/rajanagori/nightingale:${NIGHTINGALE_IMAGE_TAG:-v1.0.0}"
 
-# Prowler
-pull_and_save_image "prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}"
-pull_and_save_image "prowlercloud/prowler-ui:${PROWLER_UI_VERSION:-latest}"
-pull_and_save_image "postgres:${PROWLER_POSTGRES_VERSION:-16.3-alpine3.20}"
-pull_and_save_image "valkey/valkey:${PROWLER_VALKEY_VERSION:-7-alpine3.19}"
+# Prowler (DISABLED by default - uncomment if needed)
+# pull_and_save_image "prowlercloud/prowler-api:${PROWLER_API_VERSION:-stable}"
+# pull_and_save_image "prowlercloud/prowler-ui:${PROWLER_UI_VERSION:-latest}"
+# pull_and_save_image "postgres:${PROWLER_POSTGRES_VERSION:-16.3-alpine3.20}"
+# pull_and_save_image "valkey/valkey:${PROWLER_VALKEY_VERSION:-7-alpine3.19}"
 
-# Strelka
-pull_and_save_image "target/strelka-frontend:${STRELKA_VERSION:-0.24.07.09}"
-pull_and_save_image "target/strelka-backend:${STRELKA_VERSION:-0.24.07.09}"
-pull_and_save_image "target/strelka-manager:${STRELKA_VERSION:-0.24.07.09}"
-pull_and_save_image "target/strelka-ui:${STRELKA_UI_VERSION:-v2.13}"
-pull_and_save_image "redis:${STRELKA_REDIS_VERSION:-7.4.0-alpine3.20}"
-pull_and_save_image "jaegertracing/all-in-one:${STRELKA_JAEGER_VERSION:-1.42}"
-pull_and_save_image "docker.io/bitnami/postgresql:11"
+# Strelka (DISABLED by default - uncomment if needed)
+# pull_and_save_image "target/strelka-frontend:${STRELKA_VERSION:-0.24.07.09}"
+# pull_and_save_image "target/strelka-backend:${STRELKA_VERSION:-0.24.07.09}"
+# pull_and_save_image "target/strelka-manager:${STRELKA_VERSION:-0.24.07.09}"
+# pull_and_save_image "target/strelka-ui:${STRELKA_UI_VERSION:-v2.13}"
+# pull_and_save_image "redis:${STRELKA_REDIS_VERSION:-7.4.0-alpine3.20}"
+# pull_and_save_image "jaegertracing/all-in-one:${STRELKA_JAEGER_VERSION:-1.42}"
+# pull_and_save_image "docker.io/bitnami/postgresql:11"
 
 # Timesketch
 pull_and_save_image "postgres:${TIMESKETCH_POSTGRES_VERSION:-13.0-alpine}"
@@ -138,12 +138,12 @@ pull_and_save_image "us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:${T
 pull_and_save_image "opensearchproject/opensearch:${TIMESKETCH_OPENSEARCH_VERSION:-2.15.0}"
 pull_and_save_image "redis:${TIMESKETCH_REDIS_VERSION:-6.0.8-alpine}"
 
-# MISP
-pull_and_save_image "ixdotai/smtp:latest"
-pull_and_save_image "valkey/valkey:7.2"
-pull_and_save_image "mariadb:10.11"
-pull_and_save_image "ghcr.io/misp/misp-docker/misp-core:latest"
-pull_and_save_image "ghcr.io/misp/misp-docker/misp-modules:latest"
+# MISP (DISABLED by default - uncomment if needed)
+# pull_and_save_image "ixdotai/smtp:latest"
+# pull_and_save_image "valkey/valkey:7.2"
+# pull_and_save_image "mariadb:10.11"
+# pull_and_save_image "ghcr.io/misp/misp-docker/misp-core:latest"
+# pull_and_save_image "ghcr.io/misp/misp-docker/misp-modules:latest"
 
 # Portainer
 pull_and_save_image "portainer/agent:${PORTAINER_AGENT_VERSION:-2.21.0}"
