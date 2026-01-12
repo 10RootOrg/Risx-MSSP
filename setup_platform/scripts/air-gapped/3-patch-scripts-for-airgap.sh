@@ -193,9 +193,9 @@ RUN mkdir -p /opt/velociraptor/linux && \
 
 # Check if we're in air-gapped mode by looking for pre-downloaded binaries
 # If binaries exist in build context, use them; otherwise download from GitHub
-COPY velociraptor_binaries* /tmp/ 2>/dev/null || true
+COPY velociraptor_binaries /tmp/velociraptor_binaries
 
-RUN if [ -d "/tmp/velociraptor_binaries" ]; then \
+RUN if [ -f "/tmp/velociraptor_binaries/linux/velociraptor" ]; then \
       echo "Using pre-downloaded Velociraptor binaries (air-gapped mode)"; \
       cp /tmp/velociraptor_binaries/linux/velociraptor /opt/velociraptor/linux/velociraptor && \
       cp /tmp/velociraptor_binaries/mac/velociraptor_client /opt/velociraptor/mac/velociraptor_client && \
@@ -245,12 +245,14 @@ if [ -f "$VELOX_SCRIPT" ]; then
     if [ -n "$LINE_NUM" ]; then
         # Insert air-gapped binary copy before docker build
         sed -i "${LINE_NUM}i\\
+# Always create velociraptor_binaries directory for Dockerfile COPY\\
+mkdir -p \"\${workdir}/\${service_name}/velociraptor_binaries\"\\
+\\
 # Air-gapped mode: Copy pre-downloaded Velociraptor binaries\\
 if [ -f /etc/risx-mssp-airgap ]; then\\
   source /etc/risx-mssp-airgap\\
   if [ \"\$AIRGAP_MODE\" = \"true\" ] && [ -d \"\$VELOCIRAPTOR_BINARIES_DIR\" ]; then\\
     print_yellow \"Air-gapped mode: Copying Velociraptor binaries to build context...\"\\
-    mkdir -p \"\${workdir}/\${service_name}/velociraptor_binaries\"\\
     cp -r \"\$VELOCIRAPTOR_BINARIES_DIR/\"* \"\${workdir}/\${service_name}/velociraptor_binaries/\"\\
     print_green \"Velociraptor binaries copied for air-gapped build\"\\
   fi\\
