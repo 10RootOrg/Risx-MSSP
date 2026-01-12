@@ -142,13 +142,8 @@ print_with_border "Installing Docker"
 
 if command -v docker &> /dev/null; then
     print_yellow "Docker is already installed: $(docker --version)"
-    print_yellow "Skip Docker installation? (Y/n)"
-    read -r response
-    if [[ "$response" =~ ^[Nn]$ ]]; then
-        INSTALL_DOCKER=true
-    else
-        INSTALL_DOCKER=false
-    fi
+    print_yellow "Skipping Docker installation..."
+    INSTALL_DOCKER=false
 else
     INSTALL_DOCKER=true
 fi
