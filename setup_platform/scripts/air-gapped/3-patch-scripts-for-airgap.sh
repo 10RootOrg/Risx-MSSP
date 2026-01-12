@@ -310,7 +310,97 @@ else
 fi
 
 ################################################################################
-# 5. Patch install-pre-requisites.sh to skip Docker download in air-gapped
+# 5. Patch risx-mssp.sh for air-gapped git clone operations
+################################################################################
+print_with_border "Patching RISX-MSSP Deployment Script"
+
+RISX_MSSP_SCRIPT="$SCRIPTS_DIR/apps/risx-mssp.sh"
+if [ -f "$RISX_MSSP_SCRIPT" ]; then
+    cp "$RISX_MSSP_SCRIPT" "$RISX_MSSP_SCRIPT.bak"
+
+    # Patch the backend repository clone
+    sed -i '/^if \[\[ ! -d "${workdir}\/${service_name}\/backend\/risx-mssp-back" \]\]; then$/,/^fi$/c\
+if [[ ! -d "${workdir}/${service_name}/backend/risx-mssp-back" ]]; then\
+  # Check for air-gapped mode\
+  if [ -f /etc/risx-mssp-airgap ]; then\
+    source /etc/risx-mssp-airgap\
+    if [ "$AIRGAP_MODE" = "true" ] && [ -f "$ARTIFACTS_DIR/risx-mssp-repos/risx-mssp-back.tar.gz" ]; then\
+      print_yellow "Air-gapped mode: Extracting risx-mssp-back from local archive..."\
+      tar -xzf "$ARTIFACTS_DIR/risx-mssp-repos/risx-mssp-back.tar.gz" -C "${workdir}/${service_name}/backend/"\
+      print_green "risx-mssp-back extracted from local archive"\
+    else\
+      print_yellow "Cloning risx-mssp-back from GitHub..."\
+      git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" "${workdir}/${service_name}/backend/risx-mssp-back"\
+    fi\
+  else\
+    git clone --branch "${GIT_RISX_BACKEND_BRANCH}" "${GIT_RISX_BACKEND_URL}" "${workdir}/${service_name}/backend/risx-mssp-back"\
+  fi\
+  # Modify config for the right IP\
+  sed -i "s/localhost/${INTERNAL_IP_OF_HOST_MACHINE}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"\
+  sed -i "s/importing/${TIMESKETCH_PASSWORD}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"\
+  sed -i "s/import/${TIMESKETCH_USERNAME}/g" "${workdir}/${service_name}/backend/risx-mssp-back/db/seeds/production/config_seed.json"\
+  # Add development script to package.json if not exists\
+  if ! grep -q '\''"dev"'\'' "${workdir}/${service_name}/backend/risx-mssp-back/package.json"; then\
+    sed -i '\''/"scripts": {/a \\    "dev": "nodemon --exec babel-node src/server.js",'\'' "${workdir}/${service_name}/backend/risx-mssp-back/package.json"\
+  fi\
+fi
+' "$RISX_MSSP_SCRIPT"
+
+    # Patch the Python repository clone
+    sed -i '/^if \[\[ ! -d "${workdir}\/${service_name}\/backend\/python-scripts" \]\]; then$/,/^fi$/c\
+if [[ ! -d "${workdir}/${service_name}/backend/python-scripts" ]]; then\
+  # Check for air-gapped mode\
+  if [ -f /etc/risx-mssp-airgap ]; then\
+    source /etc/risx-mssp-airgap\
+    if [ "$AIRGAP_MODE" = "true" ] && [ -f "$ARTIFACTS_DIR/risx-mssp-repos/risx-mssp-python.tar.gz" ]; then\
+      print_yellow "Air-gapped mode: Extracting risx-mssp-python from local archive..."\
+      tar -xzf "$ARTIFACTS_DIR/risx-mssp-repos/risx-mssp-python.tar.gz" -C "${workdir}/${service_name}/backend/"\
+      mv "${workdir}/${service_name}/backend/risx-mssp-python" "${workdir}/${service_name}/backend/python-scripts"\
+      print_green "risx-mssp-python extracted from local archive"\
+    else\
+      print_yellow "Cloning risx-mssp-python from GitHub..."\
+      git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" "${workdir}/${service_name}/backend/python-scripts"\
+    fi\
+  else\
+    git clone --branch "${GIT_RISX_PY_BRANCH}" "${GIT_RISX_PY_URL}" "${workdir}/${service_name}/backend/python-scripts"\
+  fi\
+  # Setup Velociraptor config\
+  rm -f "${workdir}/${service_name}/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml"\
+  cd "${workdir}"/velociraptor/velociraptor/\
+  sudo ./velociraptor --config server.config.yaml config api_client \\\
+    --name api --role api,administrator \\\
+      "${workdir}"/"${service_name}"/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml\
+  cd -\
+  sudo chown 1000:1000 "${workdir}/${service_name}/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml"\
+  sed -i "s/0.0.0.0:8001/${FRONT_IP}:8001/g" "${workdir}/${service_name}/backend/python-scripts/modules/Velociraptor/dependencies/api.config.yaml"\
+fi
+' "$RISX_MSSP_SCRIPT"
+
+    # Patch the frontend repository clone
+    sed -i '/^git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front$/c\
+# Check for air-gapped mode for frontend\
+if [ -f /etc/risx-mssp-airgap ]; then\
+  source /etc/risx-mssp-airgap\
+  if [ "$AIRGAP_MODE" = "true" ] && [ -f "$ARTIFACTS_DIR/risx-mssp-repos/risx-mssp-front.tar.gz" ]; then\
+    print_yellow "Air-gapped mode: Extracting risx-mssp-front from local archive..."\
+    tar -xzf "$ARTIFACTS_DIR/risx-mssp-repos/risx-mssp-front.tar.gz" -C .\
+    print_green "risx-mssp-front extracted from local archive"\
+  else\
+    print_yellow "Cloning risx-mssp-front from GitHub..."\
+    git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front\
+  fi\
+else\
+  git clone --branch "${GIT_RISX_FRONTEND_BRANCH}" "${GIT_RISX_FRONTEND_URL}" risx-mssp-front\
+fi
+' "$RISX_MSSP_SCRIPT"
+
+    print_green "RISX-MSSP script patched successfully"
+else
+    print_yellow "RISX-MSSP script not found"
+fi
+
+################################################################################
+# 7. Patch install-pre-requisites.sh to skip Docker download in air-gapped
 ################################################################################
 print_with_border "Patching Install Prerequisites Script"
 
@@ -342,7 +432,7 @@ else
 fi
 
 ################################################################################
-# 6. Create air-gapped environment additions for default.env
+# 8. Create air-gapped environment additions for default.env
 ################################################################################
 print_with_border "Creating Air-Gapped Environment File"
 
@@ -361,6 +451,9 @@ AIRGAP_VELOCIRAPTOR_BINARIES=${VELOCIRAPTOR_BINARIES_DIR}
 AIRGAP_VELOCIRAPTOR_ARTIFACTS=${VELOCIRAPTOR_ARTIFACTS_ZIP}
 AIRGAP_YARA_RULES=${YARA_RULES_ZIP}
 
+# RISX-MSSP source repositories
+AIRGAP_RISX_MSSP_REPOS=${ARTIFACTS_DIR}/risx-mssp-repos
+
 # Skip online checks
 SKIP_ONLINE_CHECKS=true
 
@@ -371,7 +464,7 @@ EOF
 print_green "Air-gapped environment file created: $AIRGAP_ENV"
 
 ################################################################################
-# 7. Patch main.sh to load air-gapped env if available
+# 9. Patch main.sh to load air-gapped env if available
 ################################################################################
 print_with_border "Patching Main Library Script"
 
@@ -400,7 +493,7 @@ else
 fi
 
 ################################################################################
-# 8. Create verification script
+# 10. Create verification script
 ################################################################################
 print_with_border "Creating Verification Script"
 

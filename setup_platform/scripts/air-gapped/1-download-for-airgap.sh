@@ -198,7 +198,54 @@ YARA_URL="https://github.com/YARAHQ/yara-forge/releases/download/${GITHUB_COMMIT
 download_file "$YARA_URL" "${ARTIFACTS_DIR}/yara-forge-rules-full.zip"
 
 ################################################################################
-# 4. Download System Binaries and Tools
+# 4. Download RISX-MSSP Source Repositories
+################################################################################
+print_with_border "Downloading RISX-MSSP Source Repositories"
+
+# These repositories are cloned by risx-mssp.sh during deployment
+# We need to download them for air-gapped systems
+
+REPOS_DIR="${ARTIFACTS_DIR}/risx-mssp-repos"
+mkdir -p "$REPOS_DIR"
+
+# Download risx-mssp-back
+print_green "Cloning risx-mssp-back repository..."
+if [ ! -d "${REPOS_DIR}/risx-mssp-back" ]; then
+    git clone --branch "${GIT_RISX_BACKEND_BRANCH:-main}" \
+        "https://github.com/10RootOrg/risx-mssp-back" \
+        "${REPOS_DIR}/risx-mssp-back" || print_red "Failed to clone risx-mssp-back"
+fi
+
+# Download risx-mssp-front
+print_green "Cloning risx-mssp-front repository..."
+if [ ! -d "${REPOS_DIR}/risx-mssp-front" ]; then
+    git clone --branch "${GIT_RISX_FRONTEND_BRANCH:-main}" \
+        "https://github.com/10RootOrg/risx-mssp-front" \
+        "${REPOS_DIR}/risx-mssp-front" || print_red "Failed to clone risx-mssp-front"
+fi
+
+# Download risx-mssp-python
+print_green "Cloning risx-mssp-python repository..."
+if [ ! -d "${REPOS_DIR}/risx-mssp-python" ]; then
+    git clone --branch "${GIT_RISX_PY_BRANCH:-main}" \
+        "https://github.com/10RootOrg/risx-mssp-python.git" \
+        "${REPOS_DIR}/risx-mssp-python" || print_red "Failed to clone risx-mssp-python"
+fi
+
+# Create archives of the repositories (without .git to save space)
+print_green "Creating repository archives..."
+cd "${REPOS_DIR}"
+for repo in risx-mssp-back risx-mssp-front risx-mssp-python; do
+    if [ -d "$repo" ]; then
+        print_green "Archiving $repo..."
+        tar -czf "${repo}.tar.gz" --exclude='.git' "$repo"
+        print_green_v2 "$repo.tar.gz" "Created"
+    fi
+done
+cd - > /dev/null
+
+################################################################################
+# 5. Download System Binaries and Tools
 ################################################################################
 print_with_border "Downloading System Binaries"
 
@@ -220,7 +267,7 @@ download_file "https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/j
 chmod +x "${BINARIES_DIR}/jq" || true
 
 ################################################################################
-# 5. Download APT packages for offline installation
+# 6. Download APT packages for offline installation
 ################################################################################
 print_with_border "Downloading APT Packages"
 
@@ -252,7 +299,7 @@ done 2>/dev/null || print_yellow "Some packages could not be downloaded. They ma
 mv *.deb "$DEB_DIR/" 2>/dev/null || true
 
 ################################################################################
-# 6. Create manifest and instructions
+# 7. Create manifest and instructions
 ################################################################################
 print_with_border "Creating Manifest and Instructions"
 
@@ -368,7 +415,7 @@ For issues or questions, refer to the main RISX-MSSP documentation.
 EOF
 
 ################################################################################
-# 7. Calculate checksums
+# 8. Calculate checksums
 ################################################################################
 print_with_border "Calculating Checksums"
 
@@ -378,7 +425,7 @@ find . -type f -not -name "SHA256SUMS.txt" -exec sha256sum {} \; > "$CHECKSUM_FI
 cd - > /dev/null
 
 ################################################################################
-# 8. Summary
+# 9. Summary
 ################################################################################
 print_with_border "Download Complete"
 
