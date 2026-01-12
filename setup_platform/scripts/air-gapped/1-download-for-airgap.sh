@@ -425,7 +425,23 @@ find . -type f -not -name "SHA256SUMS.txt" -exec sha256sum {} \; > "$CHECKSUM_FI
 cd - > /dev/null
 
 ################################################################################
-# 9. Summary
+# 9. Copy deployment scripts into bundle
+################################################################################
+print_with_border "Copying Deployment Scripts into Bundle"
+
+# Copy the load and patch scripts into the bundle so they're available on air-gapped system
+cp "${SCRIPT_DIR}/2-load-airgap-bundle.sh" "${BUNDLE_DIR}/"
+cp "${SCRIPT_DIR}/3-patch-scripts-for-airgap.sh" "${BUNDLE_DIR}/"
+chmod +x "${BUNDLE_DIR}/2-load-airgap-bundle.sh"
+chmod +x "${BUNDLE_DIR}/3-patch-scripts-for-airgap.sh"
+
+print_green "Deployment scripts copied to bundle"
+print_yellow "Scripts location: ${BUNDLE_DIR}/"
+echo "  - 2-load-airgap-bundle.sh"
+echo "  - 3-patch-scripts-for-airgap.sh"
+
+################################################################################
+# 10. Summary
 ################################################################################
 print_with_border "Download Complete"
 
@@ -445,7 +461,9 @@ Next Steps:
 1. Review the manifest: cat ${BUNDLE_DIR}/MANIFEST.txt
 2. Create archive: tar -czf risx-mssp-airgap-bundle.tar.gz airgap-bundle/
 3. Transfer to air-gapped system
-4. Run the load script: sudo ./2-load-airgap-bundle.sh
+4. Extract: tar -xzf risx-mssp-airgap-bundle.tar.gz
+5. Navigate: cd airgap-bundle/
+6. Run the load script: sudo ./2-load-airgap-bundle.sh
 
 Files created:
 --------------
