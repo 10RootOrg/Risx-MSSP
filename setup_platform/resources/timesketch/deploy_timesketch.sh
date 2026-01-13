@@ -306,10 +306,13 @@ sudo sed -i 's/DFIQ_ENABLED = False/DFIQ_ENABLED = True/' timesketch/etc/timeske
 
  sed -i "/    'default': {/,/    }/ {
     s/'ollama':/'aistudio':/
-    s/'server_url': '',/'model': 'gemini-2.0-flash-001',/
+    s/'server_url': '',/'model': 'gemini-2.5-flash',/
     s/'model': '',/'api_key': '${TIMESKETCH_GEMINI_LLM_KEY}',/
 }" timesketch/etc/timesketch/timesketch.conf
 
+# Ensure all LLM sections use gemini-2.5-flash model (update any existing model values)
+sed -i "s/'model': 'gemini-2.0-flash-001'/'model': 'gemini-2.5-flash'/g" timesketch/etc/timesketch/timesketch.conf
+sed -i "s/'model': 'gemini-2.0-flash'/'model': 'gemini-2.5-flash'/g" timesketch/etc/timesketch/timesketch.conf
 
 git clone https://github.com/google/dfiq.git
 sudo cp -r dfiq/dfiq/data/* timesketch/etc/timesketch/dfiq/
@@ -334,6 +337,9 @@ if [ "$START_CONTAINER" != "${START_CONTAINER#[Yy]}" ]; then # this grammar (the
   docker compose up -d
   echo "sleep 5..."
   sleep 5
+  # Install google-generativeai for LLM features (must run after containers start)
+  echo "Installing google-generativeai library for LLM features..."
+  docker compose exec timesketch-web pip3 install google-generativeai
 else
   echo
   echo "You have chosen not to start the containers,"
@@ -368,7 +374,6 @@ if [ "$CREATE_USER" != "${CREATE_USER#[Yy]}" ]; then
     )"
   fi
   sleep 10
-  docker compose exec timesketch-web pip3 install google-generativeai
   docker compose exec timesketch-web tsctl create-user "$NEWUSERNAME" --password "${NEWUSERNAME_PASSWORD}" \
   && echo "New user has been created"
   docker compose exec timesketch-web tsctl make-admin "$NEWUSERNAME"
