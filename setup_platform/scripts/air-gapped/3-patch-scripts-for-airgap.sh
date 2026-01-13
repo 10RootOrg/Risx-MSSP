@@ -205,21 +205,9 @@ RUN if [ -f "/tmp/velociraptor_binaries/linux/velociraptor" ]; then \
       chmod +x /opt/velociraptor/linux/velociraptor && \
       rm -rf /tmp/velociraptor_binaries; \
     else \
-      echo "Downloading Velociraptor binaries from GitHub (online mode)"; \
-      apt-get update && \
-      apt-get install -y --no-install-recommends curl jq ca-certificates && \
-      curl -o /tmp/velociraptor_rel.json -L -s https://api.github.com/repos/velocidex/velociraptor/releases/tags/${VELOCIRAPTOR_VERSION} && \
-      LINUX_BIN="$(jq -r '.assets[] | select(.name | test("linux-amd64$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
-      MAC_BIN="$(jq -r '.assets[] | select(.name | test("darwin-amd64$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
-      WINDOWS_EXE="$(jq -r '.assets[] | select(.name | test("windows-amd64.exe$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
-      WINDOWS_MSI="$(jq -r '.assets[] | select(.name | test("windows-amd64.msi$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
-      curl -s -L -o /opt/velociraptor/linux/velociraptor "$LINUX_BIN" && chmod +x /opt/velociraptor/linux/velociraptor && \
-      curl -s -L -o /opt/velociraptor/mac/velociraptor_client "$MAC_BIN" && \
-      curl -s -L -o /opt/velociraptor/windows/velociraptor_client.exe "$WINDOWS_EXE" && \
-      curl -s -L -o /opt/velociraptor/windows/velociraptor_client.msi "$WINDOWS_MSI" && \
-      rm -f /tmp/velociraptor_rel.json && \
-      apt-get clean && \
-      rm -rf /var/lib/apt/lists/*; \
+      echo "ERROR: Velociraptor binaries not found in air-gapped bundle!"; \
+      echo "Please re-run the download script (1-download-airgap-bundle.sh) on an online system."; \
+      exit 1; \
     fi
 
 # Set working directory
