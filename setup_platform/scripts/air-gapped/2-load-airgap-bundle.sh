@@ -253,6 +253,17 @@ if [ $FAILED_COUNT -gt 0 ]; then
     print_yellow "Failed to load $FAILED_COUNT images"
 fi
 
+# Handle image tag compatibility for version mismatches
+print_green "Checking image tag compatibility..."
+
+# If mysql:latest exists but mysql:9 doesn't, tag it
+if docker image inspect mysql:latest >/dev/null 2>&1; then
+    if ! docker image inspect mysql:9 >/dev/null 2>&1; then
+        print_yellow "Tagging mysql:latest as mysql:9 for Dockerfile compatibility"
+        docker tag mysql:latest mysql:9
+    fi
+fi
+
 ################################################################################
 # 6. Extract and Prepare Artifacts
 ################################################################################
