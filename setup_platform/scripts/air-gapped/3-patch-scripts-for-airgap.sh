@@ -207,7 +207,7 @@ RUN if [ -f "/tmp/velociraptor_binaries/linux/velociraptor" ]; then \
     else \
       echo "Downloading Velociraptor binaries from GitHub (online mode)"; \
       apt-get update && \
-      apt-get install -y --no-install-recommends rsync curl jq ca-certificates && \
+      apt-get install -y --no-install-recommends curl jq ca-certificates && \
       curl -o /tmp/velociraptor_rel.json -L -s https://api.github.com/repos/velocidex/velociraptor/releases/tags/${VELOCIRAPTOR_VERSION} && \
       LINUX_BIN="$(jq -r '.assets[] | select(.name | test("linux-amd64$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
       MAC_BIN="$(jq -r '.assets[] | select(.name | test("darwin-amd64$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
@@ -232,6 +232,35 @@ DOCKERFILE_EOF
     print_green "Velociraptor Dockerfile patched for air-gapped mode"
 else
     print_yellow "Velociraptor Dockerfile not found"
+fi
+
+# Patch Velociraptor entrypoint to avoid runtime dependencies
+VELOX_ENTRYPOINT="$RESOURCES_DIR/velociraptor/entrypoint"
+if [ -f "$VELOX_ENTRYPOINT" ]; then
+    cp "$VELOX_ENTRYPOINT" "$VELOX_ENTRYPOINT.bak"
+
+    # Replace rsync with cp to avoid rsync dependency
+    sed -i 's/rsync -a/cp -a/g' "$VELOX_ENTRYPOINT"
+
+    # Comment out certificate rotation check to avoid jq/openssl dependencies
+    # This is safe for fresh installations as certificates are valid for years
+    sed -i '/^# Check Server Certificate Status/,/^fi$/c\
+# Check Server Certificate Status, Re-generate if it'\''s expiring in 24-hours or less\
+# Disabled for air-gapped deployments to avoid jq/openssl dependencies\
+# On fresh installs, certificates are valid for years and don'\''t need immediate rotation\
+# if true | ./velociraptor --config server.config.yaml config show --json | jq -r .Frontend.certificate | openssl x509 -text -enddate -noout -checkend 86400 >/dev/null; then\
+#   echo "Skipping renewal, certificate is not expired"\
+# else\
+#   echo "Certificate is expired, rotating certificate."\
+#   ./velociraptor --config ./server.config.yaml config rotate_key > /tmp/server.config.yaml\
+#   cp ./server.config.yaml ./server.config.yaml.bak\
+#   mv /tmp/server.config.yaml /velociraptor/.\
+# fi\
+echo "Certificate rotation check skipped (air-gapped mode)"' "$VELOX_ENTRYPOINT"
+
+    print_green "Velociraptor entrypoint patched for air-gapped mode"
+else
+    print_yellow "Velociraptor entrypoint not found"
 fi
 
 ################################################################################

@@ -13,7 +13,7 @@ RUN chmod +x /entrypoint
 # Install necessary packages for downloading Velociraptor
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      rsync curl jq ca-certificates && \
+      curl jq ca-certificates && \
     # Create dirs for Velociraptor binaries
     mkdir -p /opt/velociraptor/linux && \
     mkdir -p /opt/velociraptor/mac && \
