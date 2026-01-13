@@ -140,11 +140,19 @@ HELPER_EOF
     LINE_NUM=$(grep -n "^function download_external_file" "$INSTALL_HELPER" | head -1 | cut -d: -f1)
 
     if [ -n "$LINE_NUM" ]; then
-        # Remove the old function (assuming it's about 12 lines long)
-        sed -i "${LINE_NUM},$((LINE_NUM + 11))d" "$INSTALL_HELPER"
-        # Insert the new function at that position
-        sed -i "${LINE_NUM}r /tmp/airgap_helper.sh" "$INSTALL_HELPER"
-        print_green "install-helper.sh patched successfully"
+        # Find the closing brace of the function
+        END_LINE=$(tail -n +${LINE_NUM} "$INSTALL_HELPER" | grep -n "^}" | head -1 | cut -d: -f1)
+        if [ -n "$END_LINE" ]; then
+            END_LINE=$((LINE_NUM + END_LINE - 1))
+            # Remove the old function
+            sed -i "${LINE_NUM},${END_LINE}d" "$INSTALL_HELPER"
+            # Insert the new function at that position
+            sed -i "$((LINE_NUM - 1))r /tmp/airgap_helper.sh" "$INSTALL_HELPER"
+            print_green "install-helper.sh patched successfully"
+        else
+            print_yellow "Could not find function end, appending to file"
+            cat /tmp/airgap_helper.sh >> "$INSTALL_HELPER"
+        fi
     else
         print_yellow "Could not find download_external_file function, appending to end"
         cat /tmp/airgap_helper.sh >> "$INSTALL_HELPER"
