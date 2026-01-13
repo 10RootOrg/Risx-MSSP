@@ -428,7 +428,6 @@ if [ -f /etc/risx-mssp-airgap ]; then\
   source /etc/risx-mssp-airgap\
   if [ "$AIRGAP_MODE" = "true" ] && [ -f "$ARTIFACTS_DIR/risx-mssp-repos/docker-elk.tar.gz" ]; then\
     print_yellow "Air-gapped mode: Extracting docker-elk from local archive..."\
-    mkdir -p "${workdir}"/elk\
     tar -xzf "$ARTIFACTS_DIR/risx-mssp-repos/docker-elk.tar.gz" -C "${workdir}"/\
     mv "${workdir}"/docker-elk "${workdir}"/elk\
     print_green "docker-elk extracted from local archive"\
