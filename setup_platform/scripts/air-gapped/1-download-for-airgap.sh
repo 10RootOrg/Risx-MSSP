@@ -181,7 +181,7 @@ pull_and_save_image "portainer/portainer-ce:${PORTAINER_VERSION:-2.21.0}"
 pull_and_save_image "python:3.10-bookworm"  # risx-mssp backend
 pull_and_save_image "node:20-alpine"        # risx-mssp frontend
 pull_and_save_image "ubuntu:22.04"          # velociraptor
-pull_and_save_image "mysql:latest"          # risx-mssp mysql
+pull_and_save_image "mysql:9"               # risx-mssp mysql (must match Dockerfile)
 
 ################################################################################
 # 2. Download Velociraptor Binaries
