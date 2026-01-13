@@ -63,6 +63,33 @@ pull_and_save_image() {
 }
 
 ################################################################################
+# Function to pull and export Docker image (for images with lazy-pull issues)
+################################################################################
+pull_and_export_image() {
+    local image_full="$1"
+    local image_name=$(echo "$image_full" | tr '/:' '_')
+    local output_file="${IMAGES_DIR}/${image_name}_export.tar"
+
+    if [ -f "$output_file" ]; then
+        print_yellow "Image already exported: $image_full"
+        return 0
+    fi
+
+    print_green "Pulling image: $image_full"
+    if docker pull "$image_full"; then
+        print_yellow "Using docker export for $image_full (registry uses lazy-pull)"
+        CONTAINER_ID=$(docker create "$image_full")
+        print_green "Exporting container filesystem..."
+        docker export "$CONTAINER_ID" -o "$output_file"
+        docker rm "$CONTAINER_ID" > /dev/null
+        print_green_v2 "$image_full" "Exported successfully"
+    else
+        print_red "Failed to pull image: $image_full"
+        return 1
+    fi
+}
+
+################################################################################
 # Function to download file with retry
 ################################################################################
 download_file() {
@@ -134,9 +161,10 @@ pull_and_save_image "nginx:${NGINX_VERSION:-1.19.3-alpine}"
 
 # Timesketch
 pull_and_save_image "postgres:${TIMESKETCH_POSTGRES_VERSION:-13.0-alpine}"
-pull_and_save_image "us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:${TIMESKETCH_VERSION:-20250708}"
+# Note: Timesketch uses docker export due to lazy-pull issue with this registry
+pull_and_export_image "us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:${TIMESKETCH_VERSION:-20251219}"
 pull_and_save_image "opensearchproject/opensearch:${TIMESKETCH_OPENSEARCH_VERSION:-2.15.0}"
-pull_and_save_image "redis:${TIMESKETCH_REDIS_VERSION:-6.0.8-alpine}"
+pull_and_save_image "redis:${TIMESKETCH_REDIS_VERSION:-7.2.11-alpine}"
 
 # MISP (DISABLED by default - uncomment if needed)
 # pull_and_save_image "ixdotai/smtp:latest"

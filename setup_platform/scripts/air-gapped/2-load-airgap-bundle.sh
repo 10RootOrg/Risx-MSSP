@@ -215,12 +215,31 @@ FAILED_COUNT=0
 if [ -d "$IMAGES_DIR" ]; then
     for image_tar in "${IMAGES_DIR}"/*.tar; do
         if [ -f "$image_tar" ]; then
-            print_green "Loading: $(basename $image_tar)"
-            if docker load -i "$image_tar"; then
-                IMAGE_COUNT=$((IMAGE_COUNT + 1))
+            basename_tar=$(basename "$image_tar")
+            print_green "Loading: $basename_tar"
+
+            # Check if this is an exported image (needs docker import instead of load)
+            if [[ "$basename_tar" == *"_export.tar" ]]; then
+                # Extract the image name from filename
+                # e.g., us-docker.pkg.dev_osdfir-registry_timesketch_timesketch_20251219_export.tar
+                # becomes us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:20251219
+                image_name=$(echo "$basename_tar" | sed 's/_export\.tar$//' | sed 's/_/:/4' | sed 's/_/\//g' | sed 's/:/:/' )
+
+                print_yellow "Importing exported image as: $image_name"
+                if cat "$image_tar" | docker import - "$image_name"; then
+                    IMAGE_COUNT=$((IMAGE_COUNT + 1))
+                else
+                    print_red "Failed to import: $image_tar"
+                    FAILED_COUNT=$((FAILED_COUNT + 1))
+                fi
             else
-                print_red "Failed to load: $image_tar"
-                FAILED_COUNT=$((FAILED_COUNT + 1))
+                # Regular docker save tar file
+                if docker load -i "$image_tar"; then
+                    IMAGE_COUNT=$((IMAGE_COUNT + 1))
+                else
+                    print_red "Failed to load: $image_tar"
+                    FAILED_COUNT=$((FAILED_COUNT + 1))
+                fi
             fi
         fi
     done
