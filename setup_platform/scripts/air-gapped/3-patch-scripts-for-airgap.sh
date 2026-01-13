@@ -179,13 +179,6 @@ LABEL version="Velociraptor $VELOCIRAPTOR_VERSION"
 COPY ./entrypoint /entrypoint
 RUN chmod +x /entrypoint
 
-# Install necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      rsync curl jq ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 # Create dirs for Velociraptor binaries
 RUN mkdir -p /opt/velociraptor/linux && \
     mkdir -p /opt/velociraptor/mac && \
@@ -205,6 +198,8 @@ RUN if [ -f "/tmp/velociraptor_binaries/linux/velociraptor" ]; then \
       rm -rf /tmp/velociraptor_binaries; \
     else \
       echo "Downloading Velociraptor binaries from GitHub (online mode)"; \
+      apt-get update && \
+      apt-get install -y --no-install-recommends rsync curl jq ca-certificates && \
       curl -o /tmp/velociraptor_rel.json -L -s https://api.github.com/repos/velocidex/velociraptor/releases/tags/${VELOCIRAPTOR_VERSION} && \
       LINUX_BIN="$(jq -r '.assets[] | select(.name | test("linux-amd64$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
       MAC_BIN="$(jq -r '.assets[] | select(.name | test("darwin-amd64$")) | .browser_download_url' /tmp/velociraptor_rel.json | sort -V | tail -n 1)" && \
@@ -214,7 +209,9 @@ RUN if [ -f "/tmp/velociraptor_binaries/linux/velociraptor" ]; then \
       curl -s -L -o /opt/velociraptor/mac/velociraptor_client "$MAC_BIN" && \
       curl -s -L -o /opt/velociraptor/windows/velociraptor_client.exe "$WINDOWS_EXE" && \
       curl -s -L -o /opt/velociraptor/windows/velociraptor_client.msi "$WINDOWS_MSI" && \
-      rm -f /tmp/velociraptor_rel.json; \
+      rm -f /tmp/velociraptor_rel.json && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/*; \
     fi
 
 # Set working directory
