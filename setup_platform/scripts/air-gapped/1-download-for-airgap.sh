@@ -232,10 +232,24 @@ if [ ! -d "${REPOS_DIR}/risx-mssp-python" ]; then
         "${REPOS_DIR}/risx-mssp-python" || print_red "Failed to clone risx-mssp-python"
 fi
 
+# Download docker-elk (used by elk.sh deployment)
+print_green "Cloning docker-elk repository..."
+ELK_GIT_COMMIT="${ELK_GIT_COMMIT:-629aea49616ae8a4184b5e68da904cb88e69831d}"
+if [ ! -d "${REPOS_DIR}/docker-elk" ]; then
+    git clone --branch main --single-branch --depth 1 \
+        "https://github.com/deviantony/docker-elk.git" \
+        "${REPOS_DIR}/docker-elk" || print_red "Failed to clone docker-elk"
+    # Checkout the specific commit needed by elk.sh
+    cd "${REPOS_DIR}/docker-elk"
+    git fetch --depth 1 origin "$ELK_GIT_COMMIT" || print_yellow "Could not fetch specific commit"
+    git checkout "$ELK_GIT_COMMIT" || print_yellow "Could not checkout specific commit"
+    cd - > /dev/null
+fi
+
 # Create archives of the repositories (without .git to save space)
 print_green "Creating repository archives..."
 cd "${REPOS_DIR}"
-for repo in risx-mssp-back risx-mssp-front risx-mssp-python; do
+for repo in risx-mssp-back risx-mssp-front risx-mssp-python docker-elk; do
     if [ -d "$repo" ]; then
         print_green "Archiving $repo..."
         tar -czf "${repo}.tar.gz" --exclude='.git' "$repo"

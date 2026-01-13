@@ -407,6 +407,53 @@ else
 fi
 
 ################################################################################
+# 6. Patch elk.sh for air-gapped git clone operations
+################################################################################
+print_with_border "Patching ELK Deployment Script"
+
+ELK_SCRIPT="$SCRIPTS_DIR/apps/elk.sh"
+if [ -f "$ELK_SCRIPT" ]; then
+    cp "$ELK_SCRIPT" "$ELK_SCRIPT.bak"
+
+    # Patch the git clone section (lines 20-30)
+    sed -i '/^if \[ -d "${workdir}"\/elk \]; then$/,/^git checkout "$ELK_GIT_COMMIT"$/c\
+if [ -d "${workdir}"/elk ]; then\
+    print_red "The directory ${workdir}/elk already exists. Please remove it before running the script."\
+    print_red "You can run the following command to remove the directory:"\
+    print_yellow "./cleanup.sh --app elk"\
+    exit 1\
+fi\
+# Check for air-gapped mode\
+if [ -f /etc/risx-mssp-airgap ]; then\
+  source /etc/risx-mssp-airgap\
+  if [ "$AIRGAP_MODE" = "true" ] && [ -f "$ARTIFACTS_DIR/risx-mssp-repos/docker-elk.tar.gz" ]; then\
+    print_yellow "Air-gapped mode: Extracting docker-elk from local archive..."\
+    mkdir -p "${workdir}"/elk\
+    tar -xzf "$ARTIFACTS_DIR/risx-mssp-repos/docker-elk.tar.gz" -C "${workdir}"/\
+    mv "${workdir}"/docker-elk "${workdir}"/elk\
+    print_green "docker-elk extracted from local archive"\
+  else\
+    print_yellow "Cloning docker-elk from GitHub..."\
+    git clone --branch main --single-branch --depth 1 https://github.com/deviantony/docker-elk.git "${workdir}"/elk\
+    cd "${workdir}"/elk\
+    git fetch --depth 1 origin "$ELK_GIT_COMMIT"\
+    git checkout "$ELK_GIT_COMMIT"\
+    cd -\
+  fi\
+else\
+  git clone --branch main --single-branch --depth 1 https://github.com/deviantony/docker-elk.git "${workdir}"/elk\
+  cd "${workdir}"/elk\
+  git fetch --depth 1 origin "$ELK_GIT_COMMIT"\
+  git checkout "$ELK_GIT_COMMIT"\
+fi
+' "$ELK_SCRIPT"
+
+    print_green "ELK script patched successfully"
+else
+    print_yellow "ELK script not found"
+fi
+
+################################################################################
 # 7. Patch install-pre-requisites.sh to skip Docker download in air-gapped
 ################################################################################
 print_with_border "Patching Install Prerequisites Script"
