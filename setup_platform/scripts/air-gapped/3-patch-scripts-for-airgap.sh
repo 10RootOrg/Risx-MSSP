@@ -263,6 +263,10 @@ if [ -f /etc/risx-mssp-airgap ]; then\\
   fi\\
 fi\\
 " "$VELOX_SCRIPT"
+
+        # Fix the mv command that can't overwrite directories
+        sed -i 's|sudo mv custom/\* "\$VELOCIRAPTOR_ARTIFACTS_DST_FOLDER"|sudo rsync -a custom/ "$VELOCIRAPTOR_ARTIFACTS_DST_FOLDER/"|g' "$VELOX_SCRIPT"
+
         print_green "Velociraptor script patched successfully"
     else
         print_yellow "Could not find docker compose command in velociraptor.sh"
