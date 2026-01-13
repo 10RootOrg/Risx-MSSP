@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM python:3.10-bookworm AS final
 ENV NODE_VERSION=20
 

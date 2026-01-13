@@ -515,6 +515,31 @@ else
 fi
 
 ################################################################################
+# 7.5. Remove Docker syntax directives from Dockerfiles (require internet)
+################################################################################
+print_with_border "Removing Docker Syntax Directives"
+
+# These directives require pulling docker/dockerfile:1 from internet
+# Safe to remove - just uses default Dockerfile parser
+DOCKERFILES_TO_PATCH=(
+    "$RESOURCES_DIR/risx-mssp/mysql.Dockerfile"
+    "$RESOURCES_DIR/risx-mssp/backend/Dockerfile"
+    "$RESOURCES_DIR/risx-mssp/frontend/Dockerfile"
+)
+
+for dockerfile in "${DOCKERFILES_TO_PATCH[@]}"; do
+    if [ -f "$dockerfile" ]; then
+        if grep -q "^# syntax=docker/dockerfile" "$dockerfile"; then
+            cp "$dockerfile" "${dockerfile}.bak"
+            sed -i '/^# syntax=docker\/dockerfile/d' "$dockerfile"
+            print_green "Removed syntax directive from $(basename $dockerfile)"
+        fi
+    fi
+done
+
+print_green "Docker syntax directives removed for air-gapped compatibility"
+
+################################################################################
 # 8. Patch install-pre-requisites.sh to skip Docker download in air-gapped
 ################################################################################
 print_with_border "Patching Install Prerequisites Script"

@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM mysql:9
 
 RUN --mount=type=secret,id=SHORESH_PASSWD \
