@@ -301,7 +301,9 @@ if [ -d "${REPOS_DIR}/risx-mssp-back" ] && [ -d "${REPOS_DIR}/risx-mssp-python" 
     # Create a temporary build context with necessary files
     BUILD_CONTEXT_DIR=$(mktemp -d)
     cp -r "${REPOS_DIR}/risx-mssp-python" "${BUILD_CONTEXT_DIR}/python-scripts"
+    cp -r "${REPOS_DIR}/risx-mssp-back" "${BUILD_CONTEXT_DIR}/risx-mssp-back"
     cp "${RESOURCES_DIR}/risx-mssp/backend/Dockerfile" "${BUILD_CONTEXT_DIR}/"
+    cp "${RESOURCES_DIR}/risx-mssp/backend/entrypoint.sh" "${BUILD_CONTEXT_DIR}/"
     cp "${RESOURCES_DIR}/risx-mssp/backend/.dockerignore" "${BUILD_CONTEXT_DIR}/" 2>/dev/null || true
 
     cd "${BUILD_CONTEXT_DIR}"
