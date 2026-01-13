@@ -422,6 +422,24 @@ else\
 fi
 ' "$RISX_MSSP_SCRIPT"
 
+    # Patch docker compose command to use pre-built images in air-gapped mode
+    # Replace "docker compose up -d --build" with conditional logic
+    sed -i 's/docker compose up -d --build --force-recreate/# Air-gapped mode: use pre-built images, otherwise build\
+if [ -f \/etc\/risx-mssp-airgap ]; then\
+  source \/etc\/risx-mssp-airgap\
+  if [ "$AIRGAP_MODE" = "true" ]; then\
+    print_yellow "Air-gapped mode: Using pre-built images..."\
+    # Tag pre-built images to match docker-compose.yml expectations\
+    docker tag risx-mssp-backend:airgap risx-mssp-backend 2>\/dev\/null || true\
+    docker tag risx-mssp-frontend:airgap risx-mssp-frontend 2>\/dev\/null || true\
+    docker compose up -d --no-build --force-recreate\
+  else\
+    docker compose up -d --build --force-recreate\
+  fi\
+else\
+  docker compose up -d --build --force-recreate\
+fi/g' "$RISX_MSSP_SCRIPT"
+
     print_green "RISX-MSSP script patched successfully"
 else
     print_yellow "RISX-MSSP script not found"

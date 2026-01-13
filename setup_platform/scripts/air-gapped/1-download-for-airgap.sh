@@ -184,6 +184,50 @@ pull_and_save_image "ubuntu:22.04"          # velociraptor
 pull_and_save_image "mysql:9"               # risx-mssp mysql (must match Dockerfile)
 
 ################################################################################
+# 1.5. Pre-build RISX-MSSP Backend and Frontend Images
+################################################################################
+print_with_border "Pre-building RISX-MSSP Images (requires internet)"
+
+# These images need to be pre-built because their Dockerfiles download packages
+# from the internet during build (Node.js, Docker CLI, npm packages)
+
+RESOURCES_DIR="${SCRIPT_DIR}/../../resources"
+
+# Build backend image (requires internet for Node.js, Docker CLI, npm installs)
+if [ -d "${RESOURCES_DIR}/risx-mssp/backend" ]; then
+    print_green "Building RISX-MSSP backend image..."
+    cd "${RESOURCES_DIR}/risx-mssp/backend"
+    if docker build -t risx-mssp-backend:airgap -f Dockerfile .; then
+        print_green "Saving backend image..."
+        docker save -o "${IMAGES_DIR}/risx-mssp-backend_airgap.tar" risx-mssp-backend:airgap
+        print_green_v2 "risx-mssp-backend:airgap" "Built and saved"
+    else
+        print_red "Failed to build backend image"
+    fi
+    cd - > /dev/null
+else
+    print_yellow "Backend Dockerfile not found, skipping pre-build"
+fi
+
+# Build frontend image (simpler, but pre-build for consistency)
+if [ -d "${RESOURCES_DIR}/risx-mssp/frontend" ]; then
+    print_green "Building RISX-MSSP frontend image..."
+    cd "${RESOURCES_DIR}/risx-mssp/frontend"
+    if docker build -t risx-mssp-frontend:airgap -f Dockerfile .; then
+        print_green "Saving frontend image..."
+        docker save -o "${IMAGES_DIR}/risx-mssp-frontend_airgap.tar" risx-mssp-frontend:airgap
+        print_green_v2 "risx-mssp-frontend:airgap" "Built and saved"
+    else
+        print_red "Failed to build frontend image"
+    fi
+    cd - > /dev/null
+else
+    print_yellow "Frontend Dockerfile not found, skipping pre-build"
+fi
+
+print_green "RISX-MSSP images pre-built for air-gapped deployment"
+
+################################################################################
 # 2. Download Velociraptor Binaries
 ################################################################################
 print_with_border "Downloading Velociraptor Binaries"
