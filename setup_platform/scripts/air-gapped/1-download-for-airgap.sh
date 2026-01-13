@@ -246,10 +246,19 @@ if [ ! -d "${REPOS_DIR}/docker-elk" ]; then
     cd - > /dev/null
 fi
 
+# Download iris-web (used by iris-web.sh deployment)
+print_green "Cloning iris-web repository..."
+IRIS_GIT_COMMIT="${IRIS_GIT_COMMIT:-v2.4.10}"
+if [ ! -d "${REPOS_DIR}/iris-web" ]; then
+    git clone --branch "$IRIS_GIT_COMMIT" --single-branch --depth 1 \
+        "https://github.com/dfir-iris/iris-web.git" \
+        "${REPOS_DIR}/iris-web" || print_red "Failed to clone iris-web"
+fi
+
 # Create archives of the repositories (without .git to save space)
 print_green "Creating repository archives..."
 cd "${REPOS_DIR}"
-for repo in risx-mssp-back risx-mssp-front risx-mssp-python docker-elk; do
+for repo in risx-mssp-back risx-mssp-front risx-mssp-python docker-elk iris-web; do
     if [ -d "$repo" ]; then
         print_green "Archiving $repo..."
         tar -czf "${repo}.tar.gz" --exclude='.git' "$repo"

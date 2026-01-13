@@ -454,7 +454,48 @@ else
 fi
 
 ################################################################################
-# 7. Patch install-pre-requisites.sh to skip Docker download in air-gapped
+# 7. Patch iris-web.sh for air-gapped git clone operations
+################################################################################
+print_with_border "Patching IRIS-Web Deployment Script"
+
+IRIS_SCRIPT="$SCRIPTS_DIR/apps/iris-web.sh"
+if [ -f "$IRIS_SCRIPT" ]; then
+    cp "$IRIS_SCRIPT" "$IRIS_SCRIPT.bak"
+
+    # Patch the git clone section
+    sed -i '/^if \[ -d "${workdir}\/iris-web" \]; then$/,/^  https:\/\/github.com\/dfir-iris\/iris-web.git "${workdir}"\/iris-web$/c\
+if [ -d "${workdir}/iris-web" ]; then\
+  print_red "The directory ${workdir}/iris-web already exists. Please remove it before running the script."\
+  print_red "You can run the following command to remove the directory:"\
+  print_yellow "./cleanup.sh --app iris-web"\
+  exit 1\
+fi\
+\
+# Check for air-gapped mode\
+if [ -f /etc/risx-mssp-airgap ]; then\
+  source /etc/risx-mssp-airgap\
+  if [ "$AIRGAP_MODE" = "true" ] && [ -f "$ARTIFACTS_DIR/risx-mssp-repos/iris-web.tar.gz" ]; then\
+    print_yellow "Air-gapped mode: Extracting iris-web from local archive..."\
+    tar -xzf "$ARTIFACTS_DIR/risx-mssp-repos/iris-web.tar.gz" -C "${workdir}"/\
+    print_green "iris-web extracted from local archive"\
+  else\
+    print_yellow "Cloning iris-web from GitHub..."\
+    git clone --branch "$IRIS_GIT_COMMIT" --single-branch --depth 1 \\\
+      https://github.com/dfir-iris/iris-web.git "${workdir}"/iris-web\
+  fi\
+else\
+  git clone --branch "$IRIS_GIT_COMMIT" --single-branch --depth 1 \\\
+    https://github.com/dfir-iris/iris-web.git "${workdir}"/iris-web\
+fi
+' "$IRIS_SCRIPT"
+
+    print_green "IRIS-Web script patched successfully"
+else
+    print_yellow "IRIS-Web script not found"
+fi
+
+################################################################################
+# 8. Patch install-pre-requisites.sh to skip Docker download in air-gapped
 ################################################################################
 print_with_border "Patching Install Prerequisites Script"
 
