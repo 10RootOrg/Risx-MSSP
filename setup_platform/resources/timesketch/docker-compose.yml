@@ -70,6 +70,8 @@ services:
       - ${TIMESKETCH_CONFIG_PATH}:/etc/timesketch/
       - ${TIMESKETCH_UPLOAD_PATH}:/usr/share/timesketch/upload/
       - ${TIMESKETCH_LOGS_PATH}:/var/log/timesketch/
+      # Fix for plaso winevtx bug (PR #5023) - enables Windows Event Log processing
+      - ./winevt_rc.py:/usr/lib/python3/dist-packages/plaso/output/winevt_rc.py:ro
     networks:
       - main_network
 

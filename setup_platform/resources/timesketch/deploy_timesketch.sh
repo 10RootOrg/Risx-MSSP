@@ -245,6 +245,8 @@ echo "* Setting OpenSearch memory allocation to ${OPENSEARCH_MEM_USE_GB}GB"
 echo -n "* Fetching configuration files.."
 mv docker-compose.yml timesketch/docker-compose.yml
 mv config.env timesketch/config.env
+# Copy winevt_rc.py fix for plaso bug (PR #5023) - enables Windows Event Log processing
+cp winevt_rc.py timesketch/winevt_rc.py
 
 
 
