@@ -233,7 +233,9 @@ SECRET_KEY="$(
 )"
 OPENSEARCH_ADDRESS="opensearch"
 OPENSEARCH_PORT=9200
-OPENSEARCH_MEM_USE_GB=$(cat /proc/meminfo | grep MemTotal | awk '{printf "%.0f", ($2 / (1024 * 1024) / 2)}')
+# Calculate OpenSearch memory (RAM/2), but cap at 4GB to prevent OOM on shared systems
+OPENSEARCH_MEM_CALC=$(cat /proc/meminfo | grep MemTotal | awk '{printf "%.0f", ($2 / (1024 * 1024) / 2)}')
+OPENSEARCH_MEM_USE_GB=$((OPENSEARCH_MEM_CALC > 4 ? 4 : OPENSEARCH_MEM_CALC))
 REDIS_ADDRESS="redis"
 REDIS_PORT=6379
 # GITHUB_COMMIT="20240828"
