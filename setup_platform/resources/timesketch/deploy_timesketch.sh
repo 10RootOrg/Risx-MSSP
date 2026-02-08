@@ -247,6 +247,7 @@ echo "* Setting OpenSearch memory allocation to ${OPENSEARCH_MEM_USE_GB}GB"
 echo -n "* Fetching configuration files.."
 mv docker-compose.yml timesketch/docker-compose.yml
 mv config.env timesketch/config.env
+
 # Copy winevt_rc.py fix for plaso bug (PR #5023) - enables Windows Event Log processing
 cp winevt_rc.py timesketch/winevt_rc.py
 
@@ -324,6 +325,12 @@ sudo cp -r dfiq/dfiq/data/* timesketch/etc/timesketch/dfiq/
 # Set up the Postgres connection
 sed -i 's#postgresql://<USERNAME>:<PASSWORD>@localhost#postgresql://'$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_ADDRESS':'$POSTGRES_PORT'#' timesketch/etc/timesketch/timesketch.conf
 
+# Increase OpenSearch timeouts for large plaso files (default 10s is too low)
+sed -i 's/OPENSEARCH_TIMEOUT = 10/OPENSEARCH_TIMEOUT = 300/' timesketch/etc/timesketch/timesketch.conf
+sed -i 's/OPENSEARCH_FLUSH_INTERVAL = 5000/OPENSEARCH_FLUSH_INTERVAL = 10000/' timesketch/etc/timesketch/timesketch.conf
+sed -i 's/OPENSEARCH_INDEX_WAIT_TIMEOUT = 10/OPENSEARCH_INDEX_WAIT_TIMEOUT = 300/' timesketch/etc/timesketch/timesketch.conf
+sed -i 's/TIMEOUT_FOR_EVENT_IMPORT = 180/TIMEOUT_FOR_EVENT_IMPORT = 600/' timesketch/etc/timesketch/timesketch.conf
+
 sed -i 's#^POSTGRES_PASSWORD=#POSTGRES_PASSWORD='$POSTGRES_PASSWORD'#' timesketch/config.env
 sed -i 's#^OPENSEARCH_MEM_USE_GB=#OPENSEARCH_MEM_USE_GB='$OPENSEARCH_MEM_USE_GB'#' timesketch/config.env
 
@@ -377,7 +384,28 @@ if [ "$CREATE_USER" != "${CREATE_USER#[Yy]}" ]; then
       echo
     )"
   fi
-  sleep 10
+
+  # Wait for Postgres to be ready (up to 60 seconds)
+  echo "Waiting for Postgres to be ready..."
+  MAX_RETRIES=12
+  RETRY_COUNT=0
+  while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    if docker compose exec timesketch-postgres pg_isready -U timesketch > /dev/null 2>&1; then
+      echo "Postgres is ready!"
+      break
+    fi
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo "Waiting for Postgres... ($RETRY_COUNT/$MAX_RETRIES)"
+    sleep 5
+  done
+
+  if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+    echo "WARNING: Postgres may not be fully ready, but continuing anyway..."
+  fi
+
+  # Additional wait for timesketch-web to initialize
+  sleep 5
+
   docker compose exec timesketch-web tsctl create-user "$NEWUSERNAME" --password "${NEWUSERNAME_PASSWORD}" \
   && echo "New user has been created"
   docker compose exec timesketch-web tsctl make-admin "$NEWUSERNAME"
